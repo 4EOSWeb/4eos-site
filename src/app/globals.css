@@ -57,7 +57,7 @@
   /* Height of the fixed nav. Tracks the CSS viewport, so a laptop whose
      Windows scaling reports a shorter page still gets a bar that fits. */
   --nav-h: clamp(4.75rem, 9.2vh, 6rem);
-  --logo-h: calc(var(--nav-h) * 0.78);
+  --logo-h: calc(var(--nav-h) * 0.64);
   --chapter-top: calc(var(--nav-h) + clamp(0.75rem, 6vh, 4.5rem));
   --hero-top: calc(var(--nav-h) + clamp(1rem, 8vh, 6rem));
   --chapter-bottom: clamp(4.25rem, 10vh, 7rem);
@@ -227,10 +227,9 @@ body {
   }
 }
 
-/* The top bar. Frosted ink, not a white slab, so it sits on the field
-   the way the sheets do. */
+/* The top bar. A light frost so the field stays visible through it. */
 .site-bar {
-  background-color: rgba(8, 12, 18, 0.94);
+  background-color: rgba(5, 7, 10, 0.72);
   border-bottom: 1px solid var(--color-hairline);
   color: var(--color-fg);
 }
@@ -243,9 +242,9 @@ body {
 
 @supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
   .site-bar {
-    background-color: rgba(8, 12, 18, 0.9);
-    -webkit-backdrop-filter: blur(22px) saturate(1.15);
-    backdrop-filter: blur(22px) saturate(1.15);
+    background-color: rgba(5, 7, 10, 0.38);
+    -webkit-backdrop-filter: blur(22px) saturate(1.25);
+    backdrop-filter: blur(22px) saturate(1.25);
   }
 
   .site-bar-bone {

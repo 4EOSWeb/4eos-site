@@ -43,6 +43,14 @@ export default function SupportPage() {
             <p className="lede mt-8">
               Down completely? Call, do not email. Outages get priority.
             </p>
+            <a
+              href="https://4eos.screenconnect.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bar-btn bar-btn-line mt-8 inline-flex"
+            >
+              Remote support
+            </a>
             <ul className="mt-12">
               {channels.map((c) => (
                 <li key={c.label} className="border-t border-hairline py-5 last:border-b">

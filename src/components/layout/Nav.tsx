@@ -156,7 +156,7 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
             </Link>
             <Link
               href="/contact"
-              className="bar-btn bar-btn-fill hidden min-[900px]:inline-flex"
+              className="bar-btn bar-btn-line hidden min-[900px]:inline-flex"
             >
               Free IT Assessment
             </Link>

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/brand/Logo";
 import { addressLine, nav, site, utilityNav } from "@/lib/site";
+import { setMenuOpen } from "@/lib/menu";
 import { lockScroll, unlockScroll } from "@/lib/scroll";
 
 /**
@@ -18,7 +19,10 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
   const panel = useRef<HTMLDivElement>(null);
   const toggle = useRef<HTMLButtonElement>(null);
 
-  const close = useCallback(() => setOpen(false), []);
+  const close = useCallback(() => {
+    setOpen(false);
+    setMenuOpen(false);
+  }, []);
 
   useEffect(() => {
     close();
@@ -82,7 +86,13 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
         <button
           ref={toggle}
           type="button"
-          onClick={() => setOpen((v) => !v)}
+          onClick={() =>
+            setOpen((v) => {
+              const next = !v;
+              setMenuOpen(next);
+              return next;
+            })
+          }
           aria-expanded={open}
           aria-controls="site-menu"
           className="micro relative py-2 transition-opacity hover:opacity-70"

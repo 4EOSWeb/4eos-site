@@ -32,7 +32,7 @@ export function Page({
       <SignalBackdrop phase={phase} />
       <Nav tone={tone} />
       <PageFade>
-        <main id="main" tabIndex={-1} className="relative z-10 pt-[var(--nav-h)] outline-none">
+        <main id="main" tabIndex={-1} className="relative z-10 pt-[var(--nav-h)] pb-24 outline-none">
           {children}
         </main>
       </PageFade>

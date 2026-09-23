@@ -4,12 +4,12 @@ import Link from "next/link";
 import { SignalBackdrop } from "@/components/signal/SignalBackdrop";
 import { SignalChapter } from "@/components/signal/SignalChapter";
 import { setFocus, setPhase } from "@/components/signal/store";
-import { ChapterRail } from "@/components/layout/ChapterRail";
 import { Footer } from "@/components/layout/Footer";
 import { Nav } from "@/components/layout/Nav";
 import { PageFade } from "@/components/layout/PageFade";
 import { Breath } from "@/components/layout/Sheet";
 import { GoldReveal } from "@/components/motion/GoldReveal";
+import { SnapTarget } from "@/components/motion/SnapTarget";
 import { Accordion } from "@/components/ui/Accordion";
 import { PhaseLink } from "@/components/ui/PhaseLink";
 import { industries, services, tiers } from "@/lib/content";
@@ -20,9 +20,8 @@ export function HomeView() {
     <>
       <SignalBackdrop phase="unmanaged" />
       <Nav />
-      <ChapterRail />
       <PageFade>
-        <main id="main" tabIndex={-1} className="relative z-10 outline-none">
+        <main id="main" tabIndex={-1} className="relative z-10 pb-24 outline-none">
           <Hero />
           <Discovery />
           <Ownership />
@@ -32,7 +31,9 @@ export function HomeView() {
           <Strategy />
         </main>
       </PageFade>
-      <Footer />
+      <SnapTarget>
+        <Footer />
+      </SnapTarget>
     </>
   );
 }
@@ -65,7 +66,7 @@ function Hero() {
 function Discovery() {
   return (
     <>
-      <Breath size="md" />
+      <Breath size="sm" />
       <SignalChapter phase="discovery" id="chapter-discovery">
         <section className="px-[var(--sheet-inset)] py-10 md:py-14">
           <GoldReveal
@@ -87,7 +88,7 @@ function Discovery() {
 function Ownership() {
   return (
     <>
-      <Breath size="md" />
+      <Breath size="sm" />
       <SignalChapter phase="ownership" id="chapter-ownership">
         <section className="px-[var(--sheet-inset)] py-10 md:py-14">
           <h2 className="display chapter-display max-w-[16ch]">
@@ -128,7 +129,7 @@ function Ownership() {
 function Security() {
   return (
     <>
-      <Breath size="md" />
+      <Breath size="sm" />
       <SignalChapter phase="security" id="chapter-security">
         <section className="px-[var(--sheet-inset)] py-10 md:py-14">
           <GoldReveal
@@ -164,7 +165,7 @@ function Security() {
 function Industries() {
   return (
     <>
-      <Breath size="md" />
+      <Breath size="sm" />
       <SignalChapter phase="industries" id="chapter-industries">
         <section className="px-[var(--sheet-inset)] py-10 md:py-14">
           <p className="lede max-w-[44ch]">
@@ -199,7 +200,7 @@ function Industries() {
 function Response() {
   return (
     <>
-      <Breath size="md" />
+      <Breath size="sm" />
       <SignalChapter phase="response" id="chapter-response">
         <section className="px-[var(--sheet-inset)] py-10 md:py-14">
           <GoldReveal
@@ -230,7 +231,7 @@ function Response() {
 function Strategy() {
   return (
     <>
-      <Breath size="md" />
+      <Breath size="sm" />
       <SignalChapter phase="strategy" id="chapter-strategy">
       <section className="px-[var(--sheet-inset)] pb-12">
         <h2 className="display chapter-display max-w-[16ch]">

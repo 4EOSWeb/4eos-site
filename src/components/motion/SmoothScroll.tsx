@@ -7,7 +7,17 @@ import Snap from "lenis/snap";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { prefersReducedMotion } from "@/lib/env";
 import { scroll } from "@/lib/scroll";
-import { attachSnap, detachSnap, snapToEl } from "@/lib/snap";
+import {
+  attachSnap,
+  detachSnap,
+  snapNext,
+  snapPrev,
+  snapTargetCount,
+  snapToEl,
+} from "@/lib/snap";
+
+/** Long enough to cover one trackpad flick, short enough for a second notch. */
+const STEP_COOLDOWN_MS = 640;
 
 function scrollToHash() {
   const id = window.location.hash.slice(1);
@@ -25,8 +35,8 @@ function scrollToHash() {
 
 /**
  * Drives Lenis from the GSAP ticker so smooth scroll and ScrollTrigger share
- * one clock. Snap is proximity, not mandatory: a section magnetises into
- * centre when the user eases off, and yields if they keep scrolling.
+ * one clock. On the homepage story, one wheel notch or swipe advances exactly
+ * one chapter. Other pages keep ordinary smooth scroll.
  */
 export function SmoothScroll() {
   const pathname = usePathname();
@@ -34,11 +44,28 @@ export function SmoothScroll() {
   useEffect(() => {
     if (prefersReducedMotion()) return;
 
-    const lenis = new Lenis({
+    let cooledUntil = 0;
+    let lenis: Lenis;
+
+    lenis = new Lenis({
       lerp: 0.1,
       wheelMultiplier: 1,
       touchMultiplier: 1.6,
       smoothWheel: true,
+      virtualScroll(data) {
+        if (lenis.isStopped) return true;
+        // Inner pages have no chapter list. Leave their scroll alone.
+        if (snapTargetCount() < 2) return true;
+        const { deltaX, deltaY } = data;
+        if (Math.abs(deltaY) < 6 || Math.abs(deltaX) > Math.abs(deltaY)) return true;
+        const now = performance.now();
+        if (data.event.cancelable) data.event.preventDefault();
+        if (now < cooledUntil) return false;
+        cooledUntil = now + STEP_COOLDOWN_MS;
+        if (deltaY > 0) snapNext();
+        else snapPrev();
+        return false;
+      },
     });
 
     const snap = new Snap(lenis, {
@@ -51,7 +78,13 @@ export function SmoothScroll() {
 
     lenis.on("scroll", ScrollTrigger.update);
     scroll.lenis = lenis;
-    attachSnap(snap);
+    attachSnap(snap, (value) => {
+      lenis.scrollTo(value, {
+        duration: 0.42,
+        easing: (t) => 1 - Math.pow(1 - t, 3),
+        lock: true,
+      });
+    });
 
     const tick = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(tick);

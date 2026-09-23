@@ -1,0 +1,333 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   4EOS — The Operational Signal
+   Token layer. Gold is the only accent and is reserved for semantic
+   emphasis: never use it for decoration, borders, or backgrounds.
+------------------------------------------------------------------- */
+
+@theme {
+  /* Surfaces */
+  --color-ink: #05070a;
+  --color-navy: #0a1f33;
+  --color-navy-deep: #093f5d;
+  --color-bone: #e8e4d8;
+
+  /* Accent — semantic emphasis only */
+  --color-gold: #f5b700;
+
+  /* Ink-side text */
+  --color-fg: #e8e4d8;
+  --color-fg-muted: rgba(232, 228, 216, 0.62);
+  --color-fg-faint: rgba(232, 228, 216, 0.55);
+
+  /* Bone-side text (the /contact inversion) */
+  --color-bone-fg: #05070a;
+  --color-bone-muted: rgba(5, 7, 10, 0.58);
+  --color-bone-faint: rgba(5, 7, 10, 0.34);
+
+  /* Hairlines */
+  --color-hairline: rgba(255, 255, 255, 0.1);
+  --color-hairline-strong: rgba(255, 255, 255, 0.18);
+  --color-hairline-bone: rgba(5, 7, 10, 0.14);
+
+  /* Type */
+  --font-display: var(--font-archivo), "Arial Narrow", sans-serif;
+  --font-body: var(--font-instrument), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* The sheet system */
+  --radius-sheet: 32px;
+
+  /* Motion */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+@theme inline {
+  --color-background: var(--color-ink);
+  --color-foreground: var(--color-fg);
+}
+
+:root {
+  /* Constant inset that keeps the Signal visible in the gutters */
+  --sheet-inset: clamp(16px, 3.2vw, 48px);
+  /* Horizontal padding inside a sheet */
+  --sheet-pad: clamp(20px, 5vw, 96px);
+  /* Height of the fixed nav */
+  --nav-h: 72px;
+}
+
+/* ------------------------------------------------------------------
+   Base
+------------------------------------------------------------------- */
+
+html {
+  background-color: var(--color-ink);
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Lenis owns the scroll position; without this the native smooth
+   behaviour fights it and anchor jumps stutter. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+body {
+  background-color: var(--color-ink);
+  color: var(--color-fg);
+  font-family: var(--font-body);
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--color-gold);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ------------------------------------------------------------------
+   Display type — line-height 1.0, -3% tracking
+------------------------------------------------------------------- */
+
+.display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-stretch: 82%;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+/* The airier setting — used where a chapter needs room to breathe */
+.display-wide {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-stretch: 100%;
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+  text-transform: none;
+  text-wrap: balance;
+}
+
+.micro {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-stretch: 100%;
+  font-size: 0.7rem;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.lede {
+  font-size: clamp(15px, 1.15vw, 18px);
+  line-height: 1.55;
+  letter-spacing: -0.011em;
+  color: var(--color-fg-muted);
+  text-wrap: pretty;
+}
+
+.body-sm {
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: -0.008em;
+  color: var(--color-fg-muted);
+  text-wrap: pretty;
+}
+
+/* Semantic emphasis inside a heading */
+.mark {
+  color: var(--color-gold);
+}
+
+/* Chapter and inner-page display — sized to leave the field visible */
+.chapter-display {
+  font-size: clamp(1.7rem, 3.6vw, 3rem);
+}
+
+.page-display {
+  font-size: clamp(1.7rem, 3.6vw, 3rem);
+}
+
+.sheet-y {
+  padding-block: 2.5rem;
+}
+
+@media (min-width: 768px) {
+  .sheet-y {
+    padding-block: 3.5rem;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Sheets — the only elements allowed a radius
+------------------------------------------------------------------- */
+
+.sheet {
+  position: relative;
+  margin-inline: var(--sheet-inset);
+  border-radius: var(--radius-sheet);
+  overflow: hidden;
+}
+
+/* Navy and ink sheets are frosted glass. Bone stays more opaque so the
+   intake fields keep their contrast. */
+.sheet-glass {
+  background-color: rgba(10, 31, 51, 0.78);
+}
+
+.sheet-ink-glass {
+  background-color: rgba(5, 7, 10, 0.62);
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .sheet-glass {
+    background-color: rgba(10, 31, 51, 0.58);
+    -webkit-backdrop-filter: blur(20px) saturate(1.15);
+    backdrop-filter: blur(20px) saturate(1.15);
+  }
+
+  .sheet-ink-glass {
+    background-color: rgba(5, 7, 10, 0.42);
+    -webkit-backdrop-filter: blur(14px) saturate(1.08);
+    backdrop-filter: blur(14px) saturate(1.08);
+  }
+}
+
+.menu-glass {
+  background-color: rgba(5, 7, 10, 0.82);
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .menu-glass {
+    background-color: rgba(5, 7, 10, 0.62);
+    -webkit-backdrop-filter: blur(22px) saturate(1.2);
+    backdrop-filter: blur(22px) saturate(1.2);
+  }
+}
+
+.sheet-pad {
+  padding-inline: var(--sheet-pad);
+}
+
+/* Vertical column rules drawn at the content edges */
+.ruled {
+  position: relative;
+}
+
+.ruled::before,
+.ruled::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-hairline);
+  pointer-events: none;
+}
+
+.ruled::before {
+  left: var(--sheet-pad);
+}
+
+.ruled::after {
+  right: var(--sheet-pad);
+}
+
+.sheet-bone {
+  box-shadow: inset 0 0 0 1px var(--color-hairline-bone);
+}
+
+.sheet-bone.ruled::before,
+.sheet-bone.ruled::after {
+  background: var(--color-hairline-bone);
+}
+
+/* Hide native scrollbars without hiding the content — Lenis is in charge. */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+html,
+body {
+  scrollbar-width: none;
+}
+
+/* ------------------------------------------------------------------
+   Signal
+------------------------------------------------------------------- */
+
+/* The still poster ships in the server HTML so the art direction exists
+   before any JavaScript. Capable clients fade the live field in over it. */
+.signal-poster {
+  opacity: 1;
+  transition: opacity 700ms var(--ease-out-quint);
+}
+
+html.signal-live .signal-poster {
+  opacity: 0;
+}
+
+/* Incoming sheet column only. The Signal lives in the layout and must
+   not be part of the fade, or the field would flash on every route. */
+.page-fade {
+  animation: page-in 260ms var(--ease-out-quint);
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Ascension-style still grain. Never animated; reduced-motion keeps it. */
+.film-grain {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='256' height='256'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-repeat: repeat;
+  background-size: 180px 180px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .signal-poster {
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Reduced motion
+------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

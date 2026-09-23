@@ -29,7 +29,7 @@ type PosterProps = {
 
 export function SignalPoster({
   phase,
-  points = 320,
+  points = phase === "industries" ? 1400 : 320,
   className = "",
 }: PosterProps) {
   const index = PHASE_INDEX[phase];

@@ -67,7 +67,7 @@ export function SignalPoster({
     if (!showScene && phase === "ownership") {
       const tier = Math.floor(s.rand * 3);
       const devicePick = s.rand * 19.1;
-      const device = tier === 0 && devicePick - Math.floor(devicePick) <= 0.1;
+      const device = tier === 0 && devicePick - Math.floor(devicePick) <= 0.2;
       o = device ? 0.92 : tier === 0 ? Math.min(1, o * 1.2) : o * 0.28;
     }
     if (!showScene && phase === "response" && s.rand < 0.07) {

@@ -140,52 +140,128 @@ vec3 glyph(float k, vec3 seed, float extra) {
   return p;
 }
 
-// Devices that drop into the lit ownership ring. Twin of ownershipDevice()
-// in formations.ts. One return, so ANGLE keeps the result initialised.
-vec3 boxShell(vec3 center, vec3 size, vec3 seed) {
-  float face = min(floor(seed.x * 6.0), 5.0);
-  float u = seed.y - 0.5;
-  float v = seed.z - 0.5;
-  vec3 p = vec3(u * size.x, v * size.y, -size.z * 0.5);
-  if (face < 0.5) p = vec3(size.x * 0.5, u * size.y, v * size.z);
-  else if (face < 1.5) p = vec3(-size.x * 0.5, u * size.y, v * size.z);
-  else if (face < 2.5) p = vec3(u * size.x, size.y * 0.5, v * size.z);
-  else if (face < 3.5) p = vec3(u * size.x, -size.y * 0.5, v * size.z);
-  else if (face < 4.5) p = vec3(u * size.x, v * size.y, size.z * 0.5);
-  float spin = 0.55;
-  float c = cos(spin);
-  float s = sin(spin);
-  return vec3(center.x + p.x * c + p.z * s, center.y + p.y, -p.x * s + p.z * c);
+// Rectangle outline in the XY plane. Twin of rectFrame() in formations.ts.
+vec3 rectFrame(float along, float inset, float x0, float y0, float x1, float y1, float z, float thick) {
+  float w = max(x1 - x0, 0.001);
+  float h = max(y1 - y0, 0.001);
+  float edge = min(floor(along * 4.0), 3.0);
+  float t = fract(along * 4.0);
+  float m = inset * thick;
+  float spanW = w - 2.0 * m;
+  float spanH = h - 2.0 * m;
+  vec3 p = vec3(x0 + m + t * spanW, y0 + m, z);
+  if (edge > 0.5 && edge < 1.5) p = vec3(x1 - m, y0 + m + t * spanH, z);
+  else if (edge >= 1.5 && edge < 2.5) p = vec3(x1 - m - t * spanW, y1 - m, z);
+  else if (edge >= 2.5) p = vec3(x0 + m, y1 - m - t * spanH, z);
+  return p;
+}
+
+// Desktop, server, or workstation in local space. Twin of deviceLocal().
+// One return, so ANGLE keeps the result initialised.
+vec3 deviceLocal(float kind, vec3 seed) {
+  float part = fract(seed.x * 4.17);
+  float u = seed.y;
+  float v = seed.z;
+  float ang = u * TAU;
+  vec3 deck = rectFrame(u, v, -0.95, 0.02, 0.12, 0.58, 0.0, 0.04);
+  vec3 p = vec3(deck.x, -0.42, deck.y);
+  if (kind < 0.5) {
+    p = tube(vec3(-0.72, -0.52, 0.0), vec3(0.72, -0.52, 0.0), u, ang, 0.07);
+    if (part < 0.46) p = rectFrame(u, v, -0.98, 0.02, 0.98, 1.42, 0.0, 0.1);
+    else if (part < 0.64) p = rectFrame(u, v, -0.72, 0.24, 0.72, 1.2, 0.02, 0.045);
+    else if (part < 0.8) p = tube(vec3(0.0, 0.02, 0.0), vec3(0.0, -0.46, 0.0), u, ang, 0.07);
+  } else if (kind < 1.5) {
+    p = vec3((u - 0.5) * 1.04, 1.28, (v - 0.5) * 0.4);
+    if (part < 0.3) p = rectFrame(u, v, -0.52, -1.28, 0.52, 1.28, 0.24, 0.08);
+    else if (part < 0.48) {
+      float corner = min(floor(u * 4.0), 3.0);
+      float sx = corner < 2.0 ? -0.52 : 0.52;
+      float sz = mod(corner, 2.0) < 0.5 ? -0.22 : 0.24;
+      p = vec3(sx, -1.28 + v * 2.56, sz);
+    } else if (part < 0.9) {
+      float bay = min(floor(u * 6.0), 5.0);
+      p = vec3((v - 0.5) * 0.78, -0.98 + bay * 0.38, 0.3);
+    }
+  } else {
+    if (part < 0.28) p = rectFrame(u, v, -1.22, 0.18, -0.02, 1.38, 0.0, 0.08);
+    else if (part < 0.38) p = tube(vec3(-0.62, 0.18, 0.0), vec3(-0.62, -0.28, 0.0), u, ang, 0.055);
+    else if (part < 0.48) p = tube(vec3(-1.05, -0.36, 0.0), vec3(-0.18, -0.36, 0.0), u, ang, 0.05);
+    else if (part < 0.64) p = rectFrame(u, v, 0.22, -0.62, 0.92, 1.32, 0.12, 0.065);
+    else if (part < 0.8) {
+      float bay = min(floor(u * 4.0), 3.0);
+      p = vec3(0.3 + v * 0.52, -0.32 + bay * 0.38, 0.18);
+    }
+  }
+  return p;
+}
+
+vec3 hardwareLocal(float which, vec3 seed) {
+  float part = fract(seed.x * 4.17);
+  float u = seed.y;
+  float v = seed.z;
+  float ang = u * TAU;
+  vec3 p = tube(vec3(-0.85, -0.8, 0.0), vec3(0.85, -0.8, 0.0), u, ang, 0.07);
+  if (which < 0.5) {
+    p = tube(vec3(-1.45, -0.98, -0.14), vec3(1.45, -0.98, -0.14), u, ang, 0.06);
+    if (part < 0.32) {
+      vec3 deck = rectFrame(u, v, -1.55, -0.1, 1.55, 1.55, 0.0, 0.09);
+      p = vec3(deck.x, -1.05, deck.y);
+    } else if (part < 0.48) {
+      float col = min(floor(u * 8.0), 7.0);
+      float row = min(floor(v * 4.0), 3.0);
+      p = vec3(-1.22 + col * 0.34, -0.96, 0.08 + row * 0.32);
+    } else if (part < 0.92) {
+      vec3 frame = rectFrame(u, v, -1.45, 0.02, 1.45, 2.35, 0.0, 0.1);
+      float sy = frame.y;
+      p = vec3(frame.x, -0.98 + sy * 1.08, -0.12 - sy * 0.28);
+    }
+  } else if (which < 1.5) {
+    p = vec3((u - 0.5) * 1.24, 1.9, (v - 0.5) * 0.56);
+    if (part < 0.28) p = rectFrame(u, v, -0.62, -1.85, 0.62, 1.9, 0.34, 0.08);
+    else if (part < 0.46) {
+      float corner = min(floor(u * 4.0), 3.0);
+      float sx = corner < 2.0 ? -0.62 : 0.62;
+      float sz = mod(corner, 2.0) < 0.5 ? -0.32 : 0.34;
+      p = vec3(sx, -1.85 + v * 3.75, sz);
+    } else if (part < 0.9) {
+      float bay = min(floor(u * 7.0), 6.0);
+      p = vec3((v - 0.5) * 0.96, -1.48 + bay * 0.46, 0.4);
+    }
+  } else {
+    if (part < 0.6) p = rectFrame(u, v, -1.6, 0.05, 1.6, 2.15, 0.0, 0.1);
+    else if (part < 0.78) p = tube(vec3(0.0, 0.05, 0.0), vec3(0.0, -0.72, 0.0), u, ang, 0.075);
+  }
+  return p;
 }
 
 vec3 ownershipDevice(float tier) {
   vec3 seed = position;
   float f = fract(aRand * 13.7);
-  float slot = 0.0;
+  float count = 3.0;
+  float slot = min(floor(f * 3.0), 2.0);
   float kind = 0.0;
-  float x = 0.0;
-  float y = -4.7;
-  vec3 size = vec3(0.78, 0.58, 0.20);
-  if (tier < 0.5) {
-    slot = min(floor(f * 3.0), 2.0);
-    kind = 0.0;
-    x = (slot - 1.0) * 1.15;
-    y = -1.55;
-  } else if (tier < 1.5) {
+  if (tier >= 0.5 && tier < 1.5) {
+    count = 5.0;
     slot = min(floor(f * 5.0), 4.0);
     kind = 1.0 - step(0.5, slot);
-    x = (slot - 2.0) * 1.05;
-    y = -3.15;
-    if (kind > 0.5) size = vec3(0.54, 1.53, 0.54);
-  } else {
+  } else if (tier >= 1.5) {
+    count = 7.0;
     slot = min(floor(f * 7.0), 6.0);
     kind = slot < 2.5 ? 1.0 : 2.0;
-    x = (slot - 3.0) * 1.2;
-    y = -4.7;
-    if (kind > 1.5) size = vec3(1.05, 0.71, 0.20);
-    else size = vec3(0.54, 1.53, 0.54);
   }
-  return boxShell(vec3(x, y, 0.0), size, seed);
+  float ring = 2.2 + tier * 1.75;
+  float a = slot / count * TAU + tier * 0.55;
+  float inset = 0.5 + fract(slot * 0.37 + tier * 0.2) * 0.34;
+  float cx = cos(a) * ring * 1.8 * inset;
+  float cy = sin(a) * ring * inset;
+  vec3 local = deviceLocal(kind, seed);
+  float scale = 1.05 + tier * 0.14;
+  float yaw = 0.16 + mod(slot, 3.0) * 0.13;
+  float c = cos(yaw);
+  float s = sin(yaw);
+  float x = local.x * scale;
+  float z = local.z * scale;
+  return vec3(cx + x * c + z * s, cy + local.y * scale, -x * s + z * c);
 }
 
 // Strategy-row pictures. Not chapter phases. Twin of serviceFormation().
@@ -211,15 +287,35 @@ vec3 serviceAt(int s, float t) {
       layer * 1.5
     );
   } else if (s == 3) {
-    if (aGold > 0.82) {
-      float a = -0.5 + aUV.x * 4.1;
-      float r = 4.5;
-      p = vec3(cos(a) * r, sin(a) * r * 0.55 + 0.35, (seed.z - 0.5) * 0.15);
-    } else {
-      float side = seed.x < 0.5 ? -1.0 : 1.0;
+    if (aRand < 0.22) {
+      float part = fract(seed.x * 5.1);
       float ang = aUV.y * TAU;
-      float rr = sqrt(seed.y) * 1.45;
-      p = vec3(side * 4.15 + cos(ang) * rr, sin(ang) * rr * 0.85, (seed.z - 0.5) * 0.6);
+      vec3 local = vec3((aUV.x - 0.5) * 2.6, -2.7 + (aUV.y - 0.5) * 0.28, (seed.z - 0.5) * 0.35);
+      if (part < 0.26) {
+        float rr = 0.42 + aUV.x * 0.32;
+        local = vec3(cos(ang) * rr * 1.25, 1.95 + sin(ang) * rr * 0.78, (seed.z - 0.5) * 0.3);
+      } else if (part < 0.52) {
+        float rr = 0.36 + aUV.x * 0.28;
+        local = vec3(cos(ang) * rr * 1.1, -1.95 + sin(ang) * rr * 0.72, (seed.z - 0.5) * 0.3);
+      } else if (part < 0.78) {
+        vec3 grip = tube(vec3(0.0, 1.42, 0.0), vec3(0.0, -1.42, 0.0), aUV.x, ang, 0.16);
+        local = vec3(grip.x + sin(grip.y * 0.7) * 0.08, grip.y, grip.z);
+      }
+      local.y += 0.16 + sin(t * 1.1) * 0.14;
+      float spin = sin(t * 0.7) * 0.2;
+      float c = cos(spin);
+      float sn = sin(spin);
+      p = vec3(local.x * c + local.z * sn, local.y, -local.x * sn + local.z * c);
+    } else if (aRand > 0.5) {
+      p = vec3(0.0, -40.0, 0.0);
+    } else {
+      float travel = fract(t * 0.32 + seed.y * 0.65);
+      if (travel > 0.9) p = vec3(0.0, -40.0, 0.0);
+      else {
+        float rad = 1.6 + travel * 6.4 + (aUV.y - 0.5) * 0.38;
+        float a = aUV.x * TAU;
+        p = vec3(cos(a) * rad, sin(a) * rad * 0.72, (seed.z - 0.5) * 0.22);
+      }
     }
   } else if (s == 4) {
     float rack = min(floor(aRand * 5.0), 4.0);
@@ -227,20 +323,16 @@ vec3 serviceAt(int s, float t) {
     p = vec3(x + (seed.x - 0.5) * 0.42, (aUV.y - 0.5) * 6.6, (seed.z - 0.5) * 0.65);
   } else {
     float which = min(floor(aRand * 3.0), 2.0);
-    float x = (which - 1.0) * 3.3;
-    if (fract(aRand * 19.1) > 0.2) {
-      p = vec3(x, -40.0, 0.0);
-    } else {
-      vec3 size = vec3(0.55, 1.35, 0.70);
-      vec3 center = vec3(x, 0.0, 0.0);
-      if (which < 0.5) {
-        size = vec3(1.70, 0.16, 1.05);
-        center = vec3(x, -0.85, 0.0);
-      } else if (which > 1.5) {
-        size = vec3(1.35, 0.95, 0.14);
-        center = vec3(x, 0.15, 0.0);
-      }
-      p = boxShell(center, size, seed);
+    float x = (which - 1.0) * 5.2;
+    if (fract(aRand * 19.1) > 0.36) p = vec3(x, -40.0, 0.0);
+    else {
+      vec3 local = hardwareLocal(which, seed);
+      float yaw = 0.62;
+      if (which > 0.5 && which < 1.5) yaw = 0.42;
+      else if (which > 1.5) yaw = -0.2;
+      float c = cos(yaw);
+      float sn = sin(yaw);
+      p = vec3(x + local.x * c + local.z * sn, local.y, -local.x * sn + local.z * c);
     }
   }
   return p;
@@ -306,7 +398,7 @@ vec3 formation(int s, float t) {
     float extra = fract(aRand * 6.0);
     vec3 local = seed.z < 0.34 ? glyph(k, seed, extra) * 0.22 : halo(seed);
     local = yaw(local, t * 0.35 * uZoom * match);
-    return vec3(cos(a) * 3.4 + 8.0 + local.x, sin(a) * 3.4 + 0.2 + local.y, local.z);
+    return vec3(cos(a) * 3.4 + 4.2 + local.x, sin(a) * 3.4 + 0.2 + local.y, local.z);
   }
   if (s == 5) {
     // Response: a calm disc, a tight inbox, and a few issues that leave
@@ -358,9 +450,9 @@ float serviceDensity(int s) {
   if (s <= 0) return 0.50;
   if (s == 1) return 0.28;
   if (s == 2) return 0.62;
-  if (s == 3) return 0.40;
+  if (s == 3) return 0.58;
   if (s == 4) return 0.34;
-  return 0.36;
+  return 0.52;
 }
 
 void main() {
@@ -375,7 +467,7 @@ void main() {
   // the ring and ease down. The other two rings stay plain circles.
   float device = 0.0;
   float nearOwn = 1.0 - clamp(abs(ph - 2.0), 0.0, 1.0);
-  if (nearOwn > 0.0 && uFocus >= 0.0 && fract(aRand * 19.1) <= 0.1) {
+  if (nearOwn > 0.0 && uFocus >= 0.0 && fract(aRand * 19.1) <= 0.2) {
     float tier = floor(aRand * 3.0);
     float match = 1.0 - step(0.5, abs(tier - uFocus));
     if (match > 0.5) {
@@ -402,6 +494,9 @@ void main() {
   float dens = mix(density(a), density(b), m);
   dens = mix(dens, serviceDensity(int(clamp(uScene, 0.0, 5.0))), uSceneMix);
   vAlpha = 0.62 * dens * uIntensity;
+  float voiced = step(2.5, uScene) * (1.0 - step(3.5, uScene));
+  float gear = step(4.5, uScene);
+  vAlpha *= mix(1.0, 1.35, (voiced + gear) * uSceneMix);
   vAlpha *= mix(1.0, 2.2, glow);
   vDetect = 0.0;
 
@@ -502,13 +597,13 @@ void main() {
   if (nearIndustries > 0.0) {
     float kk = min(floor(aRand * 6.0), 5.0);
     float ca = kk / 6.0 * 6.2831853 - 1.5707963;
-    vec2 ctr = vec2(cos(ca) * 3.4 + 8.0, sin(ca) * 3.4 + 0.2);
+    vec2 ctr = vec2(cos(ca) * 3.4 + 4.2, sin(ca) * 3.4 + 0.2);
     float rad = length(vec3(pos.x - ctr.x, pos.y - ctr.y, pos.z));
     core = pow(clamp(1.0 - rad / 2.5, 0.0, 1.0), 1.35);
   }
   vAlpha *= mix(1.0, 1.35, onGlyph);
   vAlpha *= mix(1.0, mix(0.16, 1.85, core), onHalo);
-  vAlpha *= mix(1.0, 1.25, device * sceneOff);
+  vAlpha *= mix(1.0, 1.7, device * sceneOff);
 
   // Once a zoom is underway, stop rasterising the other five clusters.
   // That is the expensive part of flying in on a slower GPU.
@@ -523,7 +618,7 @@ void main() {
   vAlpha *= mix(1.0, 1.7, uResolve);
 
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
-  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 0.55;
+  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45;
   float px = size * uPixelRatio * (44.0 / max(-mv.z, 0.001));
   float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom);
   gl_PointSize = min(px, cap) * (1.0 - hide);

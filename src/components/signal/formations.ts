@@ -47,18 +47,18 @@ export const SERVICE_CAPTION = [
   "One tended cluster turning in a slow orbit.",
   "A closed shell, with no scanning beam.",
   "Three planes of infrastructure, lifted apart.",
-  "Two groups of endpoints joined by an arc.",
+  "A handset lifted off its cradle, with a call traveling outward.",
   "A row of vertical racks.",
-  "A laptop, a tower, and a monitor in a short row.",
+  "An open laptop, a tower, and a monitor.",
 ] as const;
 
 const TAU = Math.PI * 2;
 
 /**
- * The six industry clouds sit in a circle on the right, beside the names.
+ * The six industry clouds sit in the open space to the right of the names.
  * Keep the centre and radius in step with the GLSL.
  */
-export const CLUSTER_CX = 8;
+export const CLUSTER_CX = 4.2;
 export const CLUSTER_CY = 0.2;
 export const CLUSTER_R = 3.4;
 
@@ -68,82 +68,154 @@ export function clusterCenter(k: number): [number, number] {
 }
 
 /**
- * Point-built devices that settle into the lit ownership ring.
- * Kind 0 is a PC, 1 a server, 2 a workstation. Keep in step with
- * `ownershipDevice()` in shader.ts. Returns null when this point stays
- * on the ring.
- *
- * The row sits in the lower half of that tier's ring, so Base reads
- * inside the inner circle and Premium reads outside the middle one.
+ * Rectangle outline in the XY plane. `along` walks the four edges, `inset`
+ * thickens the stroke toward the centre. Twin of `rectFrame()` in shader.ts.
  */
-const DEVICE_Y = [-1.55, -3.15, -4.7] as const;
+function rectFrame(
+  along: number,
+  inset: number,
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  z: number,
+  thick: number,
+): Vec3 {
+  const w = Math.max(x1 - x0, 0.001);
+  const h = Math.max(y1 - y0, 0.001);
+  const edge = Math.min(3, Math.floor(along * 4));
+  const t = fract(along * 4);
+  const m = inset * thick;
+  const spanW = w - 2 * m;
+  const spanH = h - 2 * m;
+  if (edge <= 0) return [x0 + m + t * spanW, y0 + m, z];
+  if (edge === 1) return [x1 - m, y0 + m + t * spanH, z];
+  if (edge === 2) return [x1 - m - t * spanW, y1 - m, z];
+  return [x0 + m, y1 - m - t * spanH, z];
+}
 
-/** A rectangular shell, turned slightly so the side plane reads. */
-function boxShell(cx: number, cy: number, size: Vec3, seed: Vec3): Vec3 {
-  const face = Math.min(5, Math.floor(seed[0] * 6));
-  const u = seed[1] - 0.5;
-  const v = seed[2] - 0.5;
-  const hx = size[0] * 0.5;
-  const hy = size[1] * 0.5;
-  const hz = size[2] * 0.5;
-  let x = u * size[0];
-  let y = u * size[1];
-  let z = v * size[2];
-  if (face === 0) {
-    x = hx;
-    y = u * size[1];
-    z = v * size[2];
-  } else if (face === 1) {
-    x = -hx;
-    y = u * size[1];
-    z = v * size[2];
-  } else if (face === 2) {
-    x = u * size[0];
-    y = hy;
-    z = v * size[2];
-  } else if (face === 3) {
-    x = u * size[0];
-    y = -hy;
-    z = v * size[2];
-  } else if (face === 4) {
-    x = u * size[0];
-    y = v * size[1];
-    z = hz;
-  } else {
-    x = u * size[0];
-    y = v * size[1];
-    z = -hz;
+/**
+ * Point-built machines that settle into the lit ownership ring.
+ * Kind 0 is a desktop monitor, 1 a server, 2 a workstation.
+ * Outlines, not filled panels, so additive points stay a silhouette.
+ * Keep in step with `deviceLocal()` in shader.ts.
+ * Returns null when this point stays on the ring.
+ */
+function deviceLocal(kind: number, seed: Vec3): Vec3 {
+  const part = fract(seed[0] * 4.17);
+  const u = seed[1];
+  const v = seed[2];
+  const ang = u * TAU;
+
+  if (kind <= 0) {
+    if (part < 0.46) return rectFrame(u, v, -0.98, 0.02, 0.98, 1.42, 0, 0.1);
+    if (part < 0.64) return rectFrame(u, v, -0.72, 0.24, 0.72, 1.2, 0.02, 0.045);
+    if (part < 0.8) return tube([0, 0.02, 0], [0, -0.46, 0], u, ang, 0.07);
+    return tube([-0.72, -0.52, 0], [0.72, -0.52, 0], u, ang, 0.07);
   }
-  const spin = 0.55;
-  const c = Math.cos(spin);
-  const s = Math.sin(spin);
-  return [cx + x * c + z * s, cy + y, -x * s + z * c];
+  if (kind === 1) {
+    if (part < 0.3) return rectFrame(u, v, -0.52, -1.28, 0.52, 1.28, 0.24, 0.08);
+    if (part < 0.48) {
+      const corner = Math.min(3, Math.floor(u * 4));
+      const sx = corner < 2 ? -0.52 : 0.52;
+      const sz = corner % 2 === 0 ? -0.22 : 0.24;
+      return [sx, -1.28 + v * 2.56, sz];
+    }
+    if (part < 0.9) {
+      const bay = Math.min(5, Math.floor(u * 6));
+      return [(v - 0.5) * 0.78, -0.98 + bay * 0.38, 0.3];
+    }
+    return [(u - 0.5) * 1.04, 1.28, (v - 0.5) * 0.4];
+  }
+  if (part < 0.28) return rectFrame(u, v, -1.22, 0.18, -0.02, 1.38, 0, 0.08);
+  if (part < 0.38) return tube([-0.62, 0.18, 0], [-0.62, -0.28, 0], u, ang, 0.055);
+  if (part < 0.48) return tube([-1.05, -0.36, 0], [-0.18, -0.36, 0], u, ang, 0.05);
+  if (part < 0.64) return rectFrame(u, v, 0.22, -0.62, 0.92, 1.32, 0.12, 0.065);
+  if (part < 0.8) {
+    const bay = Math.min(3, Math.floor(u * 4));
+    return [0.3 + v * 0.52, -0.32 + bay * 0.38, 0.18];
+  }
+  const deck = rectFrame(u, v, -0.95, 0.02, 0.12, 0.58, 0, 0.04);
+  return [deck[0], -0.42, deck[1]];
+}
+
+function placeDevice(tier: number, slot: number, count: number, kind: number, seed: Vec3): Vec3 {
+  const ring = 2.2 + tier * 1.75;
+  const a = (slot / count) * TAU + tier * 0.55;
+  const inset = 0.5 + fract(slot * 0.37 + tier * 0.2) * 0.34;
+  const cx = Math.cos(a) * ring * 1.8 * inset;
+  const cy = Math.sin(a) * ring * inset;
+  const local = deviceLocal(kind, seed);
+  const scale = 1.05 + tier * 0.14;
+  const yaw = 0.16 + (slot % 3) * 0.13;
+  const c = Math.cos(yaw);
+  const s = Math.sin(yaw);
+  const x = local[0] * scale;
+  const z = local[2] * scale;
+  return [cx + x * c + z * s, cy + local[1] * scale, -x * s + z * c];
 }
 
 export function ownershipDevice(tier: number, p: PointSeed): Vec3 | null {
-  // A small slice, independent of the accent, so the object stays blue.
-  if (fract(p.rand * 19.1) > 0.1) return null;
+  if (fract(p.rand * 19.1) > 0.2) return null;
   const f = fract(p.rand * 13.7);
+  const t = Math.min(2, Math.max(0, tier));
+  let count = 3;
   let slot = 0;
   let kind = 0;
-  let x = 0;
-  if (tier <= 0) {
+  if (t <= 0) {
     slot = Math.min(2, Math.floor(f * 3));
-    kind = 0;
-    x = (slot - 1) * 1.15;
-  } else if (tier === 1) {
+  } else if (t === 1) {
+    count = 5;
     slot = Math.min(4, Math.floor(f * 5));
     kind = slot === 0 ? 1 : 0;
-    x = (slot - 2) * 1.05;
   } else {
+    count = 7;
     slot = Math.min(6, Math.floor(f * 7));
     kind = slot <= 2 ? 1 : 2;
-    x = (slot - 3) * 1.2;
   }
-  const size: Vec3 =
-    kind === 1 ? [0.54, 1.53, 0.54] : kind === 2 ? [1.05, 0.71, 0.2] : [0.78, 0.58, 0.2];
-  const y = DEVICE_Y[Math.min(2, Math.max(0, tier))];
-  return boxShell(x, y, size, p.seed);
+  return placeDevice(t, slot, count, kind, p.seed);
+}
+
+/** Open laptop, tower, or monitor. Local offset, centred on the piece. */
+function hardwareLocal(which: number, seed: Vec3): Vec3 {
+  const part = fract(seed[0] * 4.17);
+  const u = seed[1];
+  const v = seed[2];
+  const ang = u * TAU;
+  if (which <= 0) {
+    if (part < 0.32) {
+      const deck = rectFrame(u, v, -1.55, -0.1, 1.55, 1.55, 0, 0.09);
+      return [deck[0], -1.05, deck[1]];
+    }
+    if (part < 0.48) {
+      const col = Math.min(7, Math.floor(u * 8));
+      const row = Math.min(3, Math.floor(v * 4));
+      return [-1.22 + col * 0.34, -0.96, 0.08 + row * 0.32];
+    }
+    if (part < 0.92) {
+      const frame = rectFrame(u, v, -1.45, 0.02, 1.45, 2.35, 0, 0.1);
+      const sy = frame[1];
+      return [frame[0], -0.98 + sy * 1.08, -0.12 - sy * 0.28];
+    }
+    return tube([-1.45, -0.98, -0.14], [1.45, -0.98, -0.14], u, ang, 0.06);
+  }
+  if (which === 1) {
+    if (part < 0.28) return rectFrame(u, v, -0.62, -1.85, 0.62, 1.9, 0.34, 0.08);
+    if (part < 0.46) {
+      const corner = Math.min(3, Math.floor(u * 4));
+      const sx = corner < 2 ? -0.62 : 0.62;
+      const sz = corner % 2 === 0 ? -0.32 : 0.34;
+      return [sx, -1.85 + v * 3.75, sz];
+    }
+    if (part < 0.9) {
+      const bay = Math.min(6, Math.floor(u * 7));
+      return [(v - 0.5) * 0.96, -1.48 + bay * 0.46, 0.4];
+    }
+    return [(u - 0.5) * 1.24, 1.9, (v - 0.5) * 0.56];
+  }
+  if (part < 0.6) return rectFrame(u, v, -1.6, 0.05, 1.6, 2.15, 0, 0.1);
+  if (part < 0.78) return tube([0, 0.05, 0], [0, -0.72, 0], u, ang, 0.075);
+  return tube([-0.85, -0.8, 0], [0.85, -0.8, 0], u, ang, 0.07);
 }
 
 /**
@@ -151,7 +223,7 @@ export function ownershipDevice(tier: number, p: PointSeed): Vec3 | null {
  * row must not move the chapter phase. Twin of `serviceAt()` in shader.ts.
  */
 export function serviceFormation(scene: number, p: PointSeed, t = 0): Vec3 {
-  const { seed, u, v, rand, gold } = p;
+  const { seed, u, v, rand } = p;
 
   if (scene <= 0) {
     // CompleteCare — one tended cluster in a slow orbit.
@@ -178,16 +250,35 @@ export function serviceFormation(scene: number, p: PointSeed, t = 0): Vec3 {
     ];
   }
   if (scene === 3) {
-    // VoIP — two groups joined by an arc.
-    if (gold > 0.82) {
-      const a = -0.5 + u * 4.1;
-      const r = 4.5;
-      return [Math.cos(a) * r, Math.sin(a) * r * 0.55 + 0.35, (seed[2] - 0.5) * 0.15];
+    // VoIP — a vertical handset over a cradle, and a call leaving in rings.
+    if (rand < 0.22) {
+      const part = fract(seed[0] * 5.1);
+      const ang = v * TAU;
+      let local: Vec3;
+      if (part < 0.26) {
+        const rr = 0.42 + u * 0.32;
+        local = [Math.cos(ang) * rr * 1.25, 1.95 + Math.sin(ang) * rr * 0.78, (seed[2] - 0.5) * 0.3];
+      } else if (part < 0.52) {
+        const rr = 0.36 + u * 0.28;
+        local = [Math.cos(ang) * rr * 1.1, -1.95 + Math.sin(ang) * rr * 0.72, (seed[2] - 0.5) * 0.3];
+      } else if (part < 0.78) {
+        const grip = tube([0, 1.42, 0], [0, -1.42, 0], u, ang, 0.16);
+        local = [grip[0] + Math.sin(grip[1] * 0.7) * 0.08, grip[1], grip[2]];
+      } else {
+        local = [(u - 0.5) * 2.6, -2.7 + (v - 0.5) * 0.28, (seed[2] - 0.5) * 0.35];
+      }
+      local[1] += 0.16 + Math.sin(t * 1.1) * 0.14;
+      const spin = Math.sin(t * 0.7) * 0.2;
+      const c = Math.cos(spin);
+      const s = Math.sin(spin);
+      return [local[0] * c + local[2] * s, local[1], -local[0] * s + local[2] * c];
     }
-    const side = seed[0] < 0.5 ? -1 : 1;
-    const ang = v * TAU;
-    const rr = Math.sqrt(seed[1]) * 1.45;
-    return [side * 4.15 + Math.cos(ang) * rr, Math.sin(ang) * rr * 0.85, (seed[2] - 0.5) * 0.6];
+    if (rand > 0.5) return [0, -40, 0];
+    const travel = fract(t * 0.32 + seed[1] * 0.65);
+    if (travel > 0.9) return [0, -40, 0];
+    const rad = 1.6 + travel * 6.4 + (v - 0.5) * 0.38;
+    const a = u * TAU;
+    return [Math.cos(a) * rad, Math.sin(a) * rad * 0.72, (seed[2] - 0.5) * 0.22];
   }
   if (scene === 4) {
     // Data center — vertical racks.
@@ -195,15 +286,15 @@ export function serviceFormation(scene: number, p: PointSeed, t = 0): Vec3 {
     const x = (rack - 2) * 1.55;
     return [x + (seed[0] - 0.5) * 0.42, (v - 0.5) * 6.6, (seed[2] - 0.5) * 0.65];
   }
-  // Hardware — a short row of device silhouettes. Most points sit out
-  // of frame so the shells stay drawings instead of solid white blocks.
+  // Hardware — an open laptop, a tower, and a monitor.
   const which = Math.min(2, Math.floor(rand * 3));
-  const x = (which - 1) * 3.3;
-  if (fract(rand * 19.1) > 0.2) return [x, -40, 0];
-  const size: Vec3 =
-    which === 0 ? [1.7, 0.16, 1.05] : which === 1 ? [0.55, 1.35, 0.7] : [1.35, 0.95, 0.14];
-  const y = which === 0 ? -0.85 : which === 2 ? 0.15 : 0;
-  return boxShell(x, y, size, seed);
+  const x = (which - 1) * 5.2;
+  if (fract(rand * 19.1) > 0.36) return [x, -40, 0];
+  const local = hardwareLocal(which, seed);
+  const yaw = which === 1 ? 0.42 : which === 2 ? -0.2 : 0.62;
+  const c = Math.cos(yaw);
+  const s = Math.sin(yaw);
+  return [x + local[0] * c + local[2] * s, local[1], -local[0] * s + local[2] * c];
 }
 
 /**

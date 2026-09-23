@@ -142,9 +142,8 @@ vec3 halo(vec3 seed) {
   float az = seed.x * TAU;
   float cosP = hz * 2.0 - 1.0;
   float sinP = sqrt(max(0.0, 1.0 - cosP * cosP));
-  float r0 = 1.22;
-  float r1 = 2.35;
-  float R = pow(r0 * r0 * r0 + seed.y * (r1 * r1 * r1 - r0 * r0 * r0), 0.333333);
+  // Biased inward so the cloud is dense in the middle and sparse at the rim.
+  float R = 2.5 * pow(seed.y, 0.72);
   return vec3(cos(az) * sinP * R, cosP * R, sin(az) * sinP * R);
 }
 
@@ -196,7 +195,7 @@ vec3 formation(int s, float t) {
     }
     float a = k / 6.0 * TAU;
     float extra = fract(aRand * 6.0);
-    vec3 local = seed.z < 0.34 ? glyph(k, seed, extra) * 0.666667 : halo(seed);
+    vec3 local = seed.z < 0.34 ? glyph(k, seed, extra) * 0.22 : halo(seed);
     local = yaw(local, t * 0.35 * uZoom * match);
     return vec3(cos(a) * 9.5 + local.x, sin(a) * 4.7 + local.y, local.z);
   }
@@ -331,13 +330,21 @@ void main() {
     vAlpha *= mix(1.0, fade * mix(0.5, 1.6, lane), nearStrategy);
   }
 
-  // Industry marks stay brighter than the field that rings them, so the
-  // shape reads instead of a hot core.
+  // Industry cloud glows from its own centre: hot in the middle, a faint
+  // dusting at the rim. The mark is a small bright object inside that glow.
   float nearIndustries = 1.0 - clamp(abs(ph - 4.0), 0.0, 1.0);
   float onGlyph = (1.0 - step(0.34, position.z)) * nearIndustries;
   float onHalo = step(0.34, position.z) * nearIndustries;
-  vAlpha *= mix(1.0, 1.25, onGlyph);
-  vAlpha *= mix(1.0, 0.4, onHalo);
+  float core = 0.0;
+  if (nearIndustries > 0.0) {
+    float kk = min(floor(aRand * 6.0), 5.0);
+    float ca = kk / 6.0 * 6.2831853;
+    vec2 ctr = vec2(cos(ca) * 9.5, sin(ca) * 4.7);
+    float rad = length(vec3(pos.x - ctr.x, pos.y - ctr.y, pos.z));
+    core = pow(clamp(1.0 - rad / 2.5, 0.0, 1.0), 1.35);
+  }
+  vAlpha *= mix(1.0, 1.35, onGlyph);
+  vAlpha *= mix(1.0, mix(0.16, 1.85, core), onHalo);
 
   // Once a zoom is underway, stop rasterising the other five clusters.
   // That is the expensive part of flying in on a slower GPU.
@@ -352,7 +359,7 @@ void main() {
   vAlpha *= mix(1.0, 1.7, uResolve);
 
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
-  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 1.15;
+  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7;
   float px = size * uPixelRatio * (44.0 / max(-mv.z, 0.001));
   float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom);
   gl_PointSize = min(px, cap) * (1.0 - hide);

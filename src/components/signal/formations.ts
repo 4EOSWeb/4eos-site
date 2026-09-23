@@ -59,9 +59,10 @@ export function clusterCenter(k: number): [number, number] {
  * the role split and is biased once the cut is applied).
  */
 const ICON_CUT = 0.34;
-/** Filled spherical shell. The mark sits in the hollow centre. */
-const SPHERE_INNER = 1.22;
-const SPHERE_OUTER = 2.35;
+/** Mark size inside the cloud. Small enough that the object reads as a speck. */
+const MARK_SCALE = 0.22;
+/** Outer radius of the industry cloud. Keep in step with the GLSL halo. */
+const SPHERE_OUTER = 2.5;
 
 function fract(n: number) {
   return n - Math.floor(n);
@@ -196,15 +197,16 @@ function industryGlyph(k: number, seed: Vec3, extra: number): Vec3 {
   return [(bar - 1) * 0.78 + jx, -0.72 + along * h, jz];
 }
 
-/** Spherical cloud around the mark. Uniform in the shell volume, round in every axis. */
+/**
+ * Spherical cloud around the mark. Radius is biased inward (exponent above
+ * 1/3) so the middle is dense and the rim is a sparse dusting.
+ */
 function industryHalo(seed: Vec3): Vec3 {
   const hz = (seed[2] - ICON_CUT) / (1 - ICON_CUT);
   const az = seed[0] * TAU;
   const cosP = hz * 2 - 1;
   const sinP = Math.sqrt(Math.max(0, 1 - cosP * cosP));
-  const r0 = SPHERE_INNER;
-  const r1 = SPHERE_OUTER;
-  const R = Math.cbrt(r0 ** 3 + seed[1] * (r1 ** 3 - r0 ** 3));
+  const R = SPHERE_OUTER * Math.pow(seed[1], 0.72);
   return [Math.cos(az) * sinP * R, cosP * R, Math.sin(az) * sinP * R];
 }
 
@@ -302,7 +304,7 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       const mark = industryGlyph(k, seed, extra);
       const local =
         seed[2] < ICON_CUT
-          ? ([mark[0] * (2 / 3), mark[1] * (2 / 3), mark[2] * (2 / 3)] as Vec3)
+          ? ([mark[0] * MARK_SCALE, mark[1] * MARK_SCALE, mark[2] * MARK_SCALE] as Vec3)
           : industryHalo(seed);
       return [
         Math.cos(a) * CLUSTER_RX + local[0],

@@ -21,8 +21,8 @@ const BRAND_SRC = {
   lockup: "/brand/4eos-lockup.svg",
 } as const;
 
-/** Brand drawing with the navy redrawn in bone, so the gold stays and the
- *  letters stay solid on the dark bar. The traced mono file cuts holes. */
+/** Brand drawing filled solid white. The traced mono file cuts holes, and
+ *  the gold stroke reads as a break through the letters on the dark bar. */
 const ON_DARK_SRC = {
   mark: "/brand/4eos-mark-bone.svg",
   lockup: "/brand/4eos-lockup.svg",

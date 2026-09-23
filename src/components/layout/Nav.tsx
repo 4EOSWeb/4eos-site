@@ -21,12 +21,17 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
 
   const close = useCallback(() => {
     setOpen(false);
-    setMenuOpen(false);
   }, []);
 
   useEffect(() => {
     close();
   }, [pathname, close]);
+
+  // Publish after commit. Calling the store from the setOpen updater runs
+  // during Nav's render and updates ChapterRail in the same pass.
+  useEffect(() => {
+    setMenuOpen(open);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -86,13 +91,7 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
         <button
           ref={toggle}
           type="button"
-          onClick={() =>
-            setOpen((v) => {
-              const next = !v;
-              setMenuOpen(next);
-              return next;
-            })
-          }
+          onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-controls="site-menu"
           className="micro relative py-2 transition-opacity hover:opacity-70"

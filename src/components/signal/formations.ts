@@ -532,15 +532,18 @@ export type PointSeed = {
 
 export function buildSeeds(count: number, seedValue = 0x4e05): PointSeed[] {
   const rnd = mulberry32(seedValue);
-  // Lattice proportioned to the widescreen framing of the discovery state.
+  // A complete rectangle. A short final row would stop the top line of the
+  // discovery lattice before the right edge.
   const cols = Math.max(2, Math.round(Math.sqrt((count * 26) / 14)));
-  const rows = Math.max(2, Math.ceil(count / cols));
+  const rows = Math.max(2, Math.floor(count / cols));
+  const cells = cols * rows;
   const out: PointSeed[] = [];
   for (let i = 0; i < count; i++) {
+    const j = i < cells ? i : i % cells;
     out.push({
       seed: [rnd(), rnd(), rnd()],
-      u: (i % cols) / (cols - 1),
-      v: Math.floor(i / cols) / (rows - 1),
+      u: (j % cols) / (cols - 1),
+      v: Math.floor(j / cols) / (rows - 1),
       rand: rnd(),
       gold: rnd(),
     });

@@ -75,7 +75,7 @@ html.lenis body {
 }
 
 [data-snap] {
-  scroll-margin-top: 18vh;
+  scroll-margin-top: 0;
 }
 
 .lenis.lenis-smooth {

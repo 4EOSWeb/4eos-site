@@ -1,6 +1,7 @@
 "use client";
 
 import type Snap from "lenis/snap";
+import { setPhase } from "@/components/signal/store";
 
 /**
  * Chapters register here so the Lenis snap instance can pick them up after
@@ -10,16 +11,16 @@ const pending = new Set<HTMLElement>();
 const unsubs = new Map<HTMLElement, () => void>();
 const registryListeners = new Set<() => void>();
 let snap: Snap | null = null;
-let scrollToValue: ((value: number) => void) | null = null;
+let scrollToValue: ((value: number, done?: () => void) => void) | null = null;
 
-const ALIGN = { align: "center" as const };
+const ALIGN = { align: "start" as const };
 
 /**
- * A chapter rests with its top here, as a fraction of the viewport.
- * SignalChapter's scroll trigger ends on the same line so the field has
- * finished changing when the page lands.
+ * A chapter rests with its top flush with the viewport. The field trigger
+ * finishes before that, and the next chapter has not started yet, so the
+ * formation is a single scene when the page lands.
  */
-export const SNAP_TOP = 0.18;
+export const SNAP_TOP = 0;
 
 function emitRegistry() {
   registryListeners.forEach((fn) => fn());
@@ -38,7 +39,7 @@ export function subscribeSnapTargets(fn: () => void) {
 
 export function attachSnap(
   instance: Snap,
-  scrollTo?: (value: number) => void,
+  scrollTo?: (value: number, done?: () => void) => void,
 ) {
   snap = instance;
   scrollToValue = scrollTo ?? null;
@@ -108,12 +109,17 @@ export function snapGoTo(index: number) {
   if (!el) return;
 
   const value = snapScrollFor(el);
+  const settle = () => {
+    const phase = el.dataset.phase;
+    if (phase) setPhase(Number(phase));
+  };
   if (scrollToValue) {
-    scrollToValue(value);
+    scrollToValue(value, settle);
     return;
   }
 
-  el.scrollIntoView({ block: "start", behavior: "smooth" });
+  el.scrollIntoView({ block: "start", behavior: "auto" });
+  settle();
 }
 
 /** Land on the same top magnet the rail uses. */

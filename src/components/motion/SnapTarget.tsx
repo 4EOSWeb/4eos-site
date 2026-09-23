@@ -4,7 +4,13 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { registerSnapEl } from "@/lib/snap";
 
 /** A snap stop that is not a chapter and does not drive the field. */
-export function SnapTarget({ children }: { children: ReactNode }) {
+export function SnapTarget({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -13,5 +19,9 @@ export function SnapTarget({ children }: { children: ReactNode }) {
     return registerSnapEl(el);
   }, []);
 
-  return <div ref={ref}>{children}</div>;
+  return (
+    <div ref={ref} data-snap className={className}>
+      {children}
+    </div>
+  );
 }

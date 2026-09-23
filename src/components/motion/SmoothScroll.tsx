@@ -45,9 +45,8 @@ export function SmoothScroll() {
     if (prefersReducedMotion()) return;
 
     let cooledUntil = 0;
-    let lenis: Lenis;
 
-    lenis = new Lenis({
+    const lenis = new Lenis({
       lerp: 0.1,
       wheelMultiplier: 1,
       touchMultiplier: 1.6,
@@ -78,11 +77,12 @@ export function SmoothScroll() {
 
     lenis.on("scroll", ScrollTrigger.update);
     scroll.lenis = lenis;
-    attachSnap(snap, (value) => {
+    attachSnap(snap, (value, done) => {
       lenis.scrollTo(value, {
         duration: 0.42,
         easing: (t) => 1 - Math.pow(1 - t, 3),
         lock: true,
+        onComplete: () => done?.(),
       });
     });
 

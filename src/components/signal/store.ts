@@ -77,6 +77,9 @@ export function getChapterIndex() {
 export function setPhase(next: number | Phase) {
   const value = typeof next === "number" ? next : PHASE_INDEX[next];
   signal.phase = Math.min(MAX_PHASE, Math.max(0, value));
+  if (typeof document !== "undefined") {
+    document.documentElement.dataset.signalPhase = String(signal.phase);
+  }
   emitChapter();
   signal.invalidate?.();
 }

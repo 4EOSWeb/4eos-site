@@ -7,7 +7,6 @@ import { setFocus, setPhase } from "@/components/signal/store";
 import { Footer } from "@/components/layout/Footer";
 import { Nav } from "@/components/layout/Nav";
 import { PageFade } from "@/components/layout/PageFade";
-import { Breath } from "@/components/layout/Sheet";
 import { GoldReveal } from "@/components/motion/GoldReveal";
 import { SnapTarget } from "@/components/motion/SnapTarget";
 import { Accordion } from "@/components/ui/Accordion";
@@ -15,13 +14,17 @@ import { PhaseLink } from "@/components/ui/PhaseLink";
 import { industries, services, tiers } from "@/lib/content";
 import { site } from "@/lib/site";
 
+/** One full viewport. The heading clears the nav; the cue clears the bottom. */
+const CHAPTER =
+  "px-[var(--sheet-inset)] pt-[calc(var(--nav-h)+6vh)] pb-28";
+
 export function HomeView() {
   return (
     <>
       <SignalBackdrop phase="unmanaged" />
       <Nav />
       <PageFade>
-        <main id="main" tabIndex={-1} className="relative z-10 pb-24 outline-none">
+        <main id="main" tabIndex={-1} className="relative z-10 outline-none">
           <Hero />
           <Discovery />
           <Ownership />
@@ -31,7 +34,7 @@ export function HomeView() {
           <Strategy />
         </main>
       </PageFade>
-      <SnapTarget>
+      <SnapTarget className="flex h-screen flex-col justify-end overflow-hidden pb-24">
         <Footer />
       </SnapTarget>
     </>
@@ -41,7 +44,7 @@ export function HomeView() {
 function Hero() {
   return (
     <SignalChapter phase="unmanaged" id="chapter-unmanaged">
-      <section className="flex min-h-[100svh] flex-col justify-end px-[var(--sheet-inset)] pb-[8vh] pt-[calc(var(--nav-h)+8vh)]">
+      <section className="flex h-full flex-col justify-end px-[var(--sheet-inset)] pb-28 pt-[calc(var(--nav-h)+8vh)]">
         <p className="micro text-fg">Fort Wayne · Since {site.founded}</p>
         <h1 className="display mt-6 text-[clamp(3.2rem,10vw,8.4rem)]">
           IT that works
@@ -65,10 +68,8 @@ function Hero() {
 
 function Discovery() {
   return (
-    <>
-      <Breath size="sm" />
-      <SignalChapter phase="discovery" id="chapter-discovery">
-        <section className="px-[var(--sheet-inset)] py-10 md:py-14">
+    <SignalChapter phase="discovery" id="chapter-discovery">
+      <section className={CHAPTER}>
           <GoldReveal
             as="h2"
             className="display-wide chapter-display max-w-[18ch]"
@@ -79,18 +80,15 @@ function Discovery() {
             We start by seeing what is actually there. Then the field resolves
             onto a lattice — the same endpoints, finally accounted for.
           </p>
-        </section>
-      </SignalChapter>
-    </>
+      </section>
+    </SignalChapter>
   );
 }
 
 function Ownership() {
   return (
-    <>
-      <Breath size="sm" />
-      <SignalChapter phase="ownership" id="chapter-ownership">
-        <section className="px-[var(--sheet-inset)] py-10 md:py-14">
+    <SignalChapter phase="ownership" id="chapter-ownership">
+      <section className={CHAPTER}>
           <h2 className="display chapter-display max-w-[16ch]">
             CompleteCare is not support. It is a system.
           </h2>
@@ -120,18 +118,15 @@ function Ownership() {
               onChange={(i) => setFocus(i)}
             />
           </div>
-        </section>
-      </SignalChapter>
-    </>
+      </section>
+    </SignalChapter>
   );
 }
 
 function Security() {
   return (
-    <>
-      <Breath size="sm" />
-      <SignalChapter phase="security" id="chapter-security">
-        <section className="px-[var(--sheet-inset)] py-10 md:py-14">
+    <SignalChapter phase="security" id="chapter-security">
+      <section className={CHAPTER}>
           <GoldReveal
             as="h2"
             className="display chapter-display max-w-[18ch]"
@@ -156,18 +151,15 @@ function Security() {
               Read SecureAI <span aria-hidden>→</span>
             </Link>
           </div>
-        </section>
-      </SignalChapter>
-    </>
+      </section>
+    </SignalChapter>
   );
 }
 
 function Industries() {
   return (
-    <>
-      <Breath size="sm" />
-      <SignalChapter phase="industries" id="chapter-industries">
-        <section className="px-[var(--sheet-inset)] py-10 md:py-14">
+    <SignalChapter phase="industries" id="chapter-industries">
+      <section className={CHAPTER}>
           <p className="lede max-w-[44ch]">
             Six practices. The field splits because the work is not generic,
             and neither is the environment.
@@ -191,18 +183,15 @@ function Industries() {
               </li>
             ))}
           </ol>
-        </section>
-      </SignalChapter>
-    </>
+      </section>
+    </SignalChapter>
   );
 }
 
 function Response() {
   return (
-    <>
-      <Breath size="sm" />
-      <SignalChapter phase="response" id="chapter-response">
-        <section className="px-[var(--sheet-inset)] py-10 md:py-14">
+    <SignalChapter phase="response" id="chapter-response">
+      <section className={CHAPTER}>
           <GoldReveal
             as="h2"
             className="display chapter-display max-w-[18ch]"
@@ -222,18 +211,15 @@ function Response() {
               New client →
             </Link>
           </div>
-        </section>
-      </SignalChapter>
-    </>
+      </section>
+    </SignalChapter>
   );
 }
 
 function Strategy() {
   return (
-    <>
-      <Breath size="sm" />
-      <SignalChapter phase="strategy" id="chapter-strategy">
-      <section className="px-[var(--sheet-inset)] pb-12">
+    <SignalChapter phase="strategy" id="chapter-strategy">
+      <section className={CHAPTER}>
         <h2 className="display chapter-display max-w-[16ch]">
           A partner, <span className="text-gold">not a vendor.</span>
         </h2>
@@ -245,8 +231,9 @@ function Strategy() {
         <Link href="/why-4eos" className="micro mt-8 inline-flex text-gold">
           Why 4EOS →
         </Link>
-        <div className="mt-12">
+        <div className="mt-8">
           <Accordion
+            compact
             items={services.map((s, i) => ({
               id: s.slug,
               index: String(i + 1).padStart(2, "0"),
@@ -268,7 +255,6 @@ function Strategy() {
           />
         </div>
       </section>
-      </SignalChapter>
-    </>
+    </SignalChapter>
   );
 }

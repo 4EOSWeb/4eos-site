@@ -14,6 +14,13 @@ let scrollToValue: ((value: number) => void) | null = null;
 
 const ALIGN = { align: "center" as const };
 
+/**
+ * A chapter rests with its top here, as a fraction of the viewport.
+ * SignalChapter's scroll trigger ends on the same line so the field has
+ * finished changing when the page lands.
+ */
+export const SNAP_TOP = 0.18;
+
 function emitRegistry() {
   registryListeners.forEach((fn) => fn());
 }
@@ -60,14 +67,18 @@ export function registerSnapEl(el: HTMLElement) {
   };
 }
 
+/** Scroll position that puts this element's top on the snap line. */
+export function snapScrollFor(el: HTMLElement) {
+  const top = el.getBoundingClientRect().top + window.scrollY;
+  return Math.max(0, Math.round(top - window.innerHeight * SNAP_TOP));
+}
+
 function nearestIndex() {
-  const els = [...pending];
-  const mid = window.innerHeight / 2;
+  const y = window.scrollY;
   let best = 0;
   let bestDist = Number.POSITIVE_INFINITY;
-  els.forEach((el, i) => {
-    const rect = el.getBoundingClientRect();
-    const dist = Math.abs(rect.top + rect.height / 2 - mid);
+  [...pending].forEach((el, i) => {
+    const dist = Math.abs(snapScrollFor(el) - y);
     if (dist < bestDist) {
       bestDist = dist;
       best = i;
@@ -96,22 +107,16 @@ export function snapGoTo(index: number) {
   const el = [...pending][index];
   if (!el) return;
 
-  // Centre the element ourselves. Lenis snap sorts by absolute position,
-  // which does not match chapter order once a value is negative.
-  const top = el.getBoundingClientRect().top + window.scrollY;
-  const value = Math.max(
-    0,
-    Math.round(top + el.offsetHeight / 2 - window.innerHeight / 2),
-  );
+  const value = snapScrollFor(el);
   if (scrollToValue) {
     scrollToValue(value);
     return;
   }
 
-  el.scrollIntoView({ block: "center", behavior: "smooth" });
+  el.scrollIntoView({ block: "start", behavior: "smooth" });
 }
 
-/** Land on the same centre magnet the rail and proximity snap use. */
+/** Land on the same top magnet the rail uses. */
 export function snapToEl(el: HTMLElement) {
   const index = [...pending].indexOf(el);
   if (index < 0) return false;

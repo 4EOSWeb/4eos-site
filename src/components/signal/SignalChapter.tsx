@@ -63,7 +63,9 @@ export function SignalChapter({
     const trigger = ScrollTrigger.create({
       trigger: el,
       start: "top bottom",
-      end: "center center",
+      // "top 18%" matches SNAP_TOP in snap.ts. The formation finishes on
+      // the same line the page lands, including for a tall chapter.
+      end: "top 18%",
       onUpdate: apply,
       onRefresh: apply,
       onLeave: () => {

@@ -74,6 +74,10 @@ html.lenis body {
   height: auto;
 }
 
+[data-snap] {
+  scroll-margin-top: 18vh;
+}
+
 .lenis.lenis-smooth {
   scroll-behavior: auto !important;
 }

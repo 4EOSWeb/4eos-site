@@ -134,19 +134,24 @@ function industryGlyph(k: number, seed: Vec3, extra: number): Vec3 {
   }
 
   if (k === 1) {
-    // Insurance — a dome you could stand under, a shaft, and a hook.
-    if (extra < 0.62) {
+    // Insurance — a dome, a shaft, and a cane crook. The crook leaves
+    // the shaft to the right and the tip comes back up.
+    if (extra < 0.55) {
       const phi = along * (Math.PI / 2);
       const shell = 0.86 + fill * 0.14;
       const horiz = Math.sin(phi) * shell;
       return [Math.cos(ang) * horiz, Math.cos(phi) * shell * 0.88 + 0.12, Math.sin(ang) * horiz];
     }
-    if (extra < 0.88) return tube([0, 0.55, 0], [0, -0.92, 0], along, ang, fill * 0.09);
-    const a = along * Math.PI * 0.55;
-    const hx = Math.sin(a) * 0.32;
-    const hy = -0.92 - (1 - Math.cos(a)) * 0.26;
-    const thick = fill * 0.08;
-    return [hx + Math.cos(ang) * thick, hy, Math.sin(ang) * thick];
+    if (extra < 0.76) return tube([0, 0.55, 0], [0, -0.92, 0], along, ang, fill * 0.09);
+    const sweep = Math.PI * 1.2;
+    const a = along * sweep;
+    const crook = 0.36;
+    const hx = (1 - Math.cos(a)) * crook;
+    const hy = -0.92 - Math.sin(a) * crook;
+    const thick = 0.045 + fill * 0.04;
+    const c = Math.cos(ang);
+    const s = Math.sin(ang);
+    return [hx + Math.cos(a) * c * thick, hy + Math.sin(a) * c * thick, s * thick];
   }
 
   if (k === 2) {
@@ -294,8 +299,11 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       const k = Math.min(5, Math.floor(rand * 6));
       const a = (k / 6) * TAU;
       const extra = fract(rand * 6);
+      const mark = industryGlyph(k, seed, extra);
       const local =
-        seed[2] < ICON_CUT ? industryGlyph(k, seed, extra) : industryHalo(seed);
+        seed[2] < ICON_CUT
+          ? ([mark[0] * (2 / 3), mark[1] * (2 / 3), mark[2] * (2 / 3)] as Vec3)
+          : industryHalo(seed);
       return [
         Math.cos(a) * CLUSTER_RX + local[0],
         Math.sin(a) * CLUSTER_RY + local[1],

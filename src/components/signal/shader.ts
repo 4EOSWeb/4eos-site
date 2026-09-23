@@ -88,13 +88,17 @@ vec3 glyph(float k, vec3 seed, float extra) {
     float shell = 0.86 + fill * 0.14;
     float horiz = sin(phi) * shell;
     p = vec3(cos(ang) * horiz, cos(phi) * shell * 0.88 + 0.12, sin(ang) * horiz);
-    if (extra >= 0.88) {
-      float a = along * 3.14159265 * 0.55;
-      float hx = sin(a) * 0.32;
-      float hy = -0.92 - (1.0 - cos(a)) * 0.26;
-      float thick = fill * 0.08;
-      p = vec3(hx + cos(ang) * thick, hy, sin(ang) * thick);
-    } else if (extra >= 0.62) {
+    if (extra >= 0.76) {
+      float sweep = 3.14159265 * 1.2;
+      float a = along * sweep;
+      float crook = 0.36;
+      float hx = (1.0 - cos(a)) * crook;
+      float hy = -0.92 - sin(a) * crook;
+      float thick = 0.045 + fill * 0.04;
+      float c = cos(ang);
+      float s = sin(ang);
+      p = vec3(hx + cos(a) * c * thick, hy + sin(a) * c * thick, s * thick);
+    } else if (extra >= 0.55) {
       p = tube(vec3(0.0, 0.55, 0.0), vec3(0.0, -0.92, 0.0), along, ang, fill * 0.09);
     }
   } else if (k < 2.5) {
@@ -182,9 +186,8 @@ vec3 formation(int s, float t) {
     return vec3(cos(a) * r * 1.8, sin(a) * r, (seed.z - 0.5) * 0.7);
   }
   if (s == 4) {
-    // Industries: a mark of orbs (scales, umbrella, cross, crane, gear,
-    // rising bars) with a field around it. Yaw only while zoomed into
-    // this cluster, and not on the lite tier.
+    // Industries: a small mark inside a sphere of orbs. Yaw only while
+    // zoomed into this cluster.
     float k = min(floor(aRand * 6.0), 5.0);
     float match = uFocus < 0.0 ? 0.0 : (1.0 - step(0.5, abs(k - uFocus)));
     // Skip the mark maths for clusters the zoom has already dropped.
@@ -193,7 +196,7 @@ vec3 formation(int s, float t) {
     }
     float a = k / 6.0 * TAU;
     float extra = fract(aRand * 6.0);
-    vec3 local = seed.z < 0.34 ? glyph(k, seed, extra) : halo(seed);
+    vec3 local = seed.z < 0.34 ? glyph(k, seed, extra) * 0.666667 : halo(seed);
     local = yaw(local, t * 0.35 * uZoom * match);
     return vec3(cos(a) * 9.5 + local.x, sin(a) * 4.7 + local.y, local.z);
   }

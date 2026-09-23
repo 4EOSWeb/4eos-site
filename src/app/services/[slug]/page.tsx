@@ -22,12 +22,9 @@ export default async function ServicePage({ params }: Props) {
   const service = services.find((s) => s.slug === slug);
   if (!service) notFound();
 
-  const scene = services.findIndex((s) => s.slug === service.slug);
-
   return (
     <InnerPage
-      phase={service.phase}
-      scene={scene}
+      phase="unmanaged"
       kicker={"family" in service ? service.family : "Practice"}
       title={service.statement}
       lede={service.lede}

@@ -39,7 +39,7 @@ export const PHASE_CAPTION: Record<Phase, string> = {
   industries:
     "Six industry marks — scales, umbrella, cross, crane, gear, and rising bars — each in its own cloud, set to the right of the names.",
   response: "A pulse that leaves the centre and dies before it reaches the inbox.",
-  strategy: "The field leaning forward onto a receding horizon.",
+  strategy: "An unstructured field of drifting, unmonitored endpoints.",
 };
 
 /** Still descriptions for the six strategy-row pictures. */
@@ -769,12 +769,11 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       return [Math.cos(a) * rad * 1.55, Math.sin(a) * rad, (seed[2] - 0.5) * 0.45];
     }
     default: {
-      // Strategy: the field leans forward onto a receding horizon.
-      const depth = v;
+      // Strategy pages use the same drifting cloud as Unmanaged.
       return [
-        (u - 0.5) * 34 * (0.3 + depth * 0.95),
-        -4.2 + depth * 6.4,
-        -depth * 13,
+        (seed[0] - 0.5) * 30 + Math.sin(t * 0.18 + seed[1] * TAU) * 0.9,
+        (seed[1] - 0.5) * 17 + Math.cos(t * 0.15 + seed[2] * TAU) * 0.7,
+        (seed[2] - 0.5) * 12,
       ];
     }
   }

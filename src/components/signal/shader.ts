@@ -533,12 +533,11 @@ vec3 formation(int s, float t) {
     }
     return p;
   }
-  // Strategy: the field leans forward onto a receding horizon.
-  float depth = aUV.y;
+  // Strategy pages use the same drifting cloud as Unmanaged.
   return vec3(
-    (aUV.x - 0.5) * 34.0 * (0.3 + depth * 0.95),
-    -4.2 + depth * 6.4,
-    -depth * 13.0
+    (seed.x - 0.5) * 30.0 + sin(t * 0.18 + seed.y * TAU) * 0.9,
+    (seed.y - 0.5) * 17.0 + cos(t * 0.15 + seed.z * TAU) * 0.7,
+    (seed.z - 0.5) * 12.0
   );
 }
 
@@ -555,7 +554,7 @@ float density(int s) {
   if (s == 3) return 0.32;
   if (s == 4) return 0.40;
   if (s == 5) return 0.48;
-  return 0.60;
+  return 0.55;
 }
 
 float serviceDensity(int s) {
@@ -686,16 +685,6 @@ void main() {
     float die = 1.0 - smoothstep(4.2, 5.4, front);
     vGold = max(vGold, band * die * nearResponse);
     if (aRand < 0.07) vGold = max(vGold, 0.65 * nearResponse);
-  }
-
-  // Strategy: dissolve into the horizon and pick out lanes along the
-  // direction of travel, so the plane reads as distance rather than a slab.
-  // A service picture takes the field over, so the horizon treatment steps aside.
-  float nearStrategy = smoothstep(5.0, 6.0, ph) * sceneOff;
-  if (nearStrategy > 0.0) {
-    float fade = 1.0 - smoothstep(0.45, 1.0, aUV.y);
-    float lane = onLattice(aUV.x, uCols, 26.0);
-    vAlpha *= mix(1.0, fade * mix(0.5, 1.6, lane), nearStrategy);
   }
 
   // Industry cloud glows from its own centre: hot in the middle, a faint

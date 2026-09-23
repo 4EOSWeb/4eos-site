@@ -237,18 +237,15 @@ function Response() {
 }
 
 function Strategy() {
-  const [row, setRow] = useState(0);
-
-  // The open row picks a picture. The chapter phase stays on Strategy,
-  // so the bottom index does not jump.
+  // The strategy chapter keeps the unmanaged cloud. Opening a row does not
+  // swap in a separate picture.
   useEffect(() => {
     const apply = () => {
-      if (getChapterIndex() === PHASE_INDEX.strategy) setScene(row);
-      else setScene(null);
+      if (getChapterIndex() === PHASE_INDEX.strategy) setScene(null, true);
     };
     apply();
     return subscribeChapter(apply);
-  }, [row]);
+  }, []);
 
   useEffect(() => () => setScene(null, true), []);
 
@@ -286,7 +283,6 @@ function Strategy() {
                 </>
               ),
             }))}
-            onChange={(i) => setRow(i)}
           />
         </div>
       </section>

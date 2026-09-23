@@ -21,23 +21,23 @@ export default function IndustriesPage() {
       </section>
       <Breath size="md" />
       <Sheet tone="ink">
-        <ol className="sheet-pad divide-y divide-hairline py-4">
+        <ol className="sheet-pad flex flex-col items-start gap-8 py-8">
           {industries.map((ind, i) => (
-            <li key={ind.slug}>
+            <li key={ind.slug} className="max-w-[62ch]">
               <PhaseLink
                 href={`/industries/${ind.slug}`}
                 phase="industries"
                 focus={i}
-                className="group grid gap-4 py-7 md:grid-cols-12"
+                className="inline-flex w-fit items-baseline gap-4 border-b border-hairline py-3 transition-colors hover:text-gold"
               >
-                <span className="micro text-fg-faint md:col-span-1">
+                <span className="micro text-fg-faint">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <span className="display text-[clamp(1.4rem,2.6vw,2rem)] md:col-span-4 group-hover:text-gold">
+                <span className="display text-[clamp(1.4rem,2.6vw,2rem)]">
                   {ind.title}
                 </span>
-                <span className="lede md:col-span-7">{ind.lede}</span>
               </PhaseLink>
+              <p className="lede mt-3">{ind.lede}</p>
             </li>
           ))}
         </ol>

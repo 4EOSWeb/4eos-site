@@ -178,6 +178,7 @@ export const industries = [
     title: "Legal",
     statement: "Confidentiality is the practice.",
     lede: "Secure document management, reliable systems during trial prep, and protection for privileged client data.",
+    note: "A firm runs on documents and on who is allowed to see them. Privilege has to hold in ordinary work and through trial prep.",
     how: [
       "Secure document management",
       "Reliable systems during trial prep",
@@ -193,6 +194,7 @@ export const industries = [
     title: "Insurance",
     statement: "The agency stays up when the producers need it.",
     lede: "Client data protection, PCI-aligned payment handling, and agency management systems that stay available.",
+    note: "The agency management system is how the producers work. It has to stay available, and the payments that move through it have to be handled in line with PCI.",
     how: [
       "Client data protection",
       "PCI-aligned payment handling",
@@ -208,6 +210,7 @@ export const industries = [
     title: "Healthcare",
     statement: "Patient data does not get a second chance.",
     lede: "HIPAA compliance support, EHR uptime, and safeguards for patient data across every device and connection.",
+    note: "The day runs on the record. EHR uptime and HIPAA safeguards cover every device and connection that can reach patient data.",
     how: [
       "HIPAA compliance support",
       "EHR uptime",
@@ -223,6 +226,7 @@ export const industries = [
     title: "Construction",
     statement: "The job site is not a cubicle.",
     lede: "Job site connectivity, project deadline pressure, and field teams that need secure access from anywhere.",
+    note: "The workplace is the job site. Field teams need a connection and secure access that hold while the deadline does not move.",
     how: [
       "Job site connectivity",
       "Secure access for field teams",
@@ -238,6 +242,7 @@ export const industries = [
     title: "Manufacturing",
     statement: "Downtime is measured in dollars per minute.",
     lede: "Production systems stay running, and the IT and OT divide is bridged safely.",
+    note: "The line measures an outage in lost production. Office IT and the plant floor stay separated, and they meet only where that meeting is safe.",
     how: [
       "Production systems stay running",
       "The IT and OT divide, bridged safely",
@@ -253,6 +258,7 @@ export const industries = [
     title: "Private Equity",
     statement: "A consistent posture across the holdings.",
     lede: "Technology due diligence for deals, rapid portfolio onboarding, and consistent security across holdings.",
+    note: "Each company in a portfolio arrives with its own stack. Diligence reads that before the close, and the security posture is made consistent once the company is a holding.",
     how: [
       "Technology due diligence for deals",
       "Rapid portfolio onboarding",

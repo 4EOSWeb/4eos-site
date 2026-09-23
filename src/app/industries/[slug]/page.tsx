@@ -53,10 +53,7 @@ export default async function IndustryPage({ params }: Props) {
         </div>
         <div className="md:col-span-6">
           <p className="micro text-fg-faint">{industry.title}</p>
-          <p className="lede mt-5">
-            Two decades in this work means we rarely start from scratch. The
-            patterns are known. The surprises are fewer.
-          </p>
+          <p className="lede mt-5">{industry.note}</p>
         </div>
       </div>
       <ul className="mt-12 flex flex-wrap gap-6 border-t border-hairline pt-8">

@@ -164,14 +164,14 @@ function Industries() {
             Six practices. The field splits because the work is not generic,
             and neither is the environment.
           </p>
-          <ol className="mt-10 divide-y divide-hairline border-y border-hairline">
+          <ol className="mt-10 flex flex-col items-start">
             {industries.map((ind, i) => (
-              <li key={ind.slug}>
+              <li key={ind.slug} className="w-fit border-b border-hairline first:border-t">
                 <PhaseLink
                   href={`/industries/${ind.slug}`}
                   phase="industries"
                   focus={i}
-                  className="group flex items-baseline gap-[3vw] py-4 transition-colors hover:text-gold"
+                  className="inline-flex items-baseline gap-[3vw] py-4 transition-colors hover:text-gold"
                 >
                   <span className="micro w-8 shrink-0">
                     {String(i + 1).padStart(2, "0")}

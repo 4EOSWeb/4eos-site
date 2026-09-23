@@ -47,7 +47,7 @@ export const SERVICE_CAPTION = [
   "One tended cluster turning in a slow orbit.",
   "A closed shell, with no scanning beam.",
   "Three planes of infrastructure, lifted apart.",
-  "A handset lifted off its cradle, with a call traveling outward.",
+  "A desk phone on its cradle, rotary dial forward, cord coiled to the side.",
   "A row of vertical racks.",
   "An open laptop, a tower, and a monitor.",
 ] as const;
@@ -279,6 +279,101 @@ export function ownershipDevice(tier: number, p: PointSeed, time = 0): Vec3 | nu
   return placeDevice(t, slot, count, kind, p.seed, time);
 }
 
+/**
+ * Rotary desk phone, in the pose of the reference: low base, handset across
+ * the cradle, dial on the front, coil leaving the left earpiece.
+ * Twin of `phoneLocal()` in shader.ts.
+ */
+function phoneLocal(seed: Vec3): Vec3 {
+  const part = fract(seed[0] * 6.4);
+  const sub = fract(seed[0] * 17.3);
+  const u = seed[1];
+  const v = seed[2];
+  const spin = v * TAU * 0.992;
+
+  if (part < 0.16) {
+    if (sub < 0.18) return faceFrame(u, v, -2.6, 2.6, -2.15, -1.2, 1.55, 0, 0.07);
+    if (sub < 0.36) return faceFrame(u, v, -2.6, 2.6, -2.15, -1.2, -1.45, 0, 0.07);
+    if (sub < 0.5) return faceFrame(u, v, -1.45, 1.55, -2.15, -1.2, -2.6, 1, 0.06);
+    if (sub < 0.64) return faceFrame(u, v, -1.45, 1.55, -2.15, -1.2, 2.6, 1, 0.06);
+    if (sub < 0.84) return faceFrame(u, v, -2.6, 2.6, -1.45, 1.55, -1.2, 2, 0.06);
+    return faceFrame(u, v, -2.6, 2.6, -1.45, 1.55, -2.15, 2, 0.05);
+  }
+  if (part < 0.3) {
+    if (sub < 0.4) return faceFrame(u, v, -1.35, 1.35, -1.15, 0.4, 1.62, 0, 0.06);
+    if (sub < 0.62) return faceFrame(u, v, -1.5, 1.5, -0.75, 0.8, 0.62, 2, 0.055);
+    const c = Math.min(3, Math.floor(u * 4));
+    const left = c < 2;
+    const back = c % 2 === 0;
+    const t = v;
+    return [
+      (left ? -2.15 : 2.15) + ((left ? -1.5 : 1.5) - (left ? -2.15 : 2.15)) * t,
+      -1.2 + 1.82 * t,
+      (back ? -1.2 : 1.45) + ((back ? -0.75 : 0.8) - (back ? -1.2 : 1.45)) * t,
+    ];
+  }
+  if (part < 0.48) {
+    if (sub < 0.28) {
+      const r = 0.42 + u * 0.28;
+      return [-2.15 + Math.cos(spin) * r, 1.2 + Math.sin(spin) * r * 0.75, 0.1];
+    }
+    if (sub < 0.54) {
+      const r = 0.38 + u * 0.24;
+      return [2.15 + Math.cos(spin) * r, 1.12 + Math.sin(spin) * r * 0.7, 0.1];
+    }
+    const x = -1.75 + u * 3.5;
+    const arch = Math.sin(u * Math.PI) * 0.38;
+    const w = (v - 0.5) * 0.32;
+    return [x, 1.28 + arch + w * 0.35, w];
+  }
+  if (part < 0.68) {
+    const cx = 0.05;
+    const cy = -0.42;
+    const cz = 1.72;
+    if (sub < 0.32) {
+      const r = 1.05 + (u - 0.5) * 0.1;
+      return [cx + Math.cos(spin) * r, cy + Math.sin(spin) * r, cz];
+    }
+    if (sub < 0.48) {
+      const r = 0.32 + u * 0.12;
+      return [cx + Math.cos(spin) * r, cy + Math.sin(spin) * r, cz + 0.05];
+    }
+    if (sub < 0.9) {
+      const hole = Math.min(9, Math.floor(u * 10));
+      const a0 = -1.15 + (hole / 10) * 5.1;
+      const rr = 0.1 + v * 0.06;
+      return [
+        cx + Math.cos(a0) * 0.66 + Math.cos(spin) * rr,
+        cy + Math.sin(a0) * 0.66 + Math.sin(spin) * rr,
+        cz + 0.06,
+      ];
+    }
+    const stop = -0.7 + u * 0.55;
+    return [cx + Math.cos(stop) * (0.85 + v * 0.28), cy + Math.sin(stop) * (0.85 + v * 0.28), cz + 0.06];
+  }
+  if (part < 0.76) {
+    const side = u < 0.5 ? -1.55 : 1.6;
+    return [side + (fract(u * 2) - 0.5) * 0.12, 0.55 + v * 0.78, 0.02];
+  }
+  // Coil in the plane we see: round loops along a cord that leaves the left earpiece.
+  const uu = Math.min(1, Math.max(0, (u - 0.05) / 0.95));
+  const turns = 11;
+  const a = uu * turns * TAU;
+  const rad = 0.4;
+  const x0 = -2.2;
+  const y0 = 1.15;
+  const x1 = -6.5;
+  const y1 = -1.55;
+  const cx = x0 + (x1 - x0) * uu;
+  const cy = y0 + (y1 - y0) * uu;
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  const len = Math.hypot(dx, dy) || 1;
+  const px = -dy / len;
+  const py = dx / len;
+  return [cx + Math.cos(a) * px * rad, cy + Math.cos(a) * py * rad, 0.2 + Math.sin(a) * rad * 0.75];
+}
+
 /** Open laptop, tower, or monitor. Local offset, centred on the piece. */
 function hardwareLocal(which: number, seed: Vec3): Vec3 {
   const part = fract(seed[0] * 4.17);
@@ -354,35 +449,13 @@ export function serviceFormation(scene: number, p: PointSeed, t = 0): Vec3 {
     ];
   }
   if (scene === 3) {
-    // VoIP — a vertical handset over a cradle, and a call leaving in rings.
-    if (rand < 0.22) {
-      const part = fract(seed[0] * 5.1);
-      const ang = loop(v, p.rows);
-      let local: Vec3;
-      if (part < 0.26) {
-        const rr = 0.42 + u * 0.32;
-        local = [Math.cos(ang) * rr * 1.25, 1.95 + Math.sin(ang) * rr * 0.78, (seed[2] - 0.5) * 0.3];
-      } else if (part < 0.52) {
-        const rr = 0.36 + u * 0.28;
-        local = [Math.cos(ang) * rr * 1.1, -1.95 + Math.sin(ang) * rr * 0.72, (seed[2] - 0.5) * 0.3];
-      } else if (part < 0.78) {
-        const grip = tube([0, 1.42, 0], [0, -1.42, 0], u, ang, 0.16);
-        local = [grip[0] + Math.sin(grip[1] * 0.7) * 0.08, grip[1], grip[2]];
-      } else {
-        local = [(u - 0.5) * 2.6, -2.7 + (v - 0.5) * 0.28, (seed[2] - 0.5) * 0.35];
-      }
-      local[1] += 0.16 + Math.sin(t * 1.1) * 0.14;
-      const spin = Math.sin(t * 0.7) * 0.2;
-      const c = Math.cos(spin);
-      const s = Math.sin(spin);
-      return [local[0] * c + local[2] * s, local[1], -local[0] * s + local[2] * c];
-    }
-    if (rand > 0.5) return [0, -40, 0];
-    const travel = fract(t * 0.32 + seed[1] * 0.65);
-    if (travel > 0.9) return [0, -40, 0];
-    const rad = 1.6 + travel * 6.4 + (v - 0.5) * 0.38;
-    const a = loop(u, p.cols);
-    return [Math.cos(a) * rad, Math.sin(a) * rad * 0.72, (seed[2] - 0.5) * 0.22];
+    // VoIP — the desk phone from the reference, turned a little so the dial faces us.
+    if (fract(rand * 13.7) > 0.5) return [0, -40, 0];
+    const local = phoneLocal(seed);
+    const yaw = -0.58 + Math.sin(t * 0.4) * 0.1;
+    const c = Math.cos(yaw);
+    const s = Math.sin(yaw);
+    return [1.5 + local[0] * c + local[2] * s, local[1] - 0.1, -local[0] * s + local[2] * c];
   }
   if (scene === 4) {
     // Data center — vertical racks.

@@ -318,6 +318,84 @@ vec3 ownershipDevice(float tier, float t) {
   return vec3(cx + x * c + z2 * s, cy + y2, -x * s + z2 * c);
 }
 
+// Rotary desk phone. Twin of phoneLocal() in formations.ts.
+// One result, assigned through, so ANGLE keeps it initialised.
+vec3 phoneLocal(vec3 seed) {
+  float part = fract(seed.x * 6.4);
+  float sub = fract(seed.x * 17.3);
+  float u = seed.y;
+  float v = seed.z;
+  float spin = v * TAU * 0.992;
+  float uu = clamp((u - 0.05) / 0.95, 0.0, 1.0);
+  float a = uu * 11.0 * TAU;
+  float rad = 0.4;
+  float x0 = -2.2;
+  float y0 = 1.15;
+  float x1 = -6.5;
+  float y1 = -1.55;
+  float cx = x0 + (x1 - x0) * uu;
+  float cy = y0 + (y1 - y0) * uu;
+  float dx = x1 - x0;
+  float dy = y1 - y0;
+  float len = max(length(vec2(dx, dy)), 0.001);
+  float nx = -dy / len;
+  float ny = dx / len;
+  vec3 p = vec3(cx + cos(a) * nx * rad, cy + cos(a) * ny * rad, 0.2 + sin(a) * rad * 0.75);
+  if (part < 0.16) {
+    p = faceFrame(u, v, -2.6, 2.6, -1.45, 1.55, -2.15, 2.0, 0.05);
+    if (sub < 0.18) p = faceFrame(u, v, -2.6, 2.6, -2.15, -1.2, 1.55, 0.0, 0.07);
+    else if (sub < 0.36) p = faceFrame(u, v, -2.6, 2.6, -2.15, -1.2, -1.45, 0.0, 0.07);
+    else if (sub < 0.5) p = faceFrame(u, v, -1.45, 1.55, -2.15, -1.2, -2.6, 1.0, 0.06);
+    else if (sub < 0.64) p = faceFrame(u, v, -1.45, 1.55, -2.15, -1.2, 2.6, 1.0, 0.06);
+    else if (sub < 0.84) p = faceFrame(u, v, -2.6, 2.6, -1.45, 1.55, -1.2, 2.0, 0.06);
+  } else if (part < 0.3) {
+    float cnr = min(floor(u * 4.0), 3.0);
+    float isLeft = 1.0 - step(1.5, cnr);
+    float isBack = 1.0 - step(0.5, mod(cnr, 2.0));
+    float bx = mix(2.15, -2.15, isLeft);
+    float tx = mix(1.5, -1.5, isLeft);
+    float bz = mix(1.45, -1.2, isBack);
+    float tz = mix(0.8, -0.75, isBack);
+    p = vec3(bx + (tx - bx) * v, -1.2 + 1.82 * v, bz + (tz - bz) * v);
+    if (sub < 0.4) p = faceFrame(u, v, -1.35, 1.35, -1.15, 0.4, 1.62, 0.0, 0.06);
+    else if (sub < 0.62) p = faceFrame(u, v, -1.5, 1.5, -0.75, 0.8, 0.62, 2.0, 0.055);
+  } else if (part < 0.48) {
+    float x = -1.75 + u * 3.5;
+    float arch = sin(u * 3.14159265) * 0.38;
+    float w = (v - 0.5) * 0.32;
+    p = vec3(x, 1.28 + arch + w * 0.35, w);
+    if (sub < 0.28) {
+      float r = 0.42 + u * 0.28;
+      p = vec3(-2.15 + cos(spin) * r, 1.2 + sin(spin) * r * 0.75, 0.1);
+    } else if (sub < 0.54) {
+      float r = 0.38 + u * 0.24;
+      p = vec3(2.15 + cos(spin) * r, 1.12 + sin(spin) * r * 0.7, 0.1);
+    }
+  } else if (part < 0.68) {
+    float hx = 0.05;
+    float hy = -0.42;
+    float hz = 1.72;
+    float stop = -0.7 + u * 0.55;
+    p = vec3(hx + cos(stop) * (0.85 + v * 0.28), hy + sin(stop) * (0.85 + v * 0.28), hz + 0.06);
+    if (sub < 0.32) {
+      float r = 1.05 + (u - 0.5) * 0.1;
+      p = vec3(hx + cos(spin) * r, hy + sin(spin) * r, hz);
+    } else if (sub < 0.48) {
+      float r = 0.32 + u * 0.12;
+      p = vec3(hx + cos(spin) * r, hy + sin(spin) * r, hz + 0.05);
+    } else if (sub < 0.9) {
+      float hole = min(floor(u * 10.0), 9.0);
+      float a0 = -1.15 + (hole / 10.0) * 5.1;
+      float rr = 0.1 + v * 0.06;
+      p = vec3(hx + cos(a0) * 0.66 + cos(spin) * rr, hy + sin(a0) * 0.66 + sin(spin) * rr, hz + 0.06);
+    }
+  } else if (part < 0.76) {
+    float side = u < 0.5 ? -1.55 : 1.6;
+    p = vec3(side + (fract(u * 2.0) - 0.5) * 0.12, 0.55 + v * 0.78, 0.02);
+  }
+  return p;
+}
+
 // Strategy-row pictures. Not chapter phases. Twin of serviceFormation().
 vec3 serviceAt(int s, float t) {
   vec3 seed = position;
@@ -341,35 +419,13 @@ vec3 serviceAt(int s, float t) {
       layer * 1.5
     );
   } else if (s == 3) {
-    if (aRand < 0.22) {
-      float part = fract(seed.x * 5.1);
-      float ang = loopAngle(aUV.y, uRows);
-      vec3 local = vec3((aUV.x - 0.5) * 2.6, -2.7 + (aUV.y - 0.5) * 0.28, (seed.z - 0.5) * 0.35);
-      if (part < 0.26) {
-        float rr = 0.42 + aUV.x * 0.32;
-        local = vec3(cos(ang) * rr * 1.25, 1.95 + sin(ang) * rr * 0.78, (seed.z - 0.5) * 0.3);
-      } else if (part < 0.52) {
-        float rr = 0.36 + aUV.x * 0.28;
-        local = vec3(cos(ang) * rr * 1.1, -1.95 + sin(ang) * rr * 0.72, (seed.z - 0.5) * 0.3);
-      } else if (part < 0.78) {
-        vec3 grip = tube(vec3(0.0, 1.42, 0.0), vec3(0.0, -1.42, 0.0), aUV.x, ang, 0.16);
-        local = vec3(grip.x + sin(grip.y * 0.7) * 0.08, grip.y, grip.z);
-      }
-      local.y += 0.16 + sin(t * 1.1) * 0.14;
-      float spin = sin(t * 0.7) * 0.2;
-      float c = cos(spin);
-      float sn = sin(spin);
-      p = vec3(local.x * c + local.z * sn, local.y, -local.x * sn + local.z * c);
-    } else if (aRand > 0.5) {
-      p = vec3(0.0, -40.0, 0.0);
-    } else {
-      float travel = fract(t * 0.32 + seed.y * 0.65);
-      if (travel > 0.9) p = vec3(0.0, -40.0, 0.0);
-      else {
-        float rad = 1.6 + travel * 6.4 + (aUV.y - 0.5) * 0.38;
-        float a = loopAngle(aUV.x, uCols);
-        p = vec3(cos(a) * rad, sin(a) * rad * 0.72, (seed.z - 0.5) * 0.22);
-      }
+    if (fract(aRand * 13.7) > 0.5) p = vec3(0.0, -40.0, 0.0);
+    else {
+      vec3 local = phoneLocal(seed);
+      float yaw = -0.58 + sin(t * 0.4) * 0.1;
+      float c = cos(yaw);
+      float sn = sin(yaw);
+      p = vec3(1.5 + local.x * c + local.z * sn, local.y - 0.1, -local.x * sn + local.z * c);
     }
   } else if (s == 4) {
     float rack = min(floor(aRand * 5.0), 4.0);
@@ -506,7 +562,7 @@ float serviceDensity(int s) {
   if (s <= 0) return 0.50;
   if (s == 1) return 0.28;
   if (s == 2) return 0.62;
-  if (s == 3) return 0.58;
+  if (s == 3) return 0.4;
   if (s == 4) return 0.34;
   return 0.52;
 }

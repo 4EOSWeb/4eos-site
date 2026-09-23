@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Office LAN address of the machine running `npm run dev`. Without this,
+  // Next.js returns 403 for /_next assets when the site is opened at that IP.
+  allowedDevOrigins: ["192.168.153.31"],
   async redirects() {
     return [
       {

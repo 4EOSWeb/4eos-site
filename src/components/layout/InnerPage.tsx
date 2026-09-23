@@ -13,6 +13,7 @@ export function InnerPage({
   tone = "light",
   focus,
   zoom = false,
+  scene,
   backHref,
   backLabel,
 }: {
@@ -24,11 +25,12 @@ export function InnerPage({
   tone?: "light" | "dark";
   focus?: number;
   zoom?: boolean;
+  scene?: number | null;
   backHref?: string;
   backLabel?: string;
 }) {
   return (
-    <Page phase={phase} tone={tone} focus={focus} zoom={zoom}>
+    <Page phase={phase} tone={tone} focus={focus} zoom={zoom} scene={scene}>
       <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
         {backHref && backLabel ? (
           <Link href={backHref} className="micro inline-flex text-gold">

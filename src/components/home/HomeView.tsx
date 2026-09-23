@@ -1,9 +1,16 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { SignalBackdrop } from "@/components/signal/SignalBackdrop";
 import { SignalChapter } from "@/components/signal/SignalChapter";
-import { setFocus, setPhase } from "@/components/signal/store";
+import { PHASE_INDEX } from "@/components/signal/formations";
+import {
+  getChapterIndex,
+  setFocus,
+  setScene,
+  subscribeChapter,
+} from "@/components/signal/store";
 import { Footer } from "@/components/layout/Footer";
 import { Nav } from "@/components/layout/Nav";
 import { PageFade } from "@/components/layout/PageFade";
@@ -86,6 +93,19 @@ function Discovery() {
 }
 
 function Ownership() {
+  const [tier, setTier] = useState(0);
+
+  // Light the open tier only while this chapter is the one on screen.
+  // Doing it on mount would also light industry cluster 0.
+  useEffect(() => {
+    const apply = () => {
+      if (getChapterIndex() === PHASE_INDEX.ownership) setFocus(tier);
+      else setFocus(null);
+    };
+    apply();
+    return subscribeChapter(apply);
+  }, [tier]);
+
   return (
     <SignalChapter phase="ownership" id="chapter-ownership">
       <section className={CHAPTER}>
@@ -115,7 +135,7 @@ function Ownership() {
                   </ul>
                 ),
               }))}
-              onChange={(i) => setFocus(i)}
+              onChange={(i) => setTier(i)}
             />
           </div>
       </section>
@@ -217,6 +237,21 @@ function Response() {
 }
 
 function Strategy() {
+  const [row, setRow] = useState(0);
+
+  // The open row picks a picture. The chapter phase stays on Strategy,
+  // so the bottom index does not jump.
+  useEffect(() => {
+    const apply = () => {
+      if (getChapterIndex() === PHASE_INDEX.strategy) setScene(row);
+      else setScene(null);
+    };
+    apply();
+    return subscribeChapter(apply);
+  }, [row]);
+
+  useEffect(() => () => setScene(null, true), []);
+
   return (
     <SignalChapter phase="strategy" id="chapter-strategy">
       <section className={CHAPTER}>
@@ -251,7 +286,7 @@ function Strategy() {
                 </>
               ),
             }))}
-            onChange={(i) => setPhase(services[i].phase)}
+            onChange={(i) => setRow(i)}
           />
         </div>
       </section>

@@ -61,7 +61,10 @@ function Points({
       uMouse: { value: new THREE.Vector2(0, 0) },
       uGlowScale: { value: 1 },
       uFocus: { value: -1 },
+      uFocusAge: { value: 0 },
       uZoom: { value: 0 },
+      uScene: { value: 0 },
+      uSceneMix: { value: 0 },
       uLite: { value: lite ? 1 : 0 },
       uBase: { value: BASE_COLOR },
       uAccent: { value: ACCENT_COLOR },
@@ -98,7 +101,17 @@ function Points({
     u.uIntensity.value = signal.intensity;
     u.uResolve.value = signal.resolve;
     u.uPixelRatio.value = state.gl.getPixelRatio();
+    const sceneTarget = signal.scene >= 0 ? 1 : 0;
+    signal.sceneMix += (sceneTarget - signal.sceneMix) * step;
+    if (Math.abs(sceneTarget - signal.sceneMix) < 0.0005) {
+      signal.sceneMix = sceneTarget;
+    }
+    signal.focusAge = still ? 8 : Math.min(8, signal.focusAge + delta);
+
     u.uFocus.value = signal.focus;
+    u.uFocusAge.value = signal.focusAge;
+    u.uScene.value = signal.sceneShown;
+    u.uSceneMix.value = signal.sceneMix;
     u.uZoom.value = signal.zoomR;
 
     // Cursor NDC → world XY on the field plane, through the camera that is

@@ -18,6 +18,14 @@ type SignalStore = {
   resolve: number;
   /** Cluster or tier to pull forward; -1 is none. */
   focus: number;
+  /** Seconds since focus last changed. Devices ease down from this. */
+  focusAge: number;
+  /** Strategy-row picture, 0..5. -1 means the chapter formation is showing. */
+  scene: number;
+  /** Which row to draw while sceneMix eases back to the chapter. */
+  sceneShown: number;
+  /** 0 = chapter formation, 1 = the service picture. */
+  sceneMix: number;
   /** 0 = wide field, 1 = star-system zoom into the focused cluster. */
   zoom: number;
   zoomR: number;
@@ -40,6 +48,10 @@ export const signal: SignalStore = {
   intensity: 1,
   resolve: 0,
   focus: -1,
+  focusAge: 0,
+  scene: -1,
+  sceneShown: 0,
+  sceneMix: 0,
   zoom: 0,
   zoomR: 0,
   lookX: 0,
@@ -102,7 +114,29 @@ export function setResolve(value: number) {
 }
 
 export function setFocus(cluster: number | null) {
-  signal.focus = cluster ?? -1;
+  const next = cluster ?? -1;
+  if (next !== signal.focus) {
+    signal.focus = next;
+    signal.focusAge = 0;
+  }
+  signal.invalidate?.();
+}
+
+/**
+ * Show a strategy-row picture without moving the chapter phase.
+ * Pass null to return to the chapter. `immediate` skips the mix, for
+ * route changes where the field should not animate through the old row.
+ */
+export function setScene(next: number | null, immediate = false) {
+  if (next === null) {
+    signal.scene = -1;
+    if (immediate) signal.sceneMix = 0;
+  } else {
+    const value = Math.min(5, Math.max(0, next));
+    signal.scene = value;
+    signal.sceneShown = value;
+    if (immediate) signal.sceneMix = 1;
+  }
   signal.invalidate?.();
 }
 

@@ -33,23 +33,177 @@ export const MAX_PHASE = PHASES.length - 1;
 export const PHASE_CAPTION: Record<Phase, string> = {
   unmanaged: "An unstructured field of drifting, unmonitored endpoints.",
   discovery: "The same endpoints resolved onto a regular lattice.",
-  ownership: "The lattice organised into three concentric tiers of coverage.",
+  ownership:
+    "Three coverage rings. The lit ring holds the devices that tier covers.",
   security: "A perimeter closed around the environment.",
   industries:
-    "Six industry marks — scales, umbrella, cross, crane, gear, and rising bars — each ringed by its own field.",
-  response: "A pulse travelling out from the centre and back.",
+    "Six industry marks — scales, umbrella, cross, crane, gear, and rising bars — each in its own cloud, set to the right of the names.",
+  response: "A pulse that leaves the centre and dies before it reaches the inbox.",
   strategy: "The field leaning forward onto a receding horizon.",
 };
 
+/** Still descriptions for the six strategy-row pictures. */
+export const SERVICE_CAPTION = [
+  "One tended cluster turning in a slow orbit.",
+  "A closed shell, with no scanning beam.",
+  "Three planes of infrastructure, lifted apart.",
+  "Two groups of endpoints joined by an arc.",
+  "A row of vertical racks.",
+  "A laptop, a tower, and a monitor in a short row.",
+] as const;
+
 const TAU = Math.PI * 2;
 
-/** Polar layout of the six industry clusters. Keep in step with the GLSL. */
-export const CLUSTER_RX = 9.5;
-export const CLUSTER_RY = 4.7;
+/**
+ * The six industry clouds sit in a circle on the right, beside the names.
+ * Keep the centre and radius in step with the GLSL.
+ */
+export const CLUSTER_CX = 8;
+export const CLUSTER_CY = 0.2;
+export const CLUSTER_R = 3.4;
 
 export function clusterCenter(k: number): [number, number] {
-  const a = (k / 6) * TAU;
-  return [Math.cos(a) * CLUSTER_RX, Math.sin(a) * CLUSTER_RY];
+  const a = (k / 6) * TAU - Math.PI / 2;
+  return [CLUSTER_CX + Math.cos(a) * CLUSTER_R, CLUSTER_CY + Math.sin(a) * CLUSTER_R];
+}
+
+/**
+ * Point-built devices that settle into the lit ownership ring.
+ * Kind 0 is a PC, 1 a server, 2 a workstation. Keep in step with
+ * `ownershipDevice()` in shader.ts. Returns null when this point stays
+ * on the ring.
+ *
+ * The row sits in the lower half of that tier's ring, so Base reads
+ * inside the inner circle and Premium reads outside the middle one.
+ */
+const DEVICE_Y = [-1.55, -3.15, -4.7] as const;
+
+/** A rectangular shell, turned slightly so the side plane reads. */
+function boxShell(cx: number, cy: number, size: Vec3, seed: Vec3): Vec3 {
+  const face = Math.min(5, Math.floor(seed[0] * 6));
+  const u = seed[1] - 0.5;
+  const v = seed[2] - 0.5;
+  const hx = size[0] * 0.5;
+  const hy = size[1] * 0.5;
+  const hz = size[2] * 0.5;
+  let x = u * size[0];
+  let y = u * size[1];
+  let z = v * size[2];
+  if (face === 0) {
+    x = hx;
+    y = u * size[1];
+    z = v * size[2];
+  } else if (face === 1) {
+    x = -hx;
+    y = u * size[1];
+    z = v * size[2];
+  } else if (face === 2) {
+    x = u * size[0];
+    y = hy;
+    z = v * size[2];
+  } else if (face === 3) {
+    x = u * size[0];
+    y = -hy;
+    z = v * size[2];
+  } else if (face === 4) {
+    x = u * size[0];
+    y = v * size[1];
+    z = hz;
+  } else {
+    x = u * size[0];
+    y = v * size[1];
+    z = -hz;
+  }
+  const spin = 0.55;
+  const c = Math.cos(spin);
+  const s = Math.sin(spin);
+  return [cx + x * c + z * s, cy + y, -x * s + z * c];
+}
+
+export function ownershipDevice(tier: number, p: PointSeed): Vec3 | null {
+  // A small slice, independent of the accent, so the object stays blue.
+  if (fract(p.rand * 19.1) > 0.1) return null;
+  const f = fract(p.rand * 13.7);
+  let slot = 0;
+  let kind = 0;
+  let x = 0;
+  if (tier <= 0) {
+    slot = Math.min(2, Math.floor(f * 3));
+    kind = 0;
+    x = (slot - 1) * 1.15;
+  } else if (tier === 1) {
+    slot = Math.min(4, Math.floor(f * 5));
+    kind = slot === 0 ? 1 : 0;
+    x = (slot - 2) * 1.05;
+  } else {
+    slot = Math.min(6, Math.floor(f * 7));
+    kind = slot <= 2 ? 1 : 2;
+    x = (slot - 3) * 1.2;
+  }
+  const size: Vec3 =
+    kind === 1 ? [0.54, 1.53, 0.54] : kind === 2 ? [1.05, 0.71, 0.2] : [0.78, 0.58, 0.2];
+  const y = DEVICE_Y[Math.min(2, Math.max(0, tier))];
+  return boxShell(x, y, size, p.seed);
+}
+
+/**
+ * One strategy-row picture. These are not chapter formations: opening a
+ * row must not move the chapter phase. Twin of `serviceAt()` in shader.ts.
+ */
+export function serviceFormation(scene: number, p: PointSeed, t = 0): Vec3 {
+  const { seed, u, v, rand, gold } = p;
+
+  if (scene <= 0) {
+    // CompleteCare — one tended cluster in a slow orbit.
+    const a = u * TAU + t * 0.15;
+    const r = 1.2 + Math.pow(rand, 0.6) * 2.4;
+    return [Math.cos(a) * r * 1.25, Math.sin(a) * r, (seed[2] - 0.5) * 1.1];
+  }
+  if (scene === 1) {
+    // Cybersecurity — a closed shell, no beam.
+    const a = u * TAU + t * 0.04;
+    const b = v * TAU;
+    const R = 4.1;
+    const tubeR = 0.62;
+    const ring = R + tubeR * Math.cos(b);
+    return [ring * Math.cos(a), ring * Math.sin(a) * 0.72, tubeR * Math.sin(b)];
+  }
+  if (scene === 2) {
+    // Cloud — three lifted planes.
+    const layer = Math.min(2, Math.floor(rand * 3));
+    return [
+      (u - 0.5) * 11,
+      (v - 0.5) * 3.1 + (layer - 1) * 2.35,
+      layer * 1.5,
+    ];
+  }
+  if (scene === 3) {
+    // VoIP — two groups joined by an arc.
+    if (gold > 0.82) {
+      const a = -0.5 + u * 4.1;
+      const r = 4.5;
+      return [Math.cos(a) * r, Math.sin(a) * r * 0.55 + 0.35, (seed[2] - 0.5) * 0.15];
+    }
+    const side = seed[0] < 0.5 ? -1 : 1;
+    const ang = v * TAU;
+    const rr = Math.sqrt(seed[1]) * 1.45;
+    return [side * 4.15 + Math.cos(ang) * rr, Math.sin(ang) * rr * 0.85, (seed[2] - 0.5) * 0.6];
+  }
+  if (scene === 4) {
+    // Data center — vertical racks.
+    const rack = Math.min(4, Math.floor(rand * 5));
+    const x = (rack - 2) * 1.55;
+    return [x + (seed[0] - 0.5) * 0.42, (v - 0.5) * 6.6, (seed[2] - 0.5) * 0.65];
+  }
+  // Hardware — a short row of device silhouettes. Most points sit out
+  // of frame so the shells stay drawings instead of solid white blocks.
+  const which = Math.min(2, Math.floor(rand * 3));
+  const x = (which - 1) * 3.3;
+  if (fract(rand * 19.1) > 0.2) return [x, -40, 0];
+  const size: Vec3 =
+    which === 0 ? [1.7, 0.16, 1.05] : which === 1 ? [0.55, 1.35, 0.7] : [1.35, 0.95, 0.14];
+  const y = which === 0 ? -0.85 : which === 2 ? 0.15 : 0;
+  return boxShell(x, y, size, seed);
 }
 
 /**
@@ -280,7 +434,13 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
     }
     case 2: {
       // Ownership: three concentric tiers — Base, Pro, Premium.
+      // The still shows the Base devices already settled. The live field
+      // drops the lit tier's devices in from above.
       const tier = Math.floor(rand * 3);
+      if (tier === 0) {
+        const dev = ownershipDevice(0, p);
+        if (dev) return dev;
+      }
       const r = 2.2 + tier * 1.75 + (seed[2] - 0.5) * 0.3;
       const a = u * TAU + tier * 0.6 + t * (0.05 + tier * 0.02);
       return [Math.cos(a) * r * 1.8, Math.sin(a) * r, (seed[0] - 0.5) * 0.8];
@@ -299,7 +459,7 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       // each surrounded by its own field. The live shader yaws a focused
       // mark while zoomed; the still pose here is the unzoomed one.
       const k = Math.min(5, Math.floor(rand * 6));
-      const a = (k / 6) * TAU;
+      const a = (k / 6) * TAU - Math.PI / 2;
       const extra = fract(rand * 6);
       const mark = industryGlyph(k, seed, extra);
       const local =
@@ -307,17 +467,30 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
           ? ([mark[0] * MARK_SCALE, mark[1] * MARK_SCALE, mark[2] * MARK_SCALE] as Vec3)
           : industryHalo(seed);
       return [
-        Math.cos(a) * CLUSTER_RX + local[0],
-        Math.sin(a) * CLUSTER_RY + local[1],
+        CLUSTER_CX + Math.cos(a) * CLUSTER_R + local[0],
+        CLUSTER_CY + Math.sin(a) * CLUSTER_R + local[1],
         local[2],
       ];
     }
     case 5: {
-      // Response: radial spokes carrying a travelling pulse.
-      const spokes = 28;
-      const a = (Math.floor(v * spokes) / spokes) * TAU;
-      const rad = 1.5 + Math.pow(u, 0.85) * 6.6;
-      return [Math.cos(a) * rad * 1.7, Math.sin(a) * rad, (seed[2] - 0.5) * 0.5];
+      // Response: a calm disc. A few issues leave the rim and go out
+      // before a tight inbox at the centre. The pulse itself is drawn
+      // in the shader; this is only the endpoints.
+      if (rand < 0.07) {
+        const a = seed[0] * TAU;
+        const rad = Math.sqrt(seed[1]) * 0.55;
+        return [Math.cos(a) * rad * 1.15, Math.sin(a) * rad, (seed[2] - 0.5) * 0.22];
+      }
+      if (rand > 0.93) {
+        const travel = fract(t * 0.35 + seed[1]);
+        if (travel > 0.72) return [0, -40, 0];
+        const a = u * TAU;
+        const rad = 7.2 - travel * 6.39;
+        return [Math.cos(a) * rad * 1.55, Math.sin(a) * rad, (seed[2] - 0.5) * 0.3];
+      }
+      const a = u * TAU + t * 0.015;
+      const rad = Math.sqrt(seed[0]) * 6.5;
+      return [Math.cos(a) * rad * 1.55, Math.sin(a) * rad, (seed[2] - 0.5) * 0.45];
     }
     default: {
       // Strategy: the field leans forward onto a receding horizon.

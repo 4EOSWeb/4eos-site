@@ -21,8 +21,11 @@ uniform float uPixelRatio;
 uniform vec2 uMouse;
 uniform float uGlowScale;
 uniform float uFocus;
+uniform float uFocusAge;
 uniform float uZoom;
 uniform float uLite;
+uniform float uScene;
+uniform float uSceneMix;
 
 attribute vec2 aUV;
 attribute float aRand;
@@ -137,6 +140,112 @@ vec3 glyph(float k, vec3 seed, float extra) {
   return p;
 }
 
+// Devices that drop into the lit ownership ring. Twin of ownershipDevice()
+// in formations.ts. One return, so ANGLE keeps the result initialised.
+vec3 boxShell(vec3 center, vec3 size, vec3 seed) {
+  float face = min(floor(seed.x * 6.0), 5.0);
+  float u = seed.y - 0.5;
+  float v = seed.z - 0.5;
+  vec3 p = vec3(u * size.x, v * size.y, -size.z * 0.5);
+  if (face < 0.5) p = vec3(size.x * 0.5, u * size.y, v * size.z);
+  else if (face < 1.5) p = vec3(-size.x * 0.5, u * size.y, v * size.z);
+  else if (face < 2.5) p = vec3(u * size.x, size.y * 0.5, v * size.z);
+  else if (face < 3.5) p = vec3(u * size.x, -size.y * 0.5, v * size.z);
+  else if (face < 4.5) p = vec3(u * size.x, v * size.y, size.z * 0.5);
+  float spin = 0.55;
+  float c = cos(spin);
+  float s = sin(spin);
+  return vec3(center.x + p.x * c + p.z * s, center.y + p.y, -p.x * s + p.z * c);
+}
+
+vec3 ownershipDevice(float tier) {
+  vec3 seed = position;
+  float f = fract(aRand * 13.7);
+  float slot = 0.0;
+  float kind = 0.0;
+  float x = 0.0;
+  float y = -4.7;
+  vec3 size = vec3(0.78, 0.58, 0.20);
+  if (tier < 0.5) {
+    slot = min(floor(f * 3.0), 2.0);
+    kind = 0.0;
+    x = (slot - 1.0) * 1.15;
+    y = -1.55;
+  } else if (tier < 1.5) {
+    slot = min(floor(f * 5.0), 4.0);
+    kind = 1.0 - step(0.5, slot);
+    x = (slot - 2.0) * 1.05;
+    y = -3.15;
+    if (kind > 0.5) size = vec3(0.54, 1.53, 0.54);
+  } else {
+    slot = min(floor(f * 7.0), 6.0);
+    kind = slot < 2.5 ? 1.0 : 2.0;
+    x = (slot - 3.0) * 1.2;
+    y = -4.7;
+    if (kind > 1.5) size = vec3(1.05, 0.71, 0.20);
+    else size = vec3(0.54, 1.53, 0.54);
+  }
+  return boxShell(vec3(x, y, 0.0), size, seed);
+}
+
+// Strategy-row pictures. Not chapter phases. Twin of serviceFormation().
+vec3 serviceAt(int s, float t) {
+  vec3 seed = position;
+  vec3 p = vec3(0.0);
+  if (s <= 0) {
+    float a = aUV.x * TAU + t * 0.15;
+    float r = 1.2 + pow(aRand, 0.6) * 2.4;
+    p = vec3(cos(a) * r * 1.25, sin(a) * r, (seed.z - 0.5) * 1.1);
+  } else if (s == 1) {
+    float a = aUV.x * TAU + t * 0.04;
+    float b = aUV.y * TAU;
+    float R = 4.1;
+    float tubeR = 0.62;
+    float ring = R + tubeR * cos(b);
+    p = vec3(ring * cos(a), ring * sin(a) * 0.72, tubeR * sin(b));
+  } else if (s == 2) {
+    float layer = min(floor(aRand * 3.0), 2.0);
+    p = vec3(
+      (aUV.x - 0.5) * 11.0,
+      (aUV.y - 0.5) * 3.1 + (layer - 1.0) * 2.35,
+      layer * 1.5
+    );
+  } else if (s == 3) {
+    if (aGold > 0.82) {
+      float a = -0.5 + aUV.x * 4.1;
+      float r = 4.5;
+      p = vec3(cos(a) * r, sin(a) * r * 0.55 + 0.35, (seed.z - 0.5) * 0.15);
+    } else {
+      float side = seed.x < 0.5 ? -1.0 : 1.0;
+      float ang = aUV.y * TAU;
+      float rr = sqrt(seed.y) * 1.45;
+      p = vec3(side * 4.15 + cos(ang) * rr, sin(ang) * rr * 0.85, (seed.z - 0.5) * 0.6);
+    }
+  } else if (s == 4) {
+    float rack = min(floor(aRand * 5.0), 4.0);
+    float x = (rack - 2.0) * 1.55;
+    p = vec3(x + (seed.x - 0.5) * 0.42, (aUV.y - 0.5) * 6.6, (seed.z - 0.5) * 0.65);
+  } else {
+    float which = min(floor(aRand * 3.0), 2.0);
+    float x = (which - 1.0) * 3.3;
+    if (fract(aRand * 19.1) > 0.2) {
+      p = vec3(x, -40.0, 0.0);
+    } else {
+      vec3 size = vec3(0.55, 1.35, 0.70);
+      vec3 center = vec3(x, 0.0, 0.0);
+      if (which < 0.5) {
+        size = vec3(1.70, 0.16, 1.05);
+        center = vec3(x, -0.85, 0.0);
+      } else if (which > 1.5) {
+        size = vec3(1.35, 0.95, 0.14);
+        center = vec3(x, 0.15, 0.0);
+      }
+      p = boxShell(center, size, seed);
+    }
+  }
+  return p;
+}
+
 vec3 halo(vec3 seed) {
   float hz = (seed.z - 0.34) / 0.66;
   float az = seed.x * TAU;
@@ -193,19 +302,32 @@ vec3 formation(int s, float t) {
     if (uZoom > 0.45 && uFocus >= 0.0 && match < 0.5) {
       return vec3(0.0, -40.0, 0.0);
     }
-    float a = k / 6.0 * TAU;
+    float a = k / 6.0 * TAU - 1.5707963;
     float extra = fract(aRand * 6.0);
     vec3 local = seed.z < 0.34 ? glyph(k, seed, extra) * 0.22 : halo(seed);
     local = yaw(local, t * 0.35 * uZoom * match);
-    return vec3(cos(a) * 9.5 + local.x, sin(a) * 4.7 + local.y, local.z);
+    return vec3(cos(a) * 3.4 + 8.0 + local.x, sin(a) * 3.4 + 0.2 + local.y, local.z);
   }
   if (s == 5) {
-    // Response: radial spokes carrying a travelling pulse. The spokes start
-    // clear of the origin, otherwise every one of them piles into the centre.
-    float spokes = 28.0;
-    float a = floor(aUV.y * spokes) / spokes * TAU;
-    float rad = 1.5 + pow(aUV.x, 0.85) * 6.6;
-    return vec3(cos(a) * rad * 1.7, sin(a) * rad, (seed.z - 0.5) * 0.5);
+    // Response: a calm disc, a tight inbox, and a few issues that leave
+    // the rim and extinguish before they arrive.
+    vec3 p = vec3(0.0);
+    if (aRand < 0.07) {
+      float a = seed.x * TAU;
+      float rad = sqrt(seed.y) * 0.55;
+      p = vec3(cos(a) * rad * 1.15, sin(a) * rad, (seed.z - 0.5) * 0.22);
+    } else if (aRand > 0.93) {
+      float travel = fract(t * 0.35 + seed.y);
+      float a = aUV.x * TAU;
+      float rad = 7.2 - travel * 6.39;
+      p = vec3(cos(a) * rad * 1.55, sin(a) * rad, (seed.z - 0.5) * 0.3);
+      if (travel > 0.72) p = vec3(0.0, -40.0, 0.0);
+    } else {
+      float a = aUV.x * TAU + t * 0.015;
+      float rad = sqrt(seed.x) * 6.5;
+      p = vec3(cos(a) * rad * 1.55, sin(a) * rad, (seed.z - 0.5) * 0.45);
+    }
+    return p;
   }
   // Strategy: the field leans forward onto a receding horizon.
   float depth = aUV.y;
@@ -228,8 +350,17 @@ float density(int s) {
   if (s == 2) return 0.30;
   if (s == 3) return 0.32;
   if (s == 4) return 0.40;
-  if (s == 5) return 0.20;
+  if (s == 5) return 0.48;
   return 0.60;
+}
+
+float serviceDensity(int s) {
+  if (s <= 0) return 0.50;
+  if (s == 1) return 0.28;
+  if (s == 2) return 0.62;
+  if (s == 3) return 0.40;
+  if (s == 4) return 0.34;
+  return 0.36;
 }
 
 void main() {
@@ -240,26 +371,50 @@ void main() {
 
   vec3 pos = mix(formation(a, uTime), formation(b, uTime), m);
 
+  // A slice of the lit ownership ring becomes devices. They start above
+  // the ring and ease down. The other two rings stay plain circles.
+  float device = 0.0;
+  float nearOwn = 1.0 - clamp(abs(ph - 2.0), 0.0, 1.0);
+  if (nearOwn > 0.0 && uFocus >= 0.0 && fract(aRand * 19.1) <= 0.1) {
+    float tier = floor(aRand * 3.0);
+    float match = 1.0 - step(0.5, abs(tier - uFocus));
+    if (match > 0.5) {
+      vec3 dev = ownershipDevice(tier);
+      dev.y += exp(-uFocusAge * 2.6) * 5.0;
+      pos = mix(pos, dev, nearOwn);
+      device = nearOwn;
+    }
+  }
+
+  // A strategy row shows its own picture without moving the chapter phase.
+  // uScene stays on the last row so the fade-out still has a shape.
+  if (uSceneMix > 0.001) {
+    pos = mix(pos, serviceAt(int(clamp(uScene, 0.0, 5.0)), uTime), uSceneMix);
+  }
+  float sceneOff = 1.0 - uSceneMix;
+
   // Flashlight: nearby points brighten. They do not move.
   // uMouse is world XY on the z=0 plane, unprojected through the live camera.
   // uGlowScale = camera.z / 20 so the shaft keeps its screen size when closer.
   float toMouse = length(pos.xy - uMouse);
   float glow = smoothstep(5.8 * uGlowScale, 0.0, toMouse);
 
-  vAlpha = 0.62 * mix(density(a), density(b), m) * uIntensity;
+  float dens = mix(density(a), density(b), m);
+  dens = mix(dens, serviceDensity(int(clamp(uScene, 0.0, 5.0))), uSceneMix);
+  vAlpha = 0.62 * dens * uIntensity;
   vAlpha *= mix(1.0, 2.2, glow);
   vDetect = 0.0;
 
   // Hover focus: pull the matching industry cluster or ownership tier
   // forward and dim the rest. uFocus < 0 means nothing is selected.
   if (uFocus >= 0.0) {
-    float nearOwnership = 1.0 - clamp(abs(ph - 2.0), 0.0, 1.0);
-    float nearIndustries = 1.0 - clamp(abs(ph - 4.0), 0.0, 1.0);
+    float nearOwnership = (1.0 - clamp(abs(ph - 2.0), 0.0, 1.0)) * sceneOff;
+    float nearIndustries = (1.0 - clamp(abs(ph - 4.0), 0.0, 1.0)) * sceneOff;
     if (nearOwnership > 0.0) {
       float tier = floor(aRand * 3.0);
       float match = 1.0 - step(0.5, abs(tier - uFocus));
       vAlpha *= mix(0.38, 1.75, match);
-      pos.z += match * 0.9 * nearOwnership;
+      pos.z += match * 0.9 * nearOwnership * (1.0 - device);
     }
     if (nearIndustries > 0.0) {
       float k = floor(aRand * 6.0);
@@ -289,7 +444,7 @@ void main() {
   // Security: a lighthouse beam rotates from the centre and is absorbed
   // when it hits the perimeter. The shaft is a narrow wedge; the ring
   // glow is the same sweep landing on the edge, not a substitute for it.
-  float nearSecurity = 1.0 - clamp(abs(ph - 3.0), 0.0, 1.0);
+  float nearSecurity = (1.0 - clamp(abs(ph - 3.0), 0.0, 1.0)) * sceneOff;
   float beam = 0.0;
   if (nearSecurity > 0.0) {
     float ang = atan(pos.y, pos.x);
@@ -306,24 +461,32 @@ void main() {
     float atPerimeter = smoothstep(5.4, 6.3, ellipseR) * (1.0 - smoothstep(6.9, 7.5, ellipseR));
     vGold = max(vGold, shaft * atPerimeter * nearSecurity);
 
-    // Marked endpoints light red when the shaft hits them. aGold is seeded
-    // once, so the same dots detect on every 360° pass.
+    // Marked endpoints light red when the shaft hits them, then stay red
+    // for about half a second. The beam moves at 0.55 rad/s, so 0.28 rad
+    // behind the shaft is that half-second. aGold is seeded once, so the
+    // same dots detect on every pass.
     float marked = step(0.91, aGold);
-    vDetect = shaft * marked * nearSecurity;
+    float linger = smoothstep(-0.30, -0.04, da) * (1.0 - smoothstep(0.0, 0.02, da));
+    vDetect = marked * nearSecurity * max(shaft, linger);
     vAlpha *= mix(1.0, 2.6, vDetect);
   }
 
-  // Response: a wave travels out from the centre and back.
-  float nearResponse = 1.0 - clamp(abs(ph - 5.0), 0.0, 1.0);
+  // Response: a soft pulse leaves the centre and dies before the rim.
+  // The inbox is the tight cluster; stray issues have already gone out.
+  float nearResponse = (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
   if (nearResponse > 0.0) {
-    float rad = length(pos.xy);
-    float wave = smoothstep(0.80, 1.0, sin(rad * 0.7 - uTime * 2.0));
-    vGold = max(vGold, wave * nearResponse * 0.9);
+    float rad = length(pos.xy / vec2(1.55, 1.0));
+    float front = mod(uTime * 1.4, 8.0);
+    float band = smoothstep(0.85, 0.0, abs(rad - front));
+    float die = 1.0 - smoothstep(4.2, 5.4, front);
+    vGold = max(vGold, band * die * nearResponse);
+    if (aRand < 0.07) vGold = max(vGold, 0.65 * nearResponse);
   }
 
   // Strategy: dissolve into the horizon and pick out lanes along the
   // direction of travel, so the plane reads as distance rather than a slab.
-  float nearStrategy = smoothstep(5.0, 6.0, ph);
+  // A service picture takes the field over, so the horizon treatment steps aside.
+  float nearStrategy = smoothstep(5.0, 6.0, ph) * sceneOff;
   if (nearStrategy > 0.0) {
     float fade = 1.0 - smoothstep(0.45, 1.0, aUV.y);
     float lane = smoothstep(0.38, 0.5, abs(fract(aUV.x * 26.0) - 0.5));
@@ -332,19 +495,20 @@ void main() {
 
   // Industry cloud glows from its own centre: hot in the middle, a faint
   // dusting at the rim. The mark is a small bright object inside that glow.
-  float nearIndustries = 1.0 - clamp(abs(ph - 4.0), 0.0, 1.0);
+  float nearIndustries = (1.0 - clamp(abs(ph - 4.0), 0.0, 1.0)) * sceneOff;
   float onGlyph = (1.0 - step(0.34, position.z)) * nearIndustries;
   float onHalo = step(0.34, position.z) * nearIndustries;
   float core = 0.0;
   if (nearIndustries > 0.0) {
     float kk = min(floor(aRand * 6.0), 5.0);
-    float ca = kk / 6.0 * 6.2831853;
-    vec2 ctr = vec2(cos(ca) * 9.5, sin(ca) * 4.7);
+    float ca = kk / 6.0 * 6.2831853 - 1.5707963;
+    vec2 ctr = vec2(cos(ca) * 3.4 + 8.0, sin(ca) * 3.4 + 0.2);
     float rad = length(vec3(pos.x - ctr.x, pos.y - ctr.y, pos.z));
     core = pow(clamp(1.0 - rad / 2.5, 0.0, 1.0), 1.35);
   }
   vAlpha *= mix(1.0, 1.35, onGlyph);
   vAlpha *= mix(1.0, mix(0.16, 1.85, core), onHalo);
+  vAlpha *= mix(1.0, 1.25, device * sceneOff);
 
   // Once a zoom is underway, stop rasterising the other five clusters.
   // That is the expensive part of flying in on a slower GPU.
@@ -359,7 +523,7 @@ void main() {
   vAlpha *= mix(1.0, 1.7, uResolve);
 
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
-  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7;
+  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 0.55;
   float px = size * uPixelRatio * (44.0 / max(-mv.z, 0.001));
   float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom);
   gl_PointSize = min(px, cap) * (1.0 - hide);

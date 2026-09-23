@@ -95,9 +95,30 @@ function rectFrame(
 }
 
 /**
- * Point-built machines that settle into the lit ownership ring.
+ * Frame of one face of a box. `plane` 0 is the front (XY), 1 a side (ZY),
+ * 2 the top (XZ). Twin of `faceFrame()` in shader.ts.
+ */
+function faceFrame(
+  along: number,
+  inset: number,
+  u0: number,
+  u1: number,
+  v0: number,
+  v1: number,
+  fixed: number,
+  plane: number,
+  thick: number,
+): Vec3 {
+  const f = rectFrame(along, inset, u0, v0, u1, v1, fixed, thick);
+  if (plane === 1) return [f[2], f[1], f[0]];
+  if (plane === 2) return [f[0], f[2], f[1]];
+  return f;
+}
+
+/**
+ * Point-built machines that ride the lit ownership ring.
  * Kind 0 is a desktop monitor, 1 a server, 2 a workstation.
- * Outlines, not filled panels, so additive points stay a silhouette.
+ * Each is a box with a front, sides, and a top, so a turn shows depth.
  * Keep in step with `deviceLocal()` in shader.ts.
  * Returns null when this point stays on the ring.
  */
@@ -108,54 +129,74 @@ function deviceLocal(kind: number, seed: Vec3): Vec3 {
   const ang = u * TAU;
 
   if (kind <= 0) {
-    if (part < 0.46) return rectFrame(u, v, -0.98, 0.02, 0.98, 1.42, 0, 0.1);
-    if (part < 0.64) return rectFrame(u, v, -0.72, 0.24, 0.72, 1.2, 0.02, 0.045);
-    if (part < 0.8) return tube([0, 0.02, 0], [0, -0.46, 0], u, ang, 0.07);
-    return tube([-0.72, -0.52, 0], [0.72, -0.52, 0], u, ang, 0.07);
+    if (part < 0.22) return faceFrame(u, v, -0.92, 0.92, 0.02, 1.32, 0.36, 0, 0.09);
+    if (part < 0.36) return faceFrame(u, v, -0.68, 0.68, 0.22, 1.12, 0.4, 0, 0.045);
+    if (part < 0.5) return faceFrame(u, v, -0.86, 0.86, 0.08, 1.26, -0.36, 0, 0.07);
+    if (part < 0.68) {
+      const side = u < 0.5 ? -0.92 : 0.92;
+      return faceFrame(fract(u * 2), v, -0.36, 0.36, 0.02, 1.32, side, 1, 0.06);
+    }
+    if (part < 0.8) return faceFrame(u, v, -0.92, 0.92, -0.36, 0.36, 1.32, 2, 0.06);
+    if (part < 0.9) return tube([0, 0.02, 0], [0, -0.42, 0], u, ang, 0.08);
+    return faceFrame(u, v, -0.64, 0.64, -0.38, 0.38, -0.5, 2, 0.05);
   }
   if (kind === 1) {
-    if (part < 0.3) return rectFrame(u, v, -0.52, -1.28, 0.52, 1.28, 0.24, 0.08);
-    if (part < 0.48) {
-      const corner = Math.min(3, Math.floor(u * 4));
-      const sx = corner < 2 ? -0.52 : 0.52;
-      const sz = corner % 2 === 0 ? -0.22 : 0.24;
-      return [sx, -1.28 + v * 2.56, sz];
-    }
-    if (part < 0.9) {
+    if (part < 0.18) return faceFrame(u, v, -0.5, 0.5, -1.22, 1.24, 0.68, 0, 0.07);
+    if (part < 0.4) {
       const bay = Math.min(5, Math.floor(u * 6));
-      return [(v - 0.5) * 0.78, -0.98 + bay * 0.38, 0.3];
+      return [(v - 0.5) * 0.78, -0.92 + bay * 0.36, 0.72];
     }
-    return [(u - 0.5) * 1.04, 1.28, (v - 0.5) * 0.4];
+    if (part < 0.58) return faceFrame(u, v, -0.68, 0.68, -1.22, 1.24, 0.5, 1, 0.06);
+    if (part < 0.74) return faceFrame(u, v, -0.68, 0.68, -1.22, 1.24, -0.5, 1, 0.06);
+    if (part < 0.88) return faceFrame(u, v, -0.5, 0.5, -0.68, 0.68, 1.24, 2, 0.055);
+    return faceFrame(u, v, -0.44, 0.44, -1.16, 1.18, -0.68, 0, 0.06);
   }
-  if (part < 0.28) return rectFrame(u, v, -1.22, 0.18, -0.02, 1.38, 0, 0.08);
-  if (part < 0.38) return tube([-0.62, 0.18, 0], [-0.62, -0.28, 0], u, ang, 0.055);
-  if (part < 0.48) return tube([-1.05, -0.36, 0], [-0.18, -0.36, 0], u, ang, 0.05);
-  if (part < 0.64) return rectFrame(u, v, 0.22, -0.62, 0.92, 1.32, 0.12, 0.065);
-  if (part < 0.8) {
+  if (part < 0.16) return faceFrame(u, v, -1.2, -0.12, 0.12, 1.22, 0.28, 0, 0.07);
+  if (part < 0.28) return faceFrame(u, v, -0.28, 0.28, 0.12, 1.22, -1.2, 1, 0.05);
+  if (part < 0.36) return faceFrame(u, v, -1.2, -0.12, -0.28, 0.28, 1.22, 2, 0.05);
+  if (part < 0.5) return faceFrame(u, v, 0.18, 0.95, -0.7, 1.28, 0.48, 0, 0.06);
+  if (part < 0.66) {
     const bay = Math.min(3, Math.floor(u * 4));
-    return [0.3 + v * 0.52, -0.32 + bay * 0.38, 0.18];
+    return [0.28 + v * 0.55, -0.42 + bay * 0.4, 0.52];
   }
-  const deck = rectFrame(u, v, -0.95, 0.02, 0.12, 0.58, 0, 0.04);
-  return [deck[0], -0.42, deck[1]];
+  if (part < 0.82) return faceFrame(u, v, -0.48, 0.48, -0.7, 1.28, 0.95, 1, 0.05);
+  if (part < 0.92) return faceFrame(u, v, 0.18, 0.95, -0.48, 0.48, 1.28, 2, 0.05);
+  return tube([-0.66, 0.12, 0], [-0.66, -0.36, 0], u, ang, 0.06);
 }
 
-function placeDevice(tier: number, slot: number, count: number, kind: number, seed: Vec3): Vec3 {
+function placeDevice(
+  tier: number,
+  slot: number,
+  count: number,
+  kind: number,
+  seed: Vec3,
+  t: number,
+): Vec3 {
   const ring = 2.2 + tier * 1.75;
-  const a = (slot / count) * TAU + tier * 0.55;
-  const inset = 0.5 + fract(slot * 0.37 + tier * 0.2) * 0.34;
+  const spin = t * (0.05 + tier * 0.02);
+  const a = (slot / count) * TAU + tier * 0.55 + spin;
+  const inset = 0.84 + fract(slot * 0.37 + tier * 0.2) * 0.1;
   const cx = Math.cos(a) * ring * 1.8 * inset;
   const cy = Math.sin(a) * ring * inset;
   const local = deviceLocal(kind, seed);
-  const scale = 1.05 + tier * 0.14;
-  const yaw = 0.16 + (slot % 3) * 0.13;
+  const scale = 0.95 + tier * 0.08;
+  const yaw = a + 0.85;
+  const pitch = 0.4;
+  const x = local[0] * scale;
+  let y = local[1] * scale;
+  let z = local[2] * scale;
+  const cp = Math.cos(pitch);
+  const sp = Math.sin(pitch);
+  const y2 = y * cp - z * sp;
+  const z2 = y * sp + z * cp;
+  y = y2;
+  z = z2;
   const c = Math.cos(yaw);
   const s = Math.sin(yaw);
-  const x = local[0] * scale;
-  const z = local[2] * scale;
-  return [cx + x * c + z * s, cy + local[1] * scale, -x * s + z * c];
+  return [cx + x * c + z * s, cy + y, -x * s + z * c];
 }
 
-export function ownershipDevice(tier: number, p: PointSeed): Vec3 | null {
+export function ownershipDevice(tier: number, p: PointSeed, time = 0): Vec3 | null {
   if (fract(p.rand * 19.1) > 0.2) return null;
   const f = fract(p.rand * 13.7);
   const t = Math.min(2, Math.max(0, tier));
@@ -173,7 +214,7 @@ export function ownershipDevice(tier: number, p: PointSeed): Vec3 | null {
     slot = Math.min(6, Math.floor(f * 7));
     kind = slot <= 2 ? 1 : 2;
   }
-  return placeDevice(t, slot, count, kind, p.seed);
+  return placeDevice(t, slot, count, kind, p.seed, time);
 }
 
 /** Open laptop, tower, or monitor. Local offset, centred on the piece. */
@@ -529,7 +570,7 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       // drops the lit tier's devices in from above.
       const tier = Math.floor(rand * 3);
       if (tier === 0) {
-        const dev = ownershipDevice(0, p);
+        const dev = ownershipDevice(0, p, t);
         if (dev) return dev;
       }
       const r = 2.2 + tier * 1.75 + (seed[2] - 0.5) * 0.3;

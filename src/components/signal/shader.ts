@@ -156,6 +156,16 @@ vec3 rectFrame(float along, float inset, float x0, float y0, float x1, float y1,
   return p;
 }
 
+// One face of a box. plane 0 front (XY), 1 side (ZY), 2 top (XZ).
+// Twin of faceFrame() in formations.ts.
+vec3 faceFrame(float along, float inset, float u0, float u1, float v0, float v1, float held, float plane, float thick) {
+  vec3 f = rectFrame(along, inset, u0, v0, u1, v1, held, thick);
+  vec3 p = f;
+  if (plane > 0.5 && plane < 1.5) p = vec3(f.z, f.y, f.x);
+  else if (plane >= 1.5) p = vec3(f.x, f.z, f.y);
+  return p;
+}
+
 // Desktop, server, or workstation in local space. Twin of deviceLocal().
 // One return, so ANGLE keeps the result initialised.
 vec3 deviceLocal(float kind, vec3 seed) {
@@ -163,34 +173,36 @@ vec3 deviceLocal(float kind, vec3 seed) {
   float u = seed.y;
   float v = seed.z;
   float ang = u * TAU;
-  vec3 deck = rectFrame(u, v, -0.95, 0.02, 0.12, 0.58, 0.0, 0.04);
-  vec3 p = vec3(deck.x, -0.42, deck.y);
+  vec3 p = tube(vec3(-0.66, 0.12, 0.0), vec3(-0.66, -0.36, 0.0), u, ang, 0.06);
   if (kind < 0.5) {
-    p = tube(vec3(-0.72, -0.52, 0.0), vec3(0.72, -0.52, 0.0), u, ang, 0.07);
-    if (part < 0.46) p = rectFrame(u, v, -0.98, 0.02, 0.98, 1.42, 0.0, 0.1);
-    else if (part < 0.64) p = rectFrame(u, v, -0.72, 0.24, 0.72, 1.2, 0.02, 0.045);
-    else if (part < 0.8) p = tube(vec3(0.0, 0.02, 0.0), vec3(0.0, -0.46, 0.0), u, ang, 0.07);
+    p = faceFrame(u, v, -0.64, 0.64, -0.38, 0.38, -0.5, 2.0, 0.05);
+    if (part < 0.22) p = faceFrame(u, v, -0.92, 0.92, 0.02, 1.32, 0.36, 0.0, 0.09);
+    else if (part < 0.36) p = faceFrame(u, v, -0.68, 0.68, 0.22, 1.12, 0.4, 0.0, 0.045);
+    else if (part < 0.5) p = faceFrame(u, v, -0.86, 0.86, 0.08, 1.26, -0.36, 0.0, 0.07);
+    else if (part < 0.68) {
+      float side = u < 0.5 ? -0.92 : 0.92;
+      p = faceFrame(fract(u * 2.0), v, -0.36, 0.36, 0.02, 1.32, side, 1.0, 0.06);
+    } else if (part < 0.8) p = faceFrame(u, v, -0.92, 0.92, -0.36, 0.36, 1.32, 2.0, 0.06);
+    else if (part < 0.9) p = tube(vec3(0.0, 0.02, 0.0), vec3(0.0, -0.42, 0.0), u, ang, 0.08);
   } else if (kind < 1.5) {
-    p = vec3((u - 0.5) * 1.04, 1.28, (v - 0.5) * 0.4);
-    if (part < 0.3) p = rectFrame(u, v, -0.52, -1.28, 0.52, 1.28, 0.24, 0.08);
-    else if (part < 0.48) {
-      float corner = min(floor(u * 4.0), 3.0);
-      float sx = corner < 2.0 ? -0.52 : 0.52;
-      float sz = mod(corner, 2.0) < 0.5 ? -0.22 : 0.24;
-      p = vec3(sx, -1.28 + v * 2.56, sz);
-    } else if (part < 0.9) {
+    p = faceFrame(u, v, -0.44, 0.44, -1.16, 1.18, -0.68, 0.0, 0.06);
+    if (part < 0.18) p = faceFrame(u, v, -0.5, 0.5, -1.22, 1.24, 0.68, 0.0, 0.07);
+    else if (part < 0.4) {
       float bay = min(floor(u * 6.0), 5.0);
-      p = vec3((v - 0.5) * 0.78, -0.98 + bay * 0.38, 0.3);
-    }
+      p = vec3((v - 0.5) * 0.78, -0.92 + bay * 0.36, 0.72);
+    } else if (part < 0.58) p = faceFrame(u, v, -0.68, 0.68, -1.22, 1.24, 0.5, 1.0, 0.06);
+    else if (part < 0.74) p = faceFrame(u, v, -0.68, 0.68, -1.22, 1.24, -0.5, 1.0, 0.06);
+    else if (part < 0.88) p = faceFrame(u, v, -0.5, 0.5, -0.68, 0.68, 1.24, 2.0, 0.055);
   } else {
-    if (part < 0.28) p = rectFrame(u, v, -1.22, 0.18, -0.02, 1.38, 0.0, 0.08);
-    else if (part < 0.38) p = tube(vec3(-0.62, 0.18, 0.0), vec3(-0.62, -0.28, 0.0), u, ang, 0.055);
-    else if (part < 0.48) p = tube(vec3(-1.05, -0.36, 0.0), vec3(-0.18, -0.36, 0.0), u, ang, 0.05);
-    else if (part < 0.64) p = rectFrame(u, v, 0.22, -0.62, 0.92, 1.32, 0.12, 0.065);
-    else if (part < 0.8) {
+    if (part < 0.16) p = faceFrame(u, v, -1.2, -0.12, 0.12, 1.22, 0.28, 0.0, 0.07);
+    else if (part < 0.28) p = faceFrame(u, v, -0.28, 0.28, 0.12, 1.22, -1.2, 1.0, 0.05);
+    else if (part < 0.36) p = faceFrame(u, v, -1.2, -0.12, -0.28, 0.28, 1.22, 2.0, 0.05);
+    else if (part < 0.5) p = faceFrame(u, v, 0.18, 0.95, -0.7, 1.28, 0.48, 0.0, 0.06);
+    else if (part < 0.66) {
       float bay = min(floor(u * 4.0), 3.0);
-      p = vec3(0.3 + v * 0.52, -0.32 + bay * 0.38, 0.18);
-    }
+      p = vec3(0.28 + v * 0.55, -0.42 + bay * 0.4, 0.52);
+    } else if (part < 0.82) p = faceFrame(u, v, -0.48, 0.48, -0.7, 1.28, 0.95, 1.0, 0.05);
+    else if (part < 0.92) p = faceFrame(u, v, 0.18, 0.95, -0.48, 0.48, 1.28, 2.0, 0.05);
   }
   return p;
 }
@@ -234,7 +246,7 @@ vec3 hardwareLocal(float which, vec3 seed) {
   return p;
 }
 
-vec3 ownershipDevice(float tier) {
+vec3 ownershipDevice(float tier, float t) {
   vec3 seed = position;
   float f = fract(aRand * 13.7);
   float count = 3.0;
@@ -250,18 +262,25 @@ vec3 ownershipDevice(float tier) {
     kind = slot < 2.5 ? 1.0 : 2.0;
   }
   float ring = 2.2 + tier * 1.75;
-  float a = slot / count * TAU + tier * 0.55;
-  float inset = 0.5 + fract(slot * 0.37 + tier * 0.2) * 0.34;
+  float spin = t * (0.05 + tier * 0.02);
+  float a = slot / count * TAU + tier * 0.55 + spin;
+  float inset = 0.84 + fract(slot * 0.37 + tier * 0.2) * 0.1;
   float cx = cos(a) * ring * 1.8 * inset;
   float cy = sin(a) * ring * inset;
   vec3 local = deviceLocal(kind, seed);
-  float scale = 1.05 + tier * 0.14;
-  float yaw = 0.16 + mod(slot, 3.0) * 0.13;
+  float scale = 0.95 + tier * 0.08;
+  float yaw = a + 0.85;
+  float pitch = 0.4;
+  float x = local.x * scale;
+  float y = local.y * scale;
+  float z = local.z * scale;
+  float cp = cos(pitch);
+  float sp = sin(pitch);
+  float y2 = y * cp - z * sp;
+  float z2 = y * sp + z * cp;
   float c = cos(yaw);
   float s = sin(yaw);
-  float x = local.x * scale;
-  float z = local.z * scale;
-  return vec3(cx + x * c + z * s, cy + local.y * scale, -x * s + z * c);
+  return vec3(cx + x * c + z2 * s, cy + y2, -x * s + z2 * c);
 }
 
 // Strategy-row pictures. Not chapter phases. Twin of serviceFormation().
@@ -471,7 +490,7 @@ void main() {
     float tier = floor(aRand * 3.0);
     float match = 1.0 - step(0.5, abs(tier - uFocus));
     if (match > 0.5) {
-      vec3 dev = ownershipDevice(tier);
+      vec3 dev = ownershipDevice(tier, uTime);
       dev.y += exp(-uFocusAge * 2.6) * 5.0;
       pos = mix(pos, dev, nearOwn);
       device = nearOwn;

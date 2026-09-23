@@ -21,6 +21,13 @@ const BRAND_SRC = {
   lockup: "/brand/4eos-lockup.svg",
 } as const;
 
+/** Brand drawing with the navy redrawn in bone, so the gold stays and the
+ *  letters stay solid on the dark bar. The traced mono file cuts holes. */
+const ON_DARK_SRC = {
+  mark: "/brand/4eos-mark-bone.svg",
+  lockup: "/brand/4eos-lockup.svg",
+} as const;
+
 type Variant = keyof typeof RATIO;
 
 type LogoProps = {
@@ -47,11 +54,11 @@ export function Logo({
       ? { height, width }
       : { height: "var(--logo-h)", width: "auto", aspectRatio: `${ratio}` };
 
-  if (tone === "brand") {
+  if (tone === "brand" || variant === "mark") {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={BRAND_SRC[variant]}
+        src={tone === "brand" ? BRAND_SRC[variant] : ON_DARK_SRC[variant]}
         alt={title}
         width={width}
         height={height}

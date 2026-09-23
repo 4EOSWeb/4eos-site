@@ -60,6 +60,13 @@ vec3 yaw(vec3 p, float spin) {
   return vec3(p.x * c + p.z * s, p.y, -p.x * s + p.z * c);
 }
 
+vec3 bowl(float cx, float rimY, float along, float ang, float fill) {
+  float phi = along * 1.5707963;
+  float shell = 0.32 + fill * 0.12;
+  float horiz = cos(phi) * shell;
+  return vec3(cx + cos(ang) * horiz, rimY - sin(phi) * shell, sin(ang) * horiz);
+}
+
 // Local orb inside an industry mark. Twin of industryGlyph() in formations.ts.
 // One assignment and a final return — early returns leave ANGLE with an
 // uninitialised function result (X4000) and the mark disappears.
@@ -70,66 +77,71 @@ vec3 glyph(float k, vec3 seed, float extra) {
   vec3 p = vec3(0.0);
 
   if (k < 0.5) {
-    float cx = extra < 0.75 ? -0.74 : 0.74;
-    float rr = fill * 0.4;
-    float sag = (rr / 0.4) * (rr / 0.4) * 0.16;
-    p = vec3(cx + cos(ang) * rr, -0.18 - sag, sin(ang) * rr * 0.62);
-    if (extra < 0.16) p = tube(vec3(0.0, -1.02, 0.0), vec3(0.0, 0.48, 0.0), along, ang, fill * 0.16);
-    else if (extra < 0.36) p = tube(vec3(-1.08, 0.48, 0.0), vec3(1.08, 0.48, 0.0), along, ang, fill * 0.18);
-    else if (extra < 0.44) p = tube(vec3(-0.74, 0.48, 0.0), vec3(-0.74, -0.02, 0.0), along, ang, fill * 0.07);
-    else if (extra < 0.5) p = tube(vec3(0.74, 0.48, 0.0), vec3(0.74, -0.02, 0.0), along, ang, fill * 0.07);
+    p = bowl(extra < 0.81 ? -0.66 : 0.66, 0.0, along, ang, fill);
+    if (extra < 0.1) p = tube(vec3(0.0, -1.08, 0.0), vec3(0.0, -0.9, 0.0), along, ang, 0.1 + fill * 0.22);
+    else if (extra < 0.3) p = tube(vec3(0.0, -0.9, 0.0), vec3(0.0, 0.5, 0.0), along, ang, fill * 0.13);
+    else if (extra < 0.48) p = tube(vec3(-0.92, 0.5, 0.0), vec3(0.92, 0.5, 0.0), along, ang, fill * 0.11);
+    else if (extra < 0.55) p = tube(vec3(-0.66, 0.5, 0.0), vec3(-0.66, 0.02, 0.0), along, ang, fill * 0.05);
+    else if (extra < 0.62) p = tube(vec3(0.66, 0.5, 0.0), vec3(0.66, 0.02, 0.0), along, ang, fill * 0.05);
   } else if (k < 1.5) {
-    float a = along * 3.14159265;
-    float r = 0.92 + fill * 0.22;
-    float z = (hash21(seed.y, extra) - 0.5) * 0.36;
-    p = vec3(cos(a) * r, sin(a) * 0.7 + 0.12, z);
+    float phi = along * 1.5707963;
+    float shell = 0.86 + fill * 0.14;
+    float horiz = sin(phi) * shell;
+    p = vec3(cos(ang) * horiz, cos(phi) * shell * 0.88 + 0.12, sin(ang) * horiz);
     if (extra >= 0.88) {
-      a = along * 3.14159265 * 0.55;
-      p = vec3(sin(a) * 0.36, -0.98 - (1.0 - cos(a)) * 0.28, (fill - 0.5) * 0.12);
+      float a = along * 3.14159265 * 0.55;
+      float hx = sin(a) * 0.32;
+      float hy = -0.92 - (1.0 - cos(a)) * 0.26;
+      float thick = fill * 0.08;
+      p = vec3(hx + cos(ang) * thick, hy, sin(ang) * thick);
     } else if (extra >= 0.62) {
-      p = tube(vec3(0.0, 0.12, 0.0), vec3(0.0, -0.98, 0.0), along, ang, fill * 0.12);
+      p = tube(vec3(0.0, 0.55, 0.0), vec3(0.0, -0.92, 0.0), along, ang, fill * 0.09);
     }
   } else if (k < 2.5) {
-    float rad = fill * 0.32;
-    if (extra < 0.5) p = tube(vec3(-1.05, 0.0, 0.0), vec3(1.05, 0.0, 0.0), along, ang, rad);
-    else if (along < 0.5) p = tube(vec3(0.0, -1.05, 0.0), vec3(0.0, -0.34, 0.0), along * 2.0, ang, rad);
-    else p = tube(vec3(0.0, 0.34, 0.0), vec3(0.0, 1.05, 0.0), (along - 0.5) * 2.0, ang, rad);
+    float rad = 0.16 + fill * 0.18;
+    if (extra < 0.5) p = tube(vec3(-0.95, 0.0, 0.0), vec3(0.95, 0.0, 0.0), along, ang, rad);
+    else if (along < 0.5) p = tube(vec3(0.0, -0.95, 0.0), vec3(0.0, -0.32, 0.0), along * 2.0, ang, rad);
+    else p = tube(vec3(0.0, 0.32, 0.0), vec3(0.0, 0.95, 0.0), (along - 0.5) * 2.0, ang, rad);
   } else if (k < 3.5) {
-    float rr = fill * 0.16;
-    p = vec3(0.78 + cos(ang) * rr, -0.2 - sin(ang) * rr * 0.6, (hash21(along, extra) - 0.5) * 0.12);
-    if (extra < 0.32) p = tube(vec3(-0.58, -1.08, 0.0), vec3(-0.58, 0.98, 0.0), along, ang, fill * 0.16);
-    else if (extra < 0.6) p = tube(vec3(-0.58, 0.9, 0.0), vec3(1.18, 0.7, 0.0), along, ang, fill * 0.13);
-    else if (extra < 0.72) p = tube(vec3(-0.58, 0.9, 0.0), vec3(-1.12, 0.78, 0.0), along, ang, fill * 0.14);
-    else if (extra < 0.9) p = tube(vec3(0.78, 0.74, 0.0), vec3(0.78, -0.08, 0.0), along, ang, fill * 0.06);
+    float rr = fill * 0.14;
+    p = vec3(0.7 + cos(ang) * rr, -0.16 - abs(sin(ang)) * rr, (hash21(along, extra) - 0.5) * 0.16);
+    if (extra < 0.32) p = tube(vec3(-0.52, -1.02, 0.0), vec3(-0.52, 0.92, 0.0), along, ang, 0.08 + fill * 0.14);
+    else if (extra < 0.6) p = tube(vec3(-0.52, 0.84, 0.0), vec3(1.05, 0.64, 0.0), along, ang, 0.06 + fill * 0.12);
+    else if (extra < 0.72) p = tube(vec3(-0.52, 0.84, 0.0), vec3(-1.02, 0.72, 0.0), along, ang, 0.06 + fill * 0.12);
+    else if (extra < 0.9) p = tube(vec3(0.7, 0.7, 0.0), vec3(0.7, -0.05, 0.0), along, ang, fill * 0.05);
   } else if (k < 4.5) {
-    float z = (hash21(seed.x, extra) - 0.5) * 0.38;
+    float z = (hash21(seed.x, extra) - 0.5) * 0.62;
     if (extra < 0.52) {
       float a = along * TAU;
-      float r = 0.42 + fill * 0.32;
+      float r = 0.4 + fill * 0.3;
       p = vec3(cos(a) * r, sin(a) * r, z);
     } else {
       float tooth = min(floor(along * 8.0), 7.0);
       float a = (tooth + 0.5) / 8.0 * TAU;
-      float r = 0.7 + fract(along * 8.0) * 0.48;
-      float w = (hash21(extra, seed.y) - 0.5) * 0.34;
+      float r = 0.68 + fract(along * 8.0) * 0.4;
+      float w = (hash21(extra, seed.y) - 0.5) * 0.28;
       p = vec3(cos(a) * r - sin(a) * w, sin(a) * r + cos(a) * w, z);
     }
   } else {
     float bar = min(floor(extra * 3.0), 2.0);
     float h = 0.62 + bar * 0.48;
-    float jx = (hash21(seed.x, extra) - 0.5) * 0.4;
-    float jz = (hash21(seed.y, extra) - 0.5) * 0.4;
-    p = vec3((bar - 1.0) * 0.84 + jx, -0.78 + along * h, jz);
+    float jx = (hash21(seed.x, extra) - 0.5) * 0.38;
+    float jz = (hash21(seed.y, extra) - 0.5) * 0.55;
+    p = vec3((bar - 1.0) * 0.78 + jx, -0.72 + along * h, jz);
   }
 
   return p;
 }
 
 vec3 halo(vec3 seed) {
-  float ang = seed.x * TAU;
-  float jr = 1.72 + pow(seed.y, 0.7) * 0.95;
   float hz = (seed.z - 0.34) / 0.66;
-  return vec3(cos(ang) * jr * 1.12, sin(ang) * jr, (hz - 0.5) * 1.05);
+  float az = seed.x * TAU;
+  float cosP = hz * 2.0 - 1.0;
+  float sinP = sqrt(max(0.0, 1.0 - cosP * cosP));
+  float r0 = 1.22;
+  float r1 = 2.35;
+  float R = pow(r0 * r0 * r0 + seed.y * (r1 * r1 * r1 - r0 * r0 * r0), 0.333333);
+  return vec3(cos(az) * sinP * R, cosP * R, sin(az) * sinP * R);
 }
 
 vec3 formation(int s, float t) {
@@ -182,7 +194,7 @@ vec3 formation(int s, float t) {
     float a = k / 6.0 * TAU;
     float extra = fract(aRand * 6.0);
     vec3 local = seed.z < 0.34 ? glyph(k, seed, extra) : halo(seed);
-    local = yaw(local, t * 0.35 * uZoom * match * (1.0 - uLite));
+    local = yaw(local, t * 0.35 * uZoom * match);
     return vec3(cos(a) * 9.5 + local.x, sin(a) * 4.7 + local.y, local.z);
   }
   if (s == 5) {

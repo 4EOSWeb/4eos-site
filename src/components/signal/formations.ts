@@ -59,8 +59,9 @@ export function clusterCenter(k: number): [number, number] {
  * the role split and is biased once the cut is applied).
  */
 const ICON_CUT = 0.34;
-const HALO_INNER = 1.72;
-const HALO_SPAN = 0.95;
+/** Filled spherical shell. The mark sits in the hollow centre. */
+const SPHERE_INNER = 1.22;
+const SPHERE_OUTER = 2.35;
 
 function fract(n: number) {
   return n - Math.floor(n);
@@ -104,6 +105,18 @@ function tube(a: Vec3, b: Vec3, along: number, ang: number, rad: number): Vec3 {
   ];
 }
 
+/** Hemispherical bowl, opening upward. `phi` 0 is the rim, π/2 is the bottom. */
+function bowl(cx: number, rimY: number, along: number, ang: number, fill: number): Vec3 {
+  const phi = along * (Math.PI / 2);
+  const shell = 0.32 + fill * 0.12;
+  const horiz = Math.cos(phi) * shell;
+  return [
+    cx + Math.cos(ang) * horiz,
+    rimY - Math.sin(phi) * shell,
+    Math.sin(ang) * horiz,
+  ];
+}
+
 /** Local offset of one orb inside an industry mark. */
 function industryGlyph(k: number, seed: Vec3, extra: number): Vec3 {
   const along = seed[0];
@@ -111,77 +124,83 @@ function industryGlyph(k: number, seed: Vec3, extra: number): Vec3 {
   const fill = Math.sqrt(hash21(seed[0], seed[1]));
 
   if (k === 0) {
-    // Legal — scales. Post, beam, two hangers, two pans.
-    if (extra < 0.16) return tube([0, -1.02, 0], [0, 0.48, 0], along, ang, fill * 0.16);
-    if (extra < 0.36) return tube([-1.08, 0.48, 0], [1.08, 0.48, 0], along, ang, fill * 0.18);
-    if (extra < 0.44) return tube([-0.74, 0.48, 0], [-0.74, -0.02, 0], along, ang, fill * 0.07);
-    if (extra < 0.5) return tube([0.74, 0.48, 0], [0.74, -0.02, 0], along, ang, fill * 0.07);
-    const cx = extra < 0.75 ? -0.74 : 0.74;
-    const rr = fill * 0.4;
-    const sag = (rr / 0.4) * (rr / 0.4) * 0.16;
-    return [cx + Math.cos(ang) * rr, -0.18 - sag, Math.sin(ang) * rr * 0.62];
+    // Legal — a standing balance. Foot, post, beam, hangers, two bowls.
+    if (extra < 0.1) return tube([0, -1.08, 0], [0, -0.9, 0], along, ang, 0.1 + fill * 0.22);
+    if (extra < 0.3) return tube([0, -0.9, 0], [0, 0.5, 0], along, ang, fill * 0.13);
+    if (extra < 0.48) return tube([-0.92, 0.5, 0], [0.92, 0.5, 0], along, ang, fill * 0.11);
+    if (extra < 0.55) return tube([-0.66, 0.5, 0], [-0.66, 0.02, 0], along, ang, fill * 0.05);
+    if (extra < 0.62) return tube([0.66, 0.5, 0], [0.66, 0.02, 0], along, ang, fill * 0.05);
+    return bowl(extra < 0.81 ? -0.66 : 0.66, 0.0, along, ang, fill);
   }
 
   if (k === 1) {
-    // Insurance — umbrella. Dome, shaft, hook.
+    // Insurance — a dome you could stand under, a shaft, and a hook.
     if (extra < 0.62) {
-      const a = along * Math.PI;
-      const r = 0.92 + fill * 0.22;
-      const z = (hash21(seed[1], extra) - 0.5) * 0.36;
-      return [Math.cos(a) * r, Math.sin(a) * 0.7 + 0.12, z];
+      const phi = along * (Math.PI / 2);
+      const shell = 0.86 + fill * 0.14;
+      const horiz = Math.sin(phi) * shell;
+      return [Math.cos(ang) * horiz, Math.cos(phi) * shell * 0.88 + 0.12, Math.sin(ang) * horiz];
     }
-    if (extra < 0.88) return tube([0, 0.12, 0], [0, -0.98, 0], along, ang, fill * 0.12);
+    if (extra < 0.88) return tube([0, 0.55, 0], [0, -0.92, 0], along, ang, fill * 0.09);
     const a = along * Math.PI * 0.55;
-    return [Math.sin(a) * 0.36, -0.98 - (1 - Math.cos(a)) * 0.28, (fill - 0.5) * 0.12];
+    const hx = Math.sin(a) * 0.32;
+    const hy = -0.92 - (1 - Math.cos(a)) * 0.26;
+    const thick = fill * 0.08;
+    return [hx + Math.cos(ang) * thick, hy, Math.sin(ang) * thick];
   }
 
   if (k === 2) {
-    // Healthcare — a plus, volume not a hairline. Vertical arms stop
-    // at the bar so the centre is not sampled twice.
-    const rad = fill * 0.32;
-    if (extra < 0.5) return tube([-1.05, 0, 0], [1.05, 0, 0], along, ang, rad);
-    if (along < 0.5) return tube([0, -1.05, 0], [0, -0.34, 0], along * 2, ang, rad);
-    return tube([0, 0.34, 0], [0, 1.05, 0], (along - 0.5) * 2, ang, rad);
+    // Healthcare — two round bars. Vertical arms stop at the bar
+    // so the centre is not sampled twice.
+    const rad = 0.16 + fill * 0.18;
+    if (extra < 0.5) return tube([-0.95, 0, 0], [0.95, 0, 0], along, ang, rad);
+    if (along < 0.5) return tube([0, -0.95, 0], [0, -0.32, 0], along * 2, ang, rad);
+    return tube([0, 0.32, 0], [0, 0.95, 0], (along - 0.5) * 2, ang, rad);
   }
 
   if (k === 3) {
-    // Construction — crane. Mast, jib, counterweight, cable, hook.
-    if (extra < 0.32) return tube([-0.58, -1.08, 0], [-0.58, 0.98, 0], along, ang, fill * 0.16);
-    if (extra < 0.6) return tube([-0.58, 0.9, 0], [1.18, 0.7, 0], along, ang, fill * 0.13);
-    if (extra < 0.72) return tube([-0.58, 0.9, 0], [-1.12, 0.78, 0], along, ang, fill * 0.14);
-    if (extra < 0.9) return tube([0.78, 0.74, 0], [0.78, -0.08, 0], along, ang, fill * 0.06);
-    const rr = fill * 0.16;
-    return [0.78 + Math.cos(ang) * rr, -0.2 - Math.sin(ang) * rr * 0.6, (hash21(along, extra) - 0.5) * 0.12];
+    // Construction — solid mast and jib, thin cable, a small hook.
+    if (extra < 0.32) return tube([-0.52, -1.02, 0], [-0.52, 0.92, 0], along, ang, 0.08 + fill * 0.14);
+    if (extra < 0.6) return tube([-0.52, 0.84, 0], [1.05, 0.64, 0], along, ang, 0.06 + fill * 0.12);
+    if (extra < 0.72) return tube([-0.52, 0.84, 0], [-1.02, 0.72, 0], along, ang, 0.06 + fill * 0.12);
+    if (extra < 0.9) return tube([0.7, 0.7, 0], [0.7, -0.05, 0], along, ang, fill * 0.05);
+    const rr = fill * 0.14;
+    return [0.7 + Math.cos(ang) * rr, -0.16 - Math.abs(Math.sin(ang)) * rr, (hash21(along, extra) - 0.5) * 0.16];
   }
 
   if (k === 4) {
-    // Manufacturing — a gear. Annulus plus six teeth.
-    const z = (hash21(seed[0], extra) - 0.5) * 0.38;
+    // Manufacturing — a thick gear, not a flat washer.
+    const z = (hash21(seed[0], extra) - 0.5) * 0.62;
     if (extra < 0.52) {
       const a = along * TAU;
-      const r = 0.42 + fill * 0.32;
+      const r = 0.4 + fill * 0.3;
       return [Math.cos(a) * r, Math.sin(a) * r, z];
     }
     const tooth = Math.min(7, Math.floor(along * 8));
     const a = ((tooth + 0.5) / 8) * TAU;
-    const r = 0.7 + fract(along * 8) * 0.48;
-    const w = (hash21(extra, seed[1]) - 0.5) * 0.34;
+    const r = 0.68 + fract(along * 8) * 0.4;
+    const w = (hash21(extra, seed[1]) - 0.5) * 0.28;
     return [Math.cos(a) * r - Math.sin(a) * w, Math.sin(a) * r + Math.cos(a) * w, z];
   }
 
-  // Private equity — three rising bars.
+  // Private equity — three rising boxes.
   const bar = Math.min(2, Math.floor(extra * 3));
   const h = 0.62 + bar * 0.48;
-  const jx = (hash21(seed[0], extra) - 0.5) * 0.4;
-  const jz = (hash21(seed[1], extra) - 0.5) * 0.4;
-  return [(bar - 1) * 0.84 + jx, -0.78 + along * h, jz];
+  const jx = (hash21(seed[0], extra) - 0.5) * 0.38;
+  const jz = (hash21(seed[1], extra) - 0.5) * 0.55;
+  return [(bar - 1) * 0.78 + jx, -0.72 + along * h, jz];
 }
 
+/** Spherical cloud around the mark. Uniform in the shell volume, round in every axis. */
 function industryHalo(seed: Vec3): Vec3 {
-  const ang = seed[0] * TAU;
-  const jr = HALO_INNER + Math.pow(seed[1], 0.7) * HALO_SPAN;
   const hz = (seed[2] - ICON_CUT) / (1 - ICON_CUT);
-  return [Math.cos(ang) * jr * 1.12, Math.sin(ang) * jr, (hz - 0.5) * 1.05];
+  const az = seed[0] * TAU;
+  const cosP = hz * 2 - 1;
+  const sinP = Math.sqrt(Math.max(0, 1 - cosP * cosP));
+  const r0 = SPHERE_INNER;
+  const r1 = SPHERE_OUTER;
+  const R = Math.cbrt(r0 ** 3 + seed[1] * (r1 ** 3 - r0 ** 3));
+  return [Math.cos(az) * sinP * R, cosP * R, Math.sin(az) * sinP * R];
 }
 
 export type Vec3 = [number, number, number];

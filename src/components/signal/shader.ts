@@ -410,19 +410,21 @@ vec3 formation(int s, float t) {
     return vec3(cos(a) * r * 1.8, sin(a) * r, (seed.z - 0.5) * 0.7);
   }
   if (s == 4) {
-    // Industries: a small mark inside a sphere of orbs. Yaw only while
-    // zoomed into this cluster.
+    // Industries: six clouds travel around the circle. The orbs turn
+    // inside each cloud. A focused mark yaws only while zoomed.
     float k = min(floor(aRand * 6.0), 5.0);
     float match = uFocus < 0.0 ? 0.0 : (1.0 - step(0.5, abs(k - uFocus)));
     // Skip the mark maths for clusters the zoom has already dropped.
     if (uZoom > 0.45 && uFocus >= 0.0 && match < 0.5) {
       return vec3(0.0, -40.0, 0.0);
     }
-    float a = k / 6.0 * TAU - 1.5707963;
+    float a = k / 6.0 * TAU - 1.5707963 + t * 0.18;
     float extra = fract(aRand * 6.0);
     vec3 local = seed.z < 0.34 ? glyph(k, seed, extra) * 0.22 : halo(seed);
-    local = yaw(local, t * 0.35 * uZoom * match);
-    return vec3(cos(a) * 3.4 + 4.2 + local.x, sin(a) * 3.4 + 0.2 + local.y, local.z);
+    float spin = seed.z < 0.34 ? t * 0.35 * uZoom * match : t * 0.62;
+    local = yaw(local, spin);
+    // Radius 4.1, centre x 4.2. Keep both in step with formations.ts.
+    return vec3(cos(a) * 4.1 + 4.2 + local.x, sin(a) * 4.1 + 0.2 + local.y, local.z);
   }
   if (s == 5) {
     // Response: a calm disc, a tight inbox, and a few issues that leave
@@ -620,8 +622,8 @@ void main() {
   float core = 0.0;
   if (nearIndustries > 0.0) {
     float kk = min(floor(aRand * 6.0), 5.0);
-    float ca = kk / 6.0 * 6.2831853 - 1.5707963;
-    vec2 ctr = vec2(cos(ca) * 3.4 + 4.2, sin(ca) * 3.4 + 0.2);
+    float ca = kk / 6.0 * 6.2831853 - 1.5707963 + uTime * 0.18;
+    vec2 ctr = vec2(cos(ca) * 4.1 + 4.2, sin(ca) * 4.1 + 0.2);
     float rad = length(vec3(pos.x - ctr.x, pos.y - ctr.y, pos.z));
     core = pow(clamp(1.0 - rad / 2.5, 0.0, 1.0), 1.35);
   }

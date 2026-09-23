@@ -60,11 +60,21 @@ const TAU = Math.PI * 2;
  */
 export const CLUSTER_CX = 4.2;
 export const CLUSTER_CY = 0.2;
-export const CLUSTER_R = 3.4;
+export const CLUSTER_R = 4.1;
+/** Radians per second. The six clouds travel around the circle. */
+export const CLUSTER_ORBIT = 0.18;
+/** Radians per second. The orbs turn inside each cloud. */
+export const HALO_ORBIT = 0.62;
 
-export function clusterCenter(k: number): [number, number] {
-  const a = (k / 6) * TAU - Math.PI / 2;
+export function clusterCenter(k: number, t = 0): [number, number] {
+  const a = (k / 6) * TAU - Math.PI / 2 + t * CLUSTER_ORBIT;
   return [CLUSTER_CX + Math.cos(a) * CLUSTER_R, CLUSTER_CY + Math.sin(a) * CLUSTER_R];
+}
+
+function yawAboutY(p: Vec3, spin: number): Vec3 {
+  const c = Math.cos(spin);
+  const s = Math.sin(spin);
+  return [p[0] * c + p[2] * s, p[1], -p[0] * s + p[2] * c];
 }
 
 /**
@@ -598,17 +608,17 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       return [Math.cos(a) * r * 1.8, Math.sin(a) * r, (seed[2] - 0.5) * 0.7];
     }
     case 4: {
-      // Industries: six marks (scales, umbrella, cross, crane, gear, bars),
-      // each surrounded by its own field. The live shader yaws a focused
-      // mark while zoomed; the still pose here is the unzoomed one.
+      // Industries: six marks, each in a cloud. The clouds travel around
+      // the circle, and the orbs turn inside each cloud.
       const k = Math.min(5, Math.floor(rand * 6));
-      const a = (k / 6) * TAU - Math.PI / 2;
+      const a = (k / 6) * TAU - Math.PI / 2 + t * CLUSTER_ORBIT;
       const extra = fract(rand * 6);
       const mark = industryGlyph(k, seed, extra);
-      const local =
+      let local: Vec3 =
         seed[2] < ICON_CUT
-          ? ([mark[0] * MARK_SCALE, mark[1] * MARK_SCALE, mark[2] * MARK_SCALE] as Vec3)
+          ? [mark[0] * MARK_SCALE, mark[1] * MARK_SCALE, mark[2] * MARK_SCALE]
           : industryHalo(seed);
+      if (seed[2] >= ICON_CUT) local = yawAboutY(local, t * HALO_ORBIT);
       return [
         CLUSTER_CX + Math.cos(a) * CLUSTER_R + local[0],
         CLUSTER_CY + Math.sin(a) * CLUSTER_R + local[1],

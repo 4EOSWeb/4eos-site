@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { buildSeeds } from "./formations";
+import { buildSeeds, clusterCenter } from "./formations";
 import { fragmentShader, vertexShader } from "./shader";
 import { setMouse, signal } from "./store";
 import { POINT_BUDGET, prefersReducedMotion, type DeviceTier } from "@/lib/env";
@@ -151,6 +151,17 @@ function CameraRig({ still, lite }: { still: boolean; lite: boolean }) {
     // Lite devices snap the zoom. A slow GPU makes a multi-frame fly-in
     // stall, because each closer frame is more expensive than the last.
     const dt = Math.min(delta, 0.2);
+    if (
+      !still &&
+      signal.focus >= 0 &&
+      signal.focus < 6 &&
+      signal.zoom > 0.02 &&
+      Math.abs(signal.phase - 4) < 0.6
+    ) {
+      const [x, y] = clusterCenter(signal.focus, state.clock.elapsedTime);
+      signal.lookX = x;
+      signal.lookY = y;
+    }
     const zoomStep = still || lite ? 1 : 1 - Math.pow(0.0004, dt);
     signal.zoomR += (signal.zoom - signal.zoomR) * zoomStep;
     if (Math.abs(signal.zoom - signal.zoomR) < 0.0005) {

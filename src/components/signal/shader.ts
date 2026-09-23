@@ -140,46 +140,36 @@ vec3 glyph(float k, vec3 seed, float extra) {
   return p;
 }
 
-// Rectangle outline in the XY plane. Centreline, equal steps.
-// Twin of rectFrame() in formations.ts.
+// Rectangle outline in the XY plane. Twin of rectFrame() in formations.ts.
 vec3 rectFrame(float along, float inset, float x0, float y0, float x1, float y1, float z, float thick) {
   float w = max(x1 - x0, 0.001);
   float h = max(y1 - y0, 0.001);
   float edge = min(floor(along * 4.0), 3.0);
-  float t = fract(along * 4.0) + inset * thick * 0.0;
-  vec3 p = vec3(x0, y1 - t * h, z);
-  if (edge < 0.5) p = vec3(x0 + t * w, y0, z);
-  else if (edge < 1.5) p = vec3(x1, y0 + t * h, z);
-  else if (edge < 2.5) p = vec3(x1 - t * w, y1, z);
+  float t = fract(along * 4.0);
+  float m = inset * thick;
+  float spanW = w - 2.0 * m;
+  float spanH = h - 2.0 * m;
+  vec3 p = vec3(x0 + m + t * spanW, y0 + m, z);
+  if (edge > 0.5 && edge < 1.5) p = vec3(x1 - m, y0 + m + t * spanH, z);
+  else if (edge >= 1.5 && edge < 2.5) p = vec3(x1 - m - t * spanW, y1 - m, z);
+  else if (edge >= 2.5) p = vec3(x0 + m, y1 - m - t * spanH, z);
   return p;
 }
 
-// Twelve edges of a box, each drawn once. Twin of boxWire() in formations.ts.
-vec3 boxWire(float along, float jitter, float x0, float y0, float z0, float x1, float y1, float z1) {
-  float edge = min(floor(fract(along) * 12.0), 11.0);
-  float t = 0.06 + fract(jitter) * 0.88;
-  float x = x0 + (x1 - x0) * t;
-  float y = y0 + (y1 - y0) * t;
-  float z = z0 + (z1 - z0) * t;
-  vec3 p = vec3(x1, y, z1);
-  if (edge < 0.5) p = vec3(x, y0, z0);
-  else if (edge < 1.5) p = vec3(x, y0, z1);
-  else if (edge < 2.5) p = vec3(x, y1, z0);
-  else if (edge < 3.5) p = vec3(x, y1, z1);
-  else if (edge < 4.5) p = vec3(x0, y0, z);
-  else if (edge < 5.5) p = vec3(x1, y0, z);
-  else if (edge < 6.5) p = vec3(x0, y1, z);
-  else if (edge < 7.5) p = vec3(x1, y1, z);
-  else if (edge < 8.5) p = vec3(x0, y, z0);
-  else if (edge < 9.5) p = vec3(x1, y, z0);
-  else if (edge < 10.5) p = vec3(x0, y, z1);
+// One face of a box. plane 0 front (XY), 1 side (ZY), 2 top (XZ).
+// Twin of faceFrame() in formations.ts.
+vec3 faceFrame(float along, float inset, float u0, float u1, float v0, float v1, float held, float plane, float thick) {
+  vec3 f = rectFrame(along, inset, u0, v0, u1, v1, held, thick);
+  vec3 p = f;
+  if (plane > 0.5 && plane < 1.5) p = vec3(f.z, f.y, f.x);
+  else if (plane >= 1.5) p = vec3(f.x, f.z, f.y);
   return p;
 }
 
-// Evenly spaced points on one straight segment. Twin of rule() in formations.ts.
-vec3 rule(vec3 a, vec3 b, float along) {
-  float t = 0.04 + clamp(along, 0.0, 1.0) * 0.92;
-  return a + (b - a) * t;
+// Straight stand neck. Twin of standNeck() in formations.ts.
+vec3 standNeck(float x, float y0, float y1, float along, float across) {
+  float t = clamp(along, 0.0, 1.0);
+  return vec3(x + (across - 0.5) * 0.11, y0 + (y1 - y0) * t, 0.0);
 }
 
 // Desktop, server, or workstation in local space. Twin of deviceLocal().
@@ -188,20 +178,36 @@ vec3 deviceLocal(float kind, vec3 seed) {
   float part = fract(seed.x * 4.17);
   float u = seed.y;
   float v = seed.z;
-  float bay = min(floor(u * 6.0), 5.0);
-  float bayY = -0.9 + bay * 0.34;
-  vec3 p = rule(vec3(-1.0, -0.42, 0.0), vec3(-0.22, -0.42, 0.0), u);
+  vec3 p = standNeck(-0.62, 0.12, -0.36, u, v);
   if (kind < 0.5) {
-    p = rule(vec3(-0.56, -0.48, 0.0), vec3(0.56, -0.48, 0.0), u);
-    if (part < 0.74) p = boxWire(u, v, -0.9, 0.04, -0.3, 0.9, 1.28, 0.3);
-    else if (part < 0.88) p = rule(vec3(0.0, 0.04, 0.0), vec3(0.0, -0.42, 0.0), u);
+    p = faceFrame(u, v, -0.64, 0.64, -0.38, 0.38, -0.5, 2.0, 0.05);
+    if (part < 0.22) p = faceFrame(u, v, -0.92, 0.92, 0.02, 1.32, 0.36, 0.0, 0.09);
+    else if (part < 0.36) p = faceFrame(u, v, -0.68, 0.68, 0.22, 1.12, 0.4, 0.0, 0.045);
+    else if (part < 0.5) p = faceFrame(u, v, -0.86, 0.86, 0.08, 1.26, -0.36, 0.0, 0.07);
+    else if (part < 0.68) {
+      float side = u < 0.5 ? -0.92 : 0.92;
+      p = faceFrame(fract(u * 2.0), v, -0.36, 0.36, 0.02, 1.32, side, 1.0, 0.06);
+    } else if (part < 0.8) p = faceFrame(u, v, -0.92, 0.92, -0.36, 0.36, 1.32, 2.0, 0.06);
+    else if (part < 0.88) p = standNeck(0.0, 0.02, -0.42, u, v);
   } else if (kind < 1.5) {
-    p = rule(vec3(-0.34, bayY, 0.58), vec3(0.34, bayY, 0.58), v);
-    if (part < 0.62) p = boxWire(u, v, -0.46, -1.16, -0.58, 0.46, 1.2, 0.58);
+    p = faceFrame(u, v, -0.44, 0.44, -1.16, 1.18, -0.68, 0.0, 0.06);
+    if (part < 0.18) p = faceFrame(u, v, -0.5, 0.5, -1.22, 1.24, 0.68, 0.0, 0.07);
+    else if (part < 0.4) {
+      float bay = min(floor(u * 6.0), 5.0);
+      p = vec3((v - 0.5) * 0.78, -0.92 + bay * 0.36, 0.72);
+    } else if (part < 0.58) p = faceFrame(u, v, -0.68, 0.68, -1.22, 1.24, 0.5, 1.0, 0.06);
+    else if (part < 0.74) p = faceFrame(u, v, -0.68, 0.68, -1.22, 1.24, -0.5, 1.0, 0.06);
+    else if (part < 0.88) p = faceFrame(u, v, -0.5, 0.5, -0.68, 0.68, 1.24, 2.0, 0.055);
   } else {
-    if (part < 0.4) p = boxWire(u, v, -1.15, 0.1, -0.24, -0.08, 1.2, 0.24);
-    else if (part < 0.78) p = boxWire(u, v, 0.16, -0.66, -0.42, 0.9, 1.24, 0.42);
-    else if (part < 0.9) p = rule(vec3(-0.62, 0.1, 0.0), vec3(-0.62, -0.36, 0.0), u);
+    if (part < 0.16) p = faceFrame(u, v, -1.2, -0.12, 0.12, 1.22, 0.28, 0.0, 0.07);
+    else if (part < 0.28) p = faceFrame(u, v, -0.28, 0.28, 0.12, 1.22, -1.2, 1.0, 0.05);
+    else if (part < 0.36) p = faceFrame(u, v, -1.2, -0.12, -0.28, 0.28, 1.22, 2.0, 0.05);
+    else if (part < 0.5) p = faceFrame(u, v, 0.18, 0.95, -0.7, 1.28, 0.48, 0.0, 0.06);
+    else if (part < 0.66) {
+      float bay = min(floor(u * 4.0), 3.0);
+      p = vec3(0.28 + v * 0.55, -0.42 + bay * 0.4, 0.52);
+    } else if (part < 0.82) p = faceFrame(u, v, -0.48, 0.48, -0.7, 1.28, 0.95, 1.0, 0.05);
+    else if (part < 0.92) p = faceFrame(u, v, 0.18, 0.95, -0.48, 0.48, 1.28, 2.0, 0.05);
   }
   return p;
 }
@@ -621,7 +627,7 @@ void main() {
   }
   vAlpha *= mix(1.0, 1.35, onGlyph);
   vAlpha *= mix(1.0, mix(0.16, 1.85, core), onHalo);
-  vAlpha *= mix(1.0, 1.05, device * sceneOff);
+  vAlpha *= mix(1.0, 1.7, device * sceneOff);
 
   // Once a zoom is underway, stop rasterising the other five clusters.
   // That is the expensive part of flying in on a slower GPU.
@@ -636,7 +642,7 @@ void main() {
   vAlpha *= mix(1.0, 1.7, uResolve);
 
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
-  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 0.2 + (voiced + gear) * uSceneMix * 0.45;
+  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45;
   float px = size * uPixelRatio * (44.0 / max(-mv.z, 0.001));
   float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom);
   gl_PointSize = min(px, cap) * (1.0 - hide);

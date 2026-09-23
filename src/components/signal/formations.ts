@@ -68,9 +68,8 @@ export function clusterCenter(k: number): [number, number] {
 }
 
 /**
- * Rectangle outline in the XY plane. Points sit on the centreline, spaced
- * in equal steps, so a stroke stays a straight line of even weight.
- * Twin of `rectFrame()` in shader.ts.
+ * Rectangle outline in the XY plane. `along` walks the four edges, `inset`
+ * thickens the stroke toward the centre. Twin of `rectFrame()` in shader.ts.
  */
 function rectFrame(
   along: number,
@@ -85,47 +84,44 @@ function rectFrame(
   const w = Math.max(x1 - x0, 0.001);
   const h = Math.max(y1 - y0, 0.001);
   const edge = Math.min(3, Math.floor(along * 4));
-  const t = fract(along * 4) + inset * thick * 0;
-  if (edge <= 0) return [x0 + t * w, y0, z];
-  if (edge === 1) return [x1, y0 + t * h, z];
-  if (edge === 2) return [x1 - t * w, y1, z];
-  return [x0, y1 - t * h, z];
+  const t = fract(along * 4);
+  const m = inset * thick;
+  const spanW = w - 2 * m;
+  const spanH = h - 2 * m;
+  if (edge <= 0) return [x0 + m + t * spanW, y0 + m, z];
+  if (edge === 1) return [x1 - m, y0 + m + t * spanH, z];
+  if (edge === 2) return [x1 - m - t * spanW, y1 - m, z];
+  return [x0 + m, y1 - m - t * spanH, z];
 }
 
-/** Twelve edges of a box. Each edge is drawn once. Twin of `boxWire()`. */
-function boxWire(
+/**
+ * Frame of one face of a box. `plane` 0 is the front (XY), 1 a side (ZY),
+ * 2 the top (XZ). Twin of `faceFrame()` in shader.ts.
+ */
+function faceFrame(
   along: number,
-  jitter: number,
-  x0: number,
-  y0: number,
-  z0: number,
-  x1: number,
-  y1: number,
-  z1: number,
+  inset: number,
+  u0: number,
+  u1: number,
+  v0: number,
+  v1: number,
+  fixed: number,
+  plane: number,
+  thick: number,
 ): Vec3 {
-  const edge = Math.min(11, Math.floor(fract(along) * 12));
-  const t = 0.06 + fract(jitter) * 0.88;
-  const x = x0 + (x1 - x0) * t;
-  const y = y0 + (y1 - y0) * t;
-  const z = z0 + (z1 - z0) * t;
-  if (edge === 0) return [x, y0, z0];
-  if (edge === 1) return [x, y0, z1];
-  if (edge === 2) return [x, y1, z0];
-  if (edge === 3) return [x, y1, z1];
-  if (edge === 4) return [x0, y0, z];
-  if (edge === 5) return [x1, y0, z];
-  if (edge === 6) return [x0, y1, z];
-  if (edge === 7) return [x1, y1, z];
-  if (edge === 8) return [x0, y, z0];
-  if (edge === 9) return [x1, y, z0];
-  if (edge === 10) return [x0, y, z1];
-  return [x1, y, z1];
+  const f = rectFrame(along, inset, u0, v0, u1, v1, fixed, thick);
+  if (plane === 1) return [f[2], f[1], f[0]];
+  if (plane === 2) return [f[0], f[2], f[1]];
+  return f;
 }
 
-/** Evenly spaced points on one straight segment. Twin of `rule()`. */
-function rule(a: Vec3, b: Vec3, along: number): Vec3 {
-  const t = 0.04 + Math.min(1, Math.max(0, along)) * 0.92;
-  return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+/**
+ * Stand neck. A straight vertical bar, the same weight as the bezel,
+ * without the bright clumps a round tube makes. Twin of `standNeck()`.
+ */
+function standNeck(x: number, y0: number, y1: number, along: number, across: number): Vec3 {
+  const t = Math.min(1, Math.max(0, along));
+  return [x + (across - 0.5) * 0.11, y0 + (y1 - y0) * t, 0];
 }
 
 /**
@@ -141,19 +137,39 @@ function deviceLocal(kind: number, seed: Vec3): Vec3 {
   const v = seed[2];
 
   if (kind <= 0) {
-    if (part < 0.74) return boxWire(u, v, -0.9, 0.04, -0.3, 0.9, 1.28, 0.3);
-    if (part < 0.88) return rule([0, 0.04, 0], [0, -0.42, 0], u);
-    return rule([-0.56, -0.48, 0], [0.56, -0.48, 0], u);
+    if (part < 0.22) return faceFrame(u, v, -0.92, 0.92, 0.02, 1.32, 0.36, 0, 0.09);
+    if (part < 0.36) return faceFrame(u, v, -0.68, 0.68, 0.22, 1.12, 0.4, 0, 0.045);
+    if (part < 0.5) return faceFrame(u, v, -0.86, 0.86, 0.08, 1.26, -0.36, 0, 0.07);
+    if (part < 0.68) {
+      const side = u < 0.5 ? -0.92 : 0.92;
+      return faceFrame(fract(u * 2), v, -0.36, 0.36, 0.02, 1.32, side, 1, 0.06);
+    }
+    if (part < 0.8) return faceFrame(u, v, -0.92, 0.92, -0.36, 0.36, 1.32, 2, 0.06);
+    if (part < 0.88) return standNeck(0, 0.02, -0.42, u, v);
+    return faceFrame(u, v, -0.64, 0.64, -0.38, 0.38, -0.5, 2, 0.05);
   }
   if (kind === 1) {
-    if (part < 0.62) return boxWire(u, v, -0.46, -1.16, -0.58, 0.46, 1.2, 0.58);
-    const bay = Math.min(5, Math.floor(u * 6));
-    return rule([-0.34, -0.9 + bay * 0.34, 0.58], [0.34, -0.9 + bay * 0.34, 0.58], v);
+    if (part < 0.18) return faceFrame(u, v, -0.5, 0.5, -1.22, 1.24, 0.68, 0, 0.07);
+    if (part < 0.4) {
+      const bay = Math.min(5, Math.floor(u * 6));
+      return [(v - 0.5) * 0.78, -0.92 + bay * 0.36, 0.72];
+    }
+    if (part < 0.58) return faceFrame(u, v, -0.68, 0.68, -1.22, 1.24, 0.5, 1, 0.06);
+    if (part < 0.74) return faceFrame(u, v, -0.68, 0.68, -1.22, 1.24, -0.5, 1, 0.06);
+    if (part < 0.88) return faceFrame(u, v, -0.5, 0.5, -0.68, 0.68, 1.24, 2, 0.055);
+    return faceFrame(u, v, -0.44, 0.44, -1.16, 1.18, -0.68, 0, 0.06);
   }
-  if (part < 0.4) return boxWire(u, v, -1.15, 0.1, -0.24, -0.08, 1.2, 0.24);
-  if (part < 0.78) return boxWire(u, v, 0.16, -0.66, -0.42, 0.9, 1.24, 0.42);
-  if (part < 0.9) return rule([-0.62, 0.1, 0], [-0.62, -0.36, 0], u);
-  return rule([-1.0, -0.42, 0], [-0.22, -0.42, 0], u);
+  if (part < 0.16) return faceFrame(u, v, -1.2, -0.12, 0.12, 1.22, 0.28, 0, 0.07);
+  if (part < 0.28) return faceFrame(u, v, -0.28, 0.28, 0.12, 1.22, -1.2, 1, 0.05);
+  if (part < 0.36) return faceFrame(u, v, -1.2, -0.12, -0.28, 0.28, 1.22, 2, 0.05);
+  if (part < 0.5) return faceFrame(u, v, 0.18, 0.95, -0.7, 1.28, 0.48, 0, 0.06);
+  if (part < 0.66) {
+    const bay = Math.min(3, Math.floor(u * 4));
+    return [0.28 + v * 0.55, -0.42 + bay * 0.4, 0.52];
+  }
+  if (part < 0.82) return faceFrame(u, v, -0.48, 0.48, -0.7, 1.28, 0.95, 1, 0.05);
+  if (part < 0.92) return faceFrame(u, v, 0.18, 0.95, -0.48, 0.48, 1.28, 2, 0.05);
+  return standNeck(-0.62, 0.12, -0.36, u, v);
 }
 
 function placeDevice(

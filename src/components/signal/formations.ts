@@ -55,6 +55,22 @@ export const SERVICE_CAPTION = [
 const TAU = Math.PI * 2;
 
 /**
+ * Lattice coordinates run 0..1, including both edges, so a grid still meets
+ * its frame. On a closed loop those two columns are the same angle and draw
+ * a bright seam. This folds the last column to just before the first.
+ */
+function loop(t: number, n: number) {
+  return t * ((n - 1) / Math.max(n, 1)) * TAU;
+}
+
+/** How many columns and rows `buildSeeds` lays down for a point count. */
+export function latticeSize(count: number) {
+  const cols = Math.max(2, Math.round(Math.sqrt((count * 26) / 14)));
+  const rows = Math.max(2, Math.floor(count / cols));
+  return { cols, rows };
+}
+
+/**
  * The six industry clouds sit in the open space to the right of the names.
  * Keep the centre and radius in step with the GLSL.
  */
@@ -132,6 +148,34 @@ function faceFrame(
 function standNeck(x: number, y0: number, y1: number, along: number, across: number): Vec3 {
   const t = Math.min(1, Math.max(0, along));
   return [x + (across - 0.5) * 0.11, y0 + (y1 - y0) * t, 0];
+}
+
+/** Straight bar along X. `along` and `across` are independent, so it cannot twist. */
+function barX(
+  x0: number,
+  x1: number,
+  y: number,
+  z: number,
+  along: number,
+  across: number,
+  width: number,
+): Vec3 {
+  const t = Math.min(1, Math.max(0, along));
+  return [x0 + (x1 - x0) * t, y + (across - 0.5) * width, z];
+}
+
+/** Straight bar along Y. Twin of `barY()` in shader.ts. */
+function barY(
+  x: number,
+  y0: number,
+  y1: number,
+  z: number,
+  along: number,
+  across: number,
+  width: number,
+): Vec3 {
+  const t = Math.min(1, Math.max(0, along));
+  return [x + (across - 0.5) * width, y0 + (y1 - y0) * t, z];
 }
 
 /**
@@ -240,7 +284,8 @@ function hardwareLocal(which: number, seed: Vec3): Vec3 {
   const part = fract(seed[0] * 4.17);
   const u = seed[1];
   const v = seed[2];
-  const ang = u * TAU;
+  // Same weight on the hinge, the neck, and the foot.
+  const w = 0.16;
   if (which <= 0) {
     if (part < 0.32) {
       const deck = rectFrame(u, v, -1.55, -0.1, 1.55, 1.55, 0, 0.09);
@@ -256,7 +301,7 @@ function hardwareLocal(which: number, seed: Vec3): Vec3 {
       const sy = frame[1];
       return [frame[0], -0.98 + sy * 1.08, -0.12 - sy * 0.28];
     }
-    return tube([-1.45, -0.98, -0.14], [1.45, -0.98, -0.14], u, ang, 0.06);
+    return barX(-1.45, 1.45, -0.98, -0.14, u, v, w);
   }
   if (which === 1) {
     if (part < 0.28) return rectFrame(u, v, -0.62, -1.85, 0.62, 1.9, 0.34, 0.08);
@@ -273,8 +318,8 @@ function hardwareLocal(which: number, seed: Vec3): Vec3 {
     return [(u - 0.5) * 1.24, 1.9, (v - 0.5) * 0.56];
   }
   if (part < 0.6) return rectFrame(u, v, -1.6, 0.05, 1.6, 2.15, 0, 0.1);
-  if (part < 0.78) return tube([0, 0.05, 0], [0, -0.72, 0], u, ang, 0.075);
-  return tube([-0.85, -0.8, 0], [0.85, -0.8, 0], u, ang, 0.07);
+  if (part < 0.78) return barY(0, 0.05, -0.72, 0, u, v, w);
+  return barX(-0.85, 0.85, -0.8, 0, u, v, w);
 }
 
 /**
@@ -286,14 +331,14 @@ export function serviceFormation(scene: number, p: PointSeed, t = 0): Vec3 {
 
   if (scene <= 0) {
     // CompleteCare — one tended cluster in a slow orbit.
-    const a = u * TAU + t * 0.15;
+    const a = loop(u, p.cols) + t * 0.15;
     const r = 1.2 + Math.pow(rand, 0.6) * 2.4;
     return [Math.cos(a) * r * 1.25, Math.sin(a) * r, (seed[2] - 0.5) * 1.1];
   }
   if (scene === 1) {
     // Cybersecurity — a closed shell, no beam.
-    const a = u * TAU + t * 0.04;
-    const b = v * TAU;
+    const a = loop(u, p.cols) + t * 0.04;
+    const b = loop(v, p.rows);
     const R = 4.1;
     const tubeR = 0.62;
     const ring = R + tubeR * Math.cos(b);
@@ -312,7 +357,7 @@ export function serviceFormation(scene: number, p: PointSeed, t = 0): Vec3 {
     // VoIP — a vertical handset over a cradle, and a call leaving in rings.
     if (rand < 0.22) {
       const part = fract(seed[0] * 5.1);
-      const ang = v * TAU;
+      const ang = loop(v, p.rows);
       let local: Vec3;
       if (part < 0.26) {
         const rr = 0.42 + u * 0.32;
@@ -336,7 +381,7 @@ export function serviceFormation(scene: number, p: PointSeed, t = 0): Vec3 {
     const travel = fract(t * 0.32 + seed[1] * 0.65);
     if (travel > 0.9) return [0, -40, 0];
     const rad = 1.6 + travel * 6.4 + (v - 0.5) * 0.38;
-    const a = u * TAU;
+    const a = loop(u, p.cols);
     return [Math.cos(a) * rad, Math.sin(a) * rad * 0.72, (seed[2] - 0.5) * 0.22];
   }
   if (scene === 4) {
@@ -530,9 +575,12 @@ export function mulberry32(seed: number) {
 export type PointSeed = {
   /** Three independent randoms, used for volume placement and jitter. */
   seed: Vec3;
-  /** Lattice coordinates in [0,1]. */
+  /** Lattice coordinates in [0,1], including both edges. */
   u: number;
   v: number;
+  /** Column and row counts for this seed set. Shared by every point. */
+  cols: number;
+  rows: number;
   /** One more random, used for tier, cluster and ring membership. */
   rand: number;
   /** Accent membership, kept independent of `rand` so the accent does not
@@ -542,18 +590,20 @@ export type PointSeed = {
 
 export function buildSeeds(count: number, seedValue = 0x4e05): PointSeed[] {
   const rnd = mulberry32(seedValue);
-  // A complete rectangle. A short final row would stop the top line of the
-  // discovery lattice before the right edge.
-  const cols = Math.max(2, Math.round(Math.sqrt((count * 26) / 14)));
-  const rows = Math.max(2, Math.floor(count / cols));
+  // A complete rectangle, including both edges. A short final row would stop
+  // the top line of the discovery lattice before the right edge. Spare points
+  // are scattered, so they do not pile onto the first row.
+  const { cols, rows } = latticeSize(count);
   const cells = cols * rows;
   const out: PointSeed[] = [];
   for (let i = 0; i < count; i++) {
-    const j = i < cells ? i : i % cells;
+    const j = i < cells ? i : (i * 13) % cells;
     out.push({
       seed: [rnd(), rnd(), rnd()],
       u: (j % cols) / (cols - 1),
       v: Math.floor(j / cols) / (rows - 1),
+      cols,
+      rows,
       rand: rnd(),
       gold: rnd(),
     });
@@ -595,13 +645,13 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
         if (dev) return dev;
       }
       const r = 2.2 + tier * 1.75 + (seed[2] - 0.5) * 0.3;
-      const a = u * TAU + tier * 0.6 + t * (0.05 + tier * 0.02);
+      const a = loop(u, p.cols) + tier * 0.6 + t * (0.05 + tier * 0.02);
       return [Math.cos(a) * r * 1.8, Math.sin(a) * r, (seed[0] - 0.5) * 0.8];
     }
     case 3: {
       // Security: a perimeter closes around the interior.
       const onRing = rand >= 0.3;
-      const a = u * TAU + t * 0.06;
+      const a = loop(u, p.cols) + t * 0.06;
       const r = onRing
         ? 6.4 + (seed[1] - 0.5) * 0.28
         : Math.sqrt(seed[0]) * 5.9;
@@ -637,11 +687,11 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       if (rand > 0.93) {
         const travel = fract(t * 0.35 + seed[1]);
         if (travel > 0.72) return [0, -40, 0];
-        const a = u * TAU;
+        const a = loop(u, p.cols);
         const rad = 7.2 - travel * 6.39;
         return [Math.cos(a) * rad * 1.55, Math.sin(a) * rad, (seed[2] - 0.5) * 0.3];
       }
-      const a = u * TAU + t * 0.015;
+      const a = loop(u, p.cols) + t * 0.015;
       const rad = Math.sqrt(seed[0]) * 6.5;
       return [Math.cos(a) * rad * 1.55, Math.sin(a) * rad, (seed[2] - 0.5) * 0.45];
     }

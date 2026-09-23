@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { buildSeeds, clusterCenter } from "./formations";
+import { buildSeeds, clusterCenter, latticeSize } from "./formations";
 import { fragmentShader, vertexShader } from "./shader";
 import { setMouse, signal } from "./store";
 import { POINT_BUDGET, prefersReducedMotion, type DeviceTier } from "@/lib/env";
@@ -51,8 +51,9 @@ function Points({
     return g;
   }, [count]);
 
-  const uniforms = useMemo(
-    () => ({
+  const uniforms = useMemo(() => {
+    const { cols, rows } = latticeSize(count);
+    return {
       uTime: { value: 0 },
       uPhase: { value: signal.rendered },
       uIntensity: { value: signal.intensity },
@@ -66,12 +67,13 @@ function Points({
       uScene: { value: 0 },
       uSceneMix: { value: 0 },
       uLite: { value: lite ? 1 : 0 },
+      uCols: { value: cols },
+      uRows: { value: rows },
       uBase: { value: BASE_COLOR },
       uAccent: { value: ACCENT_COLOR },
       uDetect: { value: DETECT_COLOR },
-    }),
-    [lite],
-  );
+    };
+  }, [lite, count]);
 
   useEffect(() => {
     signal.invalidate = invalidate;

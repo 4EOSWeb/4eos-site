@@ -26,6 +26,8 @@ uniform float uZoom;
 uniform float uLite;
 uniform float uScene;
 uniform float uSceneMix;
+uniform float uCols;
+uniform float uRows;
 
 attribute vec2 aUV;
 attribute float aRand;
@@ -41,6 +43,23 @@ varying float vDetect;
 float hash21(float x, float y) {
   float n = fract(x * 12.9898 + y * 78.233);
   return fract(n * n * 45.233);
+}
+
+// Lattice coordinates include both edges so a grid meets its frame. On a
+// closed loop that stacks the first and last column on one angle.
+float loopAngle(float t, float n) {
+  return t * (n - 1.0) / max(n, 1.0) * TAU;
+}
+
+// One lattice column (or row) per ruled line, plus the far edge so the
+// frame still closes. A wide window around the line was lighting the
+// neighbour as well, which read as two lines on top of each other.
+float onLattice(float t, float n, float every) {
+  float index = floor(t * (n - 1.0) + 0.5);
+  float stride = max(1.0, floor(n / every + 0.5));
+  float on = 1.0 - step(0.5, mod(index, stride));
+  on = max(on, step(n - 1.5, index));
+  return on;
 }
 
 vec3 tube(vec3 a, vec3 b, float along, float ang, float rad) {
@@ -172,6 +191,17 @@ vec3 standNeck(float x, float y0, float y1, float along, float across) {
   return vec3(x + (across - 0.5) * 0.11, y0 + (y1 - y0) * t, 0.0);
 }
 
+// Straight bars. along walks the length, across the width. Twin of barX/barY.
+vec3 barX(float x0, float x1, float y, float z, float along, float across, float width) {
+  float t = clamp(along, 0.0, 1.0);
+  return vec3(x0 + (x1 - x0) * t, y + (across - 0.5) * width, z);
+}
+
+vec3 barY(float x, float y0, float y1, float z, float along, float across, float width) {
+  float t = clamp(along, 0.0, 1.0);
+  return vec3(x + (across - 0.5) * width, y0 + (y1 - y0) * t, z);
+}
+
 // Desktop, server, or workstation in local space. Twin of deviceLocal().
 // One return, so ANGLE keeps the result initialised.
 vec3 deviceLocal(float kind, vec3 seed) {
@@ -216,10 +246,10 @@ vec3 hardwareLocal(float which, vec3 seed) {
   float part = fract(seed.x * 4.17);
   float u = seed.y;
   float v = seed.z;
-  float ang = u * TAU;
-  vec3 p = tube(vec3(-0.85, -0.8, 0.0), vec3(0.85, -0.8, 0.0), u, ang, 0.07);
+  float w = 0.16;
+  vec3 p = barX(-0.85, 0.85, -0.8, 0.0, u, v, w);
   if (which < 0.5) {
-    p = tube(vec3(-1.45, -0.98, -0.14), vec3(1.45, -0.98, -0.14), u, ang, 0.06);
+    p = barX(-1.45, 1.45, -0.98, -0.14, u, v, w);
     if (part < 0.32) {
       vec3 deck = rectFrame(u, v, -1.55, -0.1, 1.55, 1.55, 0.0, 0.09);
       p = vec3(deck.x, -1.05, deck.y);
@@ -246,7 +276,7 @@ vec3 hardwareLocal(float which, vec3 seed) {
     }
   } else {
     if (part < 0.6) p = rectFrame(u, v, -1.6, 0.05, 1.6, 2.15, 0.0, 0.1);
-    else if (part < 0.78) p = tube(vec3(0.0, 0.05, 0.0), vec3(0.0, -0.72, 0.0), u, ang, 0.075);
+    else if (part < 0.78) p = barY(0.0, 0.05, -0.72, 0.0, u, v, w);
   }
   return p;
 }
@@ -293,12 +323,12 @@ vec3 serviceAt(int s, float t) {
   vec3 seed = position;
   vec3 p = vec3(0.0);
   if (s <= 0) {
-    float a = aUV.x * TAU + t * 0.15;
+    float a = loopAngle(aUV.x, uCols) + t * 0.15;
     float r = 1.2 + pow(aRand, 0.6) * 2.4;
     p = vec3(cos(a) * r * 1.25, sin(a) * r, (seed.z - 0.5) * 1.1);
   } else if (s == 1) {
-    float a = aUV.x * TAU + t * 0.04;
-    float b = aUV.y * TAU;
+    float a = loopAngle(aUV.x, uCols) + t * 0.04;
+    float b = loopAngle(aUV.y, uRows);
     float R = 4.1;
     float tubeR = 0.62;
     float ring = R + tubeR * cos(b);
@@ -313,7 +343,7 @@ vec3 serviceAt(int s, float t) {
   } else if (s == 3) {
     if (aRand < 0.22) {
       float part = fract(seed.x * 5.1);
-      float ang = aUV.y * TAU;
+      float ang = loopAngle(aUV.y, uRows);
       vec3 local = vec3((aUV.x - 0.5) * 2.6, -2.7 + (aUV.y - 0.5) * 0.28, (seed.z - 0.5) * 0.35);
       if (part < 0.26) {
         float rr = 0.42 + aUV.x * 0.32;
@@ -337,7 +367,7 @@ vec3 serviceAt(int s, float t) {
       if (travel > 0.9) p = vec3(0.0, -40.0, 0.0);
       else {
         float rad = 1.6 + travel * 6.4 + (aUV.y - 0.5) * 0.38;
-        float a = aUV.x * TAU;
+        float a = loopAngle(aUV.x, uCols);
         p = vec3(cos(a) * rad, sin(a) * rad * 0.72, (seed.z - 0.5) * 0.22);
       }
     }
@@ -395,13 +425,13 @@ vec3 formation(int s, float t) {
     // Ownership: three concentric tiers — Base, Pro, Premium.
     float tier = floor(aRand * 3.0);
     float r = 2.2 + tier * 1.75 + (seed.z - 0.5) * 0.3;
-    float a = aUV.x * TAU + tier * 0.6 + t * (0.05 + tier * 0.02);
+    float a = loopAngle(aUV.x, uCols) + tier * 0.6 + t * (0.05 + tier * 0.02);
     return vec3(cos(a) * r * 1.8, sin(a) * r, (seed.x - 0.5) * 0.8);
   }
   if (s == 3) {
     // Security: a perimeter closes around the interior.
     float onRing = step(0.3, aRand);
-    float a = aUV.x * TAU + t * 0.06;
+    float a = loopAngle(aUV.x, uCols) + t * 0.06;
     // sqrt spreads the interior evenly across the disc; a linear radius
     // piles everything into the centre.
     // Interior fills almost to the ring so the lighthouse shaft is a
@@ -436,12 +466,12 @@ vec3 formation(int s, float t) {
       p = vec3(cos(a) * rad * 1.15, sin(a) * rad, (seed.z - 0.5) * 0.22);
     } else if (aRand > 0.93) {
       float travel = fract(t * 0.35 + seed.y);
-      float a = aUV.x * TAU;
+      float a = loopAngle(aUV.x, uCols);
       float rad = 7.2 - travel * 6.39;
       p = vec3(cos(a) * rad * 1.55, sin(a) * rad, (seed.z - 0.5) * 0.3);
       if (travel > 0.72) p = vec3(0.0, -40.0, 0.0);
     } else {
-      float a = aUV.x * TAU + t * 0.015;
+      float a = loopAngle(aUV.x, uCols) + t * 0.015;
       float rad = sqrt(seed.x) * 6.5;
       p = vec3(cos(a) * rad * 1.55, sin(a) * rad, (seed.z - 0.5) * 0.45);
     }
@@ -556,9 +586,7 @@ void main() {
   // structure rather than as a finer grade of noise.
   float nearDiscovery = 1.0 - clamp(abs(ph - 1.0), 0.0, 1.0);
   if (nearDiscovery > 0.0) {
-    float gx = abs(fract(aUV.x * 42.0) - 0.5);
-    float gy = abs(fract(aUV.y * 24.0) - 0.5);
-    float onLine = smoothstep(0.40, 0.5, max(gx, gy));
+    float onLine = max(onLattice(aUV.x, uCols, 42.0), onLattice(aUV.y, uRows, 24.0));
     vAlpha *= mix(1.0, mix(0.45, 1.9, onLine), nearDiscovery);
   }
 
@@ -610,7 +638,7 @@ void main() {
   float nearStrategy = smoothstep(5.0, 6.0, ph) * sceneOff;
   if (nearStrategy > 0.0) {
     float fade = 1.0 - smoothstep(0.45, 1.0, aUV.y);
-    float lane = smoothstep(0.38, 0.5, abs(fract(aUV.x * 26.0) - 0.5));
+    float lane = onLattice(aUV.x, uCols, 26.0);
     vAlpha *= mix(1.0, fade * mix(0.5, 1.6, lane), nearStrategy);
   }
 

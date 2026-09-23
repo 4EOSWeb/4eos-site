@@ -269,11 +269,11 @@ vec3 ownershipDevice(float tier, float t) {
   float ring = 2.2 + tier * 1.75;
   float spin = t * (0.05 + tier * 0.02);
   float a = slot / count * TAU + tier * 0.55 + spin;
-  float inset = 0.84 + fract(slot * 0.37 + tier * 0.2) * 0.1;
+  float inset = 0.7 + fract(slot * 0.37 + tier * 0.2) * 0.08;
   float cx = cos(a) * ring * 1.8 * inset;
   float cy = sin(a) * ring * inset;
   vec3 local = deviceLocal(kind, seed);
-  float scale = 0.95 + tier * 0.08;
+  float scale = 0.48 + tier * 0.04;
   float yaw = a + 0.85;
   float pitch = 0.4;
   float x = local.x * scale;

@@ -183,11 +183,11 @@ function placeDevice(
   const ring = 2.2 + tier * 1.75;
   const spin = t * (0.05 + tier * 0.02);
   const a = (slot / count) * TAU + tier * 0.55 + spin;
-  const inset = 0.84 + fract(slot * 0.37 + tier * 0.2) * 0.1;
+  const inset = 0.7 + fract(slot * 0.37 + tier * 0.2) * 0.08;
   const cx = Math.cos(a) * ring * 1.8 * inset;
   const cy = Math.sin(a) * ring * inset;
   const local = deviceLocal(kind, seed);
-  const scale = 0.95 + tier * 0.08;
+  const scale = 0.48 + tier * 0.04;
   const yaw = a + 0.85;
   const pitch = 0.4;
   const x = local[0] * scale;

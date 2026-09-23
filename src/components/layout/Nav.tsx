@@ -4,14 +4,37 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/brand/Logo";
-import { addressLine, nav, site, utilityNav } from "@/lib/site";
+import { addressLine, headerNav, site } from "@/lib/site";
 import { setMenuOpen } from "@/lib/menu";
 import { lockScroll, unlockScroll } from "@/lib/scroll";
 
+/** Matches the Tailwind `min-[1120px]` breakpoint that reveals the full bar. */
+const FULL_BAR = "(min-width: 1120px)";
+
+const menuNav = [
+  ...headerNav,
+  { label: "About", href: "/about" },
+  { label: "Journal", href: "/blog" },
+] as const;
+
+function isCurrent(href: string, pathname: string) {
+  if (href === "/services/completecare") {
+    return pathname === href || pathname.startsWith(`${href}/`);
+  }
+  if (href === "/services") {
+    return (
+      pathname === "/services" ||
+      (pathname.startsWith("/services/") &&
+        !pathname.startsWith("/services/completecare"))
+    );
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 /**
- * Wordmark and the word MENU. No calls to action live in the navigation —
- * the routes that matter are reachable from the menu and the footer, and a
- * permanent button in the corner would undercut everything else on the page.
+ * The live 4eos.com bar — wordmark, primary links, the phone, Request
+ * Support, Free IT Assessment — set in the site's ink glass so it belongs
+ * on the field. The word Menu only appears once that row no longer fits.
  */
 export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
   const [open, setOpen] = useState(false);
@@ -32,6 +55,15 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
   useEffect(() => {
     setMenuOpen(open);
   }, [open]);
+
+  useEffect(() => {
+    const mq = window.matchMedia(FULL_BAR);
+    const onChange = () => {
+      if (mq.matches) setOpen(false);
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -76,28 +108,70 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 flex h-[var(--nav-h)] items-center justify-between px-[var(--sheet-inset)] ${
-          ink ? "text-bone-fg" : "text-fg"
-        }`}
+        className={`site-bar fixed inset-x-0 top-0 z-50 ${ink ? "site-bar-bone" : ""}`}
       >
-        <Link
-          href="/"
-          aria-label="4EOS home"
-          className="inline-flex items-center py-2 transition-opacity hover:opacity-70"
-        >
-          <Logo height={26} />
-        </Link>
+        <div className="flex h-[var(--nav-h)] items-center gap-[clamp(0.75rem,1.5vw,1.75rem)] px-[var(--sheet-inset)]">
+          <Link
+            href="/"
+            aria-label="4EOS home"
+            className="inline-flex shrink-0 items-center transition-opacity hover:opacity-80"
+          >
+            <Logo />
+          </Link>
 
-        <button
-          ref={toggle}
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          aria-controls="site-menu"
-          className="micro relative py-2 transition-opacity hover:opacity-70"
-        >
-          {open ? "Close" : "Menu"}
-        </button>
+          <nav
+            aria-label="Primary"
+            className="hidden min-w-0 min-[1120px]:flex min-[1120px]:flex-1 min-[1120px]:justify-center"
+          >
+            <ul className="flex items-center gap-[clamp(0.7rem,1.15vw,1.35rem)]">
+              {headerNav.map((item) => {
+                const current = isCurrent(item.href, pathname);
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      aria-current={current ? "page" : undefined}
+                      className="bar-link inline-flex py-2"
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+
+          <div className="ml-auto flex shrink-0 items-center gap-[clamp(0.5rem,1vw,0.9rem)]">
+            <a
+              href={site.phoneHref}
+              className="bar-link hidden py-2 opacity-80 hover:opacity-100 min-[760px]:inline-flex"
+            >
+              {site.phone}
+            </a>
+            <Link
+              href="/support"
+              className="bar-btn bar-btn-line hidden min-[1120px]:inline-flex"
+            >
+              Request Support
+            </Link>
+            <Link
+              href="/contact"
+              className="bar-btn bar-btn-fill hidden min-[900px]:inline-flex"
+            >
+              Free IT Assessment
+            </Link>
+            <button
+              ref={toggle}
+              type="button"
+              onClick={() => setOpen((v) => !v)}
+              aria-expanded={open}
+              aria-controls="site-menu"
+              className="bar-btn bar-btn-line inline-flex min-[1120px]:hidden"
+            >
+              {open ? "Close" : "Menu"}
+            </button>
+          </div>
+        </div>
       </header>
 
       <div
@@ -108,7 +182,7 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
       >
         <nav aria-label="Main">
           <ul>
-            {nav.map((item, i) => (
+            {menuNav.map((item, i) => (
               <li key={item.href} className="border-t border-hairline">
                 <Link
                   href={item.href}
@@ -128,16 +202,16 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
 
         <div className="flex flex-wrap items-end justify-between gap-8 border-t border-hairline pt-6">
           <ul className="flex gap-8">
-            {utilityNav.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="micro transition-colors hover:text-gold"
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ))}
+            <li>
+              <Link href="/support" className="micro transition-colors hover:text-gold">
+                Request Support
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" className="micro transition-colors hover:text-gold">
+                Free IT Assessment
+              </Link>
+            </li>
           </ul>
           <address className="micro not-italic text-fg-muted">
             <a href={site.phoneHref} className="hover:text-gold">

@@ -104,7 +104,7 @@ export function SignalChapter({
       id={id}
       data-snap
       data-phase={index}
-      className={`h-screen overflow-hidden ${className}`}
+      className={`h-dvh overflow-hidden ${className}`}
     >
       {children}
     </div>

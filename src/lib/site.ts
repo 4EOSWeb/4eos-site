@@ -38,6 +38,16 @@ export const nav = [
   { label: "Journal", href: "/blog" },
 ] as const;
 
+/** The live 4eos.com bar, in that order. About and Journal stay in the menu. */
+export const headerNav = [
+  { label: "Services", href: "/services" },
+  { label: "CompleteCare", href: "/services/completecare" },
+  { label: "SecureAI", href: "/secureai" },
+  { label: "Industries", href: "/industries" },
+  { label: "Why 4EOS", href: "/why-4eos" },
+  { label: "FAQ", href: "/faq" },
+] as const;
+
 export const utilityNav = [
   { label: "Support", href: "/support" },
   { label: "Contact", href: "/contact" },

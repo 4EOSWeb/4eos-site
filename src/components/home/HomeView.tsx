@@ -23,7 +23,7 @@ import { site } from "@/lib/site";
 
 /** One full viewport. The heading clears the nav; the cue clears the bottom. */
 const CHAPTER =
-  "px-[var(--sheet-inset)] pt-[calc(var(--nav-h)+6vh)] pb-28";
+  "px-[var(--sheet-inset)] pt-[var(--chapter-top)] pb-[var(--chapter-bottom)]";
 
 export function HomeView() {
   return (
@@ -41,7 +41,7 @@ export function HomeView() {
           <Strategy />
         </main>
       </PageFade>
-      <SnapTarget className="flex h-screen flex-col justify-end overflow-hidden pb-24">
+      <SnapTarget className="flex h-dvh flex-col justify-end overflow-hidden pb-24">
         <Footer />
       </SnapTarget>
     </>
@@ -51,9 +51,9 @@ export function HomeView() {
 function Hero() {
   return (
     <SignalChapter phase="unmanaged" id="chapter-unmanaged">
-      <section className="flex h-full flex-col justify-end px-[var(--sheet-inset)] pb-28 pt-[calc(var(--nav-h)+8vh)]">
+      <section className="flex h-full flex-col justify-end px-[var(--sheet-inset)] pt-[var(--hero-top)] pb-[var(--chapter-bottom)]">
         <p className="micro text-fg">Fort Wayne · Since {site.founded}</p>
-        <h1 className="display mt-6 text-[clamp(3.2rem,10vw,8.4rem)]">
+        <h1 className="display hero-display mt-[clamp(0.75rem,2vh,1.5rem)]">
           IT that works
           <br />
           for you.
@@ -64,7 +64,7 @@ function Hero() {
             way around.
           </span>
         </h1>
-        <p className="lede mt-10 max-w-[42ch]">
+        <p className="lede mt-[clamp(1rem,3vh,2.5rem)] max-w-[42ch]">
           Managed IT, cybersecurity, and compliance for Indiana businesses.
           We take ownership of the environment so the team can stay on the work.
         </p>
@@ -94,6 +94,14 @@ function Discovery() {
 
 function Ownership() {
   const [tier, setTier] = useState(0);
+  const [collapsed, setCollapsed] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-height: 560px)");
+    const apply = () => setCollapsed(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
   // Light the open tier only while this chapter is the one on screen.
   // Doing it on mount would also light industry cluster 0.
@@ -118,6 +126,8 @@ function Ownership() {
           </p>
           <div className="mt-10">
             <Accordion
+              key={collapsed ? "collapsed" : "open"}
+              defaultOpen={collapsed ? -1 : 0}
               items={tiers.map((tier) => ({
                 id: tier.name,
                 title: tier.name,
@@ -158,7 +168,7 @@ function Security() {
             support.
           </p>
           <div className="mt-10 max-w-[42ch]">
-            <h3 className="display text-[clamp(1.6rem,3vw,2.4rem)]">
+            <h3 className="display text-[clamp(1.35rem,min(3vw,4vh),2.4rem)]">
               <span className="text-gold">SecureAI</span>
             </h3>
             <p className="lede mt-4">
@@ -191,12 +201,12 @@ function Industries() {
                   href={`/industries/${ind.slug}`}
                   phase="industries"
                   focus={i}
-                  className="inline-flex items-baseline gap-[3vw] py-4 transition-colors hover:text-gold"
+                  className="inline-flex items-baseline gap-[3vw] py-[clamp(0.35rem,1.05vh,1rem)] transition-colors hover:text-gold"
                 >
                   <span className="micro w-8 shrink-0">
                     {String(i + 1).padStart(2, "0")}
                   </span>
-                  <span className="display text-[clamp(1.4rem,2.8vw,2.2rem)]">
+                  <span className="display row-display">
                     {ind.title}
                   </span>
                 </PhaseLink>
@@ -237,6 +247,17 @@ function Response() {
 }
 
 function Strategy() {
+  // On a very short CSS viewport the open row pushes the last service
+  // under the chapter rail. Start collapsed there; a tap still opens one.
+  const [collapsed, setCollapsed] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-height: 560px)");
+    const apply = () => setCollapsed(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
+
   // The strategy chapter keeps the unmanaged cloud. Opening a row does not
   // swap in a separate picture.
   useEffect(() => {
@@ -255,17 +276,19 @@ function Strategy() {
         <h2 className="display chapter-display max-w-[16ch]">
           A partner, <span className="text-gold">not a vendor.</span>
         </h2>
-        <p className="lede mt-6 max-w-[42ch]">
+        <p className="lede mt-[clamp(0.85rem,2.4vh,1.5rem)] max-w-[42ch]">
           Founded in Fort Wayne in {site.founded}. Largest Dell reseller in
           Northeast Indiana. One family of companies: 4EOS, Midwest VoIP,
           SafeHouse DataCenter. One number to call.
         </p>
-        <Link href="/why-4eos" className="micro mt-8 inline-flex text-gold">
+        <Link href="/why-4eos" className="micro mt-[clamp(0.75rem,2.2vh,2rem)] inline-flex text-gold">
           Why 4EOS →
         </Link>
-        <div className="mt-8">
+        <div className="mt-[clamp(0.75rem,2.2vh,2rem)]">
           <Accordion
+            key={collapsed ? "collapsed" : "open"}
             compact
+            defaultOpen={collapsed ? -1 : 0}
             items={services.map((s, i) => ({
               id: s.slug,
               index: String(i + 1).padStart(2, "0"),

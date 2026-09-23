@@ -17,9 +17,23 @@ export function SignalClient() {
 
   useEffect(() => {
     // Defer past hydration so the text is interactive before the GPU work
-    // starts competing for the main thread.
-    const id = window.setTimeout(() => setTier(detectTier()), 0);
-    return () => window.clearTimeout(id);
+    // starts competing for the main thread. Zoom and display scaling change
+    // the CSS viewport after load, so the tier is measured again then.
+    let timer = 0;
+    const apply = () => setTier(detectTier());
+    const id = window.setTimeout(apply, 0);
+    const onResize = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(apply, 180);
+    };
+    window.addEventListener("resize", onResize);
+    window.visualViewport?.addEventListener("resize", onResize);
+    return () => {
+      window.clearTimeout(id);
+      window.clearTimeout(timer);
+      window.removeEventListener("resize", onResize);
+      window.visualViewport?.removeEventListener("resize", onResize);
+    };
   }, []);
 
   useEffect(() => {

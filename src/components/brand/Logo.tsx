@@ -27,7 +27,7 @@ type LogoProps = {
   variant?: Variant;
   /** "mono" inherits currentColor; "brand" keeps navy and gold. */
   tone?: "mono" | "brand";
-  /** Rendered height in pixels; width follows the aspect ratio. */
+  /** Rendered height in pixels. Omit it to use the fluid --logo-h token. */
   height?: number;
   className?: string;
   title?: string;
@@ -36,11 +36,16 @@ type LogoProps = {
 export function Logo({
   variant = "mark",
   tone = "mono",
-  height = 28,
+  height,
   className = "",
   title = "4EOS",
 }: LogoProps) {
-  const width = Math.round(height * RATIO[variant] * 100) / 100;
+  const ratio = RATIO[variant];
+  const width = height != null ? Math.round(height * ratio * 100) / 100 : undefined;
+  const box: CSSProperties =
+    height != null
+      ? { height, width }
+      : { height: "var(--logo-h)", width: "auto", aspectRatio: `${ratio}` };
 
   if (tone === "brand") {
     return (
@@ -51,15 +56,13 @@ export function Logo({
         width={width}
         height={height}
         className={className}
-        style={{ height, width }}
+        style={box}
       />
     );
   }
 
   const style: CSSProperties = {
     display: "inline-block",
-    height,
-    width,
     backgroundColor: "currentColor",
     WebkitMaskImage: `url(${MASK[variant]})`,
     maskImage: `url(${MASK[variant]})`,
@@ -69,6 +72,7 @@ export function Logo({
     maskRepeat: "no-repeat",
     WebkitMaskPosition: "center",
     maskPosition: "center",
+    ...box,
   };
 
   return <span role="img" aria-label={title} className={className} style={style} />;

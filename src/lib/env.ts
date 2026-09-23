@@ -42,7 +42,9 @@ export function detectTier(): DeviceTier {
   const memory = (navigator as Navigator & { deviceMemory?: number })
     .deviceMemory;
   if (cores <= 4 || (memory !== undefined && memory <= 4)) return "reduced";
-  if (window.innerWidth < 1280) return "reduced";
+  // CSS pixels, not the panel. A 1920-wide laptop at Windows 150% reports
+  // about 1280 and should keep the desktop field.
+  if (window.innerWidth < 1100) return "reduced";
 
   return "full";
 }

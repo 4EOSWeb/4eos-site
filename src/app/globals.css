@@ -426,10 +426,94 @@ html.signal-live .signal-poster {
   background-size: 180px 180px;
 }
 
+.scroll-cue {
+  padding: 0.55rem 0.9rem;
+  border: 1px solid rgba(245, 183, 0, 0.55);
+  border-radius: 999px;
+  background: rgba(5, 7, 10, 0.55);
+  color: var(--color-gold);
+  font-size: 0.95rem;
+  letter-spacing: -0.02em;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.field-copy {
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0.15em 0.4em;
+  border-radius: 2px;
+  background-color: rgba(5, 7, 10, 0.46);
+}
+
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .field-copy {
+    background-color: rgba(5, 7, 10, 0.28);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  padding: 0.4rem 1rem 0.4rem 0.8rem;
+  border: 1px solid var(--color-hairline);
+  border-radius: 999px;
+  background: rgba(5, 7, 10, 0.55);
+  color: var(--color-fg);
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.back-link:hover {
+  color: var(--color-gold);
+  border-color: rgba(245, 183, 0, 0.55);
+}
+
+.back-link-bone {
+  background: rgba(232, 228, 216, 0.72);
+  color: var(--color-bone-fg);
+  border-color: var(--color-hairline-bone);
+}
+
+.option-glass {
+  position: relative;
+  margin-top: 0.4rem;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(8, 12, 18, 0.46);
+  -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  backdrop-filter: blur(18px) saturate(1.2);
+}
+
+.option-glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    220px circle at var(--gx, 50%) var(--gy, 0%),
+    rgba(255, 255, 255, 0.32),
+    transparent 70%
+  );
+  transition: opacity 160ms linear;
+}
+
+.option-glass:hover::before {
+  opacity: 1;
+}
+
 .scroll-cue-line {
   display: block;
-  width: 2.25rem;
-  height: 1px;
+  width: 2.75rem;
+  height: 2px;
   background: currentColor;
   transform-origin: left center;
   animation: scroll-cue 1.6s var(--ease-out-quint) infinite;

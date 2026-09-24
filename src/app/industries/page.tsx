@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Page } from "@/components/layout/Page";
+import { BackLink } from "@/components/ui/BackLink";
 import { Breath, Sheet } from "@/components/layout/Sheet";
 import { PhaseLink } from "@/components/ui/PhaseLink";
 import { industries } from "@/lib/content";
@@ -14,7 +15,8 @@ export default function IndustriesPage() {
   return (
     <Page phase="industries">
       <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
-        <p className="micro text-fg-muted">Industries</p>
+        <BackLink href="/" label="Home" />
+        <p className="micro field-copy mt-6 text-fg-muted">Industries</p>
         <h1 className="display page-display mt-5 max-w-[16ch]">
           We have seen your problems before.
         </h1>

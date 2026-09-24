@@ -486,8 +486,8 @@ export function serviceFormation(scene: number, p: PointSeed, t = 0): Vec3 {
  * the role split and is biased once the cut is applied).
  */
 const ICON_CUT = 0.34;
-/** Mark size inside the cloud. Small enough that the object reads as a speck. */
-const MARK_SCALE = 0.22;
+/** Mark size inside the cloud. Large enough to read as the industry. */
+const MARK_SCALE = 0.62;
 /** Outer radius of the industry cloud. Keep in step with the GLSL halo. */
 const SPHERE_OUTER = 2.5;
 
@@ -675,7 +675,9 @@ export function buildSeeds(count: number, seedValue = 0x4e05): PointSeed[] {
   const cells = cols * rows;
   const out: PointSeed[] = [];
   for (let i = 0; i < count; i++) {
-    const j = i < cells ? i : (i * 13) % cells;
+    // Extras walk the rectangle in order so every column, including the
+    // last, stays the same height.
+    const j = i % cells;
     out.push({
       seed: [rnd(), rnd(), rnd()],
       u: (j % cols) / (cols - 1),
@@ -706,12 +708,8 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       ];
     }
     case 1: {
-      // Discovery: the cloud resolves onto a regular lattice.
-      return [
-        (u - 0.5) * 26,
-        (v - 0.5) * 13.6,
-        Math.sin(u * 7 + t * 0.35) * 0.55,
-      ];
+      // Discovery: a flat lattice so every column has the same height.
+      return [(u - 0.5) * 26, (v - 0.5) * 13.6, 0];
     }
     case 2: {
       // Ownership: three concentric tiers — Base, Pro, Premium.

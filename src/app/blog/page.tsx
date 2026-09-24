@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Page } from "@/components/layout/Page";
+import { BackLink } from "@/components/ui/BackLink";
 import { Breath, Sheet } from "@/components/layout/Sheet";
 import { getPosts } from "@/lib/posts";
 
@@ -15,7 +16,8 @@ export default function BlogIndex() {
   return (
     <Page phase="discovery">
       <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
-        <p className="micro text-fg-muted">Journal</p>
+        <BackLink href="/" label="Home" />
+        <p className="micro field-copy mt-6 text-fg-muted">Journal</p>
         <h1 className="display page-display mt-5 max-w-[14ch]">
           Notes from the work.
         </h1>

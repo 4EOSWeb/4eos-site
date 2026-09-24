@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { InnerPage } from "@/components/layout/InnerPage";
 import { Mdx } from "@/components/blog/Mdx";
 import { getPost, getPosts } from "@/lib/posts";
@@ -29,11 +28,10 @@ export default async function PostPage({ params }: Props) {
       kicker={`${formatDate(post.date)} · ${post.author}`}
       title={post.title}
       lede={post.description}
+      backHref="/blog"
+      backLabel="Journal"
     >
       <Mdx source={post.body} />
-      <Link href="/blog" className="micro mt-16 inline-flex text-gold">
-        ← Journal
-      </Link>
     </InnerPage>
   );
 }

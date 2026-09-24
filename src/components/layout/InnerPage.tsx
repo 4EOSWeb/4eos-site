@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
+import { BackLink } from "@/components/ui/BackLink";
 import { Page } from "./Page";
 import { Breath, Sheet } from "./Sheet";
 import type { Phase } from "@/components/signal/formations";
@@ -32,16 +32,10 @@ export function InnerPage({
   return (
     <Page phase={phase} tone={tone} focus={focus} zoom={zoom} scene={scene}>
       <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
-        {backHref && backLabel ? (
-          <Link href={backHref} className="micro inline-flex text-gold">
-            ← {backLabel}
-          </Link>
-        ) : null}
-        {kicker ? (
-          <p className={`micro ${backHref ? "mt-6" : ""}`}>{kicker}</p>
-        ) : null}
+        <BackLink href={backHref ?? "/"} label={backLabel ?? "Home"} />
+        {kicker ? <p className="micro field-copy mt-6">{kicker}</p> : null}
         <h1 className="display page-display mt-5 max-w-[18ch]">{title}</h1>
-        {lede ? <p className="lede mt-6 max-w-[46ch]">{lede}</p> : null}
+        {lede ? <p className="lede field-copy mt-6 max-w-[46ch]">{lede}</p> : null}
       </section>
       {children ? (
         <>

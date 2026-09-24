@@ -116,7 +116,7 @@ function Points({
     u.uScene.value = signal.sceneShown;
     u.uSceneMix.value = signal.sceneMix;
     u.uZoom.value = signal.zoomR;
-    u.uZoomOn.value = signal.zoom > 0.02 || signal.zoomR > 0.02 ? 1 : 0;
+    u.uZoomOn.value = signal.zoom > 0.02 ? 1 : 0;
 
     // Cursor NDC → world XY on the field plane, through the camera that is
     // actually looking. The old frustum map (NDC * 14.5, 8.1) only held at z=20.
@@ -165,16 +165,12 @@ function CameraRig({ still, lite }: { still: boolean; lite: boolean }) {
       signal.lookX = x;
       signal.lookY = y;
     }
-    // Travel in. Closing snaps back, so the oval is there again before the
-    // next hover instead of waiting out the ease.
-    if (signal.zoom <= 0.02 || still) {
-      signal.zoomR = signal.zoom;
-    } else {
-      const dt = Math.min(delta, 0.05);
-      const zoomStep = 1 - Math.pow(0.18, dt);
-      signal.zoomR += (signal.zoom - signal.zoomR) * zoomStep;
-      if (Math.abs(signal.zoom - signal.zoomR) < 0.0005) signal.zoomR = signal.zoom;
-    }
+    // Ease both ways, the same curve. The oval itself returns as soon as
+    // the zoom is released; only the camera travels back.
+    const dt = Math.min(delta, 0.05);
+    const zoomStep = still ? 1 : 1 - Math.pow(0.18, dt);
+    signal.zoomR += (signal.zoom - signal.zoomR) * zoomStep;
+    if (Math.abs(signal.zoom - signal.zoomR) < 0.0005) signal.zoomR = signal.zoom;
 
     const z = signal.zoomR;
     const nearZ = lite ? 13.5 : 9;

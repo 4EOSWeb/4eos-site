@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Page } from "@/components/layout/Page";
+import { BackLink } from "@/components/ui/BackLink";
 import { Sheet } from "@/components/layout/Sheet";
 import { IntakeForm } from "@/components/forms/IntakeForm";
 import { site } from "@/lib/site";
@@ -36,7 +37,8 @@ export default function SupportPage() {
       <Sheet tone="ink">
         <div className="sheet-pad sheet-y grid gap-12 md:grid-cols-12">
           <div className="md:col-span-5">
-            <p className="micro text-fg-faint">Help desk</p>
+            <BackLink href="/" label="Home" />
+            <p className="micro mt-6 text-fg-faint">Help desk</p>
             <h1 className="display page-display mt-5">
               Existing client. We already know the environment.
             </h1>

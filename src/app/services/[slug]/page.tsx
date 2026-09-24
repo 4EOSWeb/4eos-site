@@ -28,6 +28,8 @@ export default async function ServicePage({ params }: Props) {
       kicker={"family" in service ? service.family : "Practice"}
       title={service.statement}
       lede={service.lede}
+      backHref="/services"
+      backLabel="Services"
     >
       <PracticeBody
         title={service.title}

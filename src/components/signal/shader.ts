@@ -474,11 +474,12 @@ vec3 formation(int s, float t) {
     );
   }
   if (s == 1) {
-    // Discovery: the cloud resolves onto a regular lattice.
+    // Discovery: a flat lattice. Depth would foreshorten the far columns,
+    // so every column shares one plane and the same screen height.
     return vec3(
       (aUV.x - 0.5) * 26.0,
       (aUV.y - 0.5) * 13.6,
-      sin(aUV.x * 7.0 + t * 0.35) * 0.55
+      0.0
     );
   }
   if (s == 2) {
@@ -513,7 +514,7 @@ vec3 formation(int s, float t) {
     }
     float a = k / 6.0 * TAU - 1.5707963 + t * 0.18;
     float extra = fract(aRand * 6.0);
-    vec3 local = seed.z < 0.34 ? glyph(k, seed, extra) * 0.22 : halo(seed);
+    vec3 local = seed.z < 0.34 ? glyph(k, seed, extra) * 0.62 : halo(seed);
     float spin = seed.z < 0.34 ? t * 0.35 * uZoom * match : t * 0.62;
     local = yaw(local, spin);
     float along = 0.32 + fract(seed.y * 13.1) * 0.36;
@@ -746,7 +747,7 @@ void main() {
     float onTrail = step(0.34, position.z) * (1.0 - step(0.1, fract(position.x * 17.13)));
     onHalo *= 1.0 - onTrail;
   }
-  vAlpha *= mix(1.0, 1.35, onGlyph);
+  vAlpha *= mix(1.0, 1.7, onGlyph);
   vAlpha *= mix(1.0, mix(0.16, 1.85, core), onHalo);
   vAlpha *= mix(1.0, 1.7, device * sceneOff);
 
@@ -769,7 +770,7 @@ void main() {
   float onSpokePt = onGridPt * step(0.5, fract(aRand * 3.1));
   float keptPt = step(fract(position.z * 13.7), mix(mix(0.55, 1.0, vSheet / 6.1), mix(0.5, 1.0, vSheet / 6.48), onSpokePt));
   onGridPt *= keptPt;
-  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 4.2 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 0.55;
+  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 4.2 + onGlyph * 1.15 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 0.55;
   float px = size * uPixelRatio * (44.0 / max(-mv.z, 0.001));
   float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom) + onSpherePt * 2.0 + vDetect * 14.0;
   gl_PointSize = min(px, cap) * (1.0 - hide);

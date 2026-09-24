@@ -135,11 +135,11 @@ export function ChapterRail() {
         <button
           type="button"
           onClick={() => (story ? snapNext() : window.scrollBy({ top: window.innerHeight * 0.85, behavior: "smooth" }))}
-          className="pointer-events-auto mb-2 flex shrink-0 items-center gap-3 text-fg-muted transition-colors hover:text-fg"
+          className="scroll-cue pointer-events-auto mb-1 flex shrink-0 items-center gap-3"
         >
-          <span className="micro">Scroll</span>
+          <span>Scroll</span>
           <span aria-hidden className="scroll-cue-line" />
-          {next ? <span className="micro max-w-[14ch] truncate">{label(next)}</span> : null}
+          {next ? <span className="max-w-[16ch] truncate">{label(next)}</span> : null}
         </button>
       ) : null}
     </div>

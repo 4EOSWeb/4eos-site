@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Page } from "@/components/layout/Page";
+import { BackLink } from "@/components/ui/BackLink";
 import { Breath, Sheet } from "@/components/layout/Sheet";
 import { PhaseLink } from "@/components/ui/PhaseLink";
 import { services } from "@/lib/content";
@@ -14,7 +15,8 @@ export default function ServicesPage() {
   return (
     <Page phase="ownership">
       <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
-        <p className="micro text-fg-muted">Practice</p>
+        <BackLink href="/" label="Home" />
+        <p className="micro field-copy mt-6 text-fg-muted">Practice</p>
         <h1 className="display page-display mt-5 max-w-[16ch]">
           Six practices. One accountable family.
         </h1>

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Page } from "@/components/layout/Page";
+import { BackLink } from "@/components/ui/BackLink";
 import { Sheet } from "@/components/layout/Sheet";
 import { IntakeForm } from "@/components/forms/IntakeForm";
 import { addressLine, site } from "@/lib/site";
@@ -24,7 +25,8 @@ export default function ContactPage() {
       <Sheet tone="bone" className="min-h-[calc(100svh-var(--nav-h)-var(--sheet-inset))]">
         <div className="sheet-pad sheet-y grid gap-12 md:grid-cols-12">
           <div className="md:col-span-5">
-            <h1 className="display page-display text-bone-fg">
+            <BackLink href="/" label="Home" tone="bone" />
+            <h1 className="display page-display mt-6 text-bone-fg">
               Tell us about the environment.
             </h1>
             <p className="mt-8 text-[15px] leading-relaxed tracking-tight text-bone-muted">

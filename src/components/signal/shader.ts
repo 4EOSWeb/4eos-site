@@ -714,7 +714,10 @@ void main() {
     vGold = max(vGold, max(pulse, onSphere) * 0.85 * nearResponse);
     vAlpha *= mix(1.0, 1.7, pulse * nearResponse);
     float onGrid = step(0.04, aRand) * (1.0 - step(0.22, fract(aRand * 7.13)));
+    float onSpoke = onGrid * step(0.5, fract(aRand * 3.1));
     vAlpha *= mix(1.0, 1.55, onGrid * nearResponse);
+    // Spokes pack the same dots onto a much shorter line, so they read hotter.
+    vAlpha *= mix(1.0, 0.48, onSpoke * nearResponse);
   }
 
   // Industry cloud glows from its own centre: hot in the middle, a faint
@@ -754,7 +757,8 @@ void main() {
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   float onSpherePt = (1.0 - step(0.04, aRand)) * (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
   float onGridPt = step(0.04, aRand) * (1.0 - step(0.22, fract(aRand * 7.13))) * (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
-  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 1.15;
+  float onSpokePt = onGridPt * step(0.5, fract(aRand * 3.1));
+  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + (onGridPt - onSpokePt) * 1.15;
   float px = size * uPixelRatio * (44.0 / max(-mv.z, 0.001));
   float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom) + onSpherePt * 2.0;
   gl_PointSize = min(px, cap) * (1.0 - hide);

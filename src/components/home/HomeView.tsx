@@ -338,11 +338,8 @@ function Strategy() {
               children: (
                 <>
                   <p className="body-sm">{s.lede}</p>
-                  <Link
-                    href={`/services/${s.slug}`}
-                    className="micro mt-6 inline-flex text-gold"
-                  >
-                    Read →
+                  <Link href={`/services/${s.slug}`} className="bar-btn bar-btn-line mt-6 inline-flex">
+                    Read <span aria-hidden>→</span>
                   </Link>
                 </>
               ),

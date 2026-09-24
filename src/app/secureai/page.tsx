@@ -63,8 +63,8 @@ export default function SecureAIPage() {
         Need more than 1,500,000 credits? Enterprise pricing is sized to the
         organization.
       </p>
-      <Link href="/contact" className="micro mt-10 inline-flex text-gold">
-        Talk about SecureAI →
+      <Link href="/contact" className="bar-btn bar-btn-line mt-10 inline-flex">
+        Talk about SecureAI <span aria-hidden>→</span>
       </Link>
     </InnerPage>
   );

@@ -59,14 +59,14 @@ export default async function IndustryPage({ params }: Props) {
       <ul className="mt-12 flex flex-wrap gap-6 border-t border-hairline pt-8">
         {industry.related.map((item) => (
           <li key={item.href}>
-            <Link href={item.href} className="micro text-gold">
-              {item.label} →
+            <Link href={item.href} className="bar-btn bar-btn-line inline-flex">
+              {item.label} <span aria-hidden>→</span>
             </Link>
           </li>
         ))}
       </ul>
-      <Link href="/contact" className="micro mt-10 inline-flex text-gold">
-        Request an assessment →
+      <Link href="/contact" className="bar-btn bar-btn-line mt-10 inline-flex">
+        Request an assessment <span aria-hidden>→</span>
       </Link>
     </InnerPage>
   );

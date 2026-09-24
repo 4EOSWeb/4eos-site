@@ -513,23 +513,34 @@ vec3 formation(int s, float t) {
     return vec3(cos(a) * 4.1 + 4.2 + local.x, sin(a) * 4.1 + 0.2 + local.y, local.z);
   }
   if (s == 5) {
-    // Response: a calm disc, a tight inbox, and a few issues that leave
-    // the rim and extinguish before they arrive.
+    // Response: a black hole on a bending gravity plane. Most points draw
+    // the funnel of revolution; a bright ring rims the hole; a little
+    // matter spirals in and is gone at the edge. Twin of case 5 in
+    // formations.ts — keep every constant in step.
     vec3 p = vec3(0.0);
-    if (aRand < 0.07) {
-      float a = seed.x * TAU;
-      float rad = sqrt(seed.y) * 0.55;
-      p = vec3(cos(a) * rad * 1.15, sin(a) * rad, (seed.z - 0.5) * 0.22);
-    } else if (aRand > 0.93) {
-      float travel = fract(t * 0.35 + seed.y);
-      float a = loopAngle(aUV.x, uCols);
-      float rad = 7.2 - travel * 6.39;
-      p = vec3(cos(a) * rad * 1.55, sin(a) * rad, (seed.z - 0.5) * 0.3);
-      if (travel > 0.72) p = vec3(0.0, -40.0, 0.0);
+    float holeY = 1.4;
+    float ringR = 2.6;
+    if (aRand < 0.10) {
+      // Photon ring: a camera-facing circle at the event horizon.
+      float ang = seed.x * TAU + t * 0.15;
+      float r = ringR + (seed.y - 0.5) * 0.16;
+      p = vec3(cos(ang) * r, holeY + sin(ang) * r, (seed.z - 0.5) * 0.22);
+    } else if (aRand > 0.94) {
+      // Infalling matter: spirals in from the rim, hidden at the edge.
+      float travel = fract(t * 0.25 + seed.y);
+      float rad = mix(5.85, ringR, travel);
+      float ang = seed.x * TAU + travel * 7.0;
+      p = vec3(cos(ang) * rad, holeY + sin(ang) * rad, (seed.z - 0.5) * 0.4);
+      if (travel > 0.9) p = vec3(0.0, -40.0, 0.0);
     } else {
-      float a = loopAngle(aUV.x, uCols) + t * 0.015;
-      float rad = sqrt(seed.x) * 6.5;
-      p = vec3(cos(a) * rad * 1.55, sin(a) * rad, (seed.z - 0.5) * 0.45);
+      // Gravity well: a funnel deep at the throat, flat toward the rim.
+      float rimR = 6.5;
+      float throatR = 0.42;
+      float well = 1.85;
+      float rho = mix(throatR, rimR, pow(aUV.y, 1.7));
+      float ang = loopAngle(aUV.x, uCols);
+      float y = -2.4 - well * (1.0 / rho - 1.0 / rimR);
+      p = vec3(cos(ang) * rho * 1.35, y, sin(ang) * rho);
     }
     return p;
   }
@@ -553,7 +564,7 @@ float density(int s) {
   if (s == 2) return 0.30;
   if (s == 3) return 0.32;
   if (s == 4) return 0.40;
-  if (s == 5) return 0.48;
+  if (s == 5) return 0.44;
   return 0.55;
 }
 
@@ -675,16 +686,18 @@ void main() {
     vAlpha *= mix(1.0, 2.6, vDetect);
   }
 
-  // Response: a soft pulse leaves the centre and dies before the rim.
-  // The inbox is the tight cluster; stray issues have already gone out.
+  // Response: the photon ring and infalling matter carry the accent; the
+  // funnel's ruled rings and spokes brighten so it reads as a grid.
   float nearResponse = (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
   if (nearResponse > 0.0) {
-    float rad = length(pos.xy / vec2(1.55, 1.0));
-    float front = mod(uTime * 1.4, 8.0);
-    float band = smoothstep(0.85, 0.0, abs(rad - front));
-    float die = 1.0 - smoothstep(4.2, 5.4, front);
-    vGold = max(vGold, band * die * nearResponse);
-    if (aRand < 0.07) vGold = max(vGold, 0.65 * nearResponse);
+    if (aRand < 0.10) {
+      vGold = max(vGold, 0.95 * nearResponse);
+    } else if (aRand > 0.94) {
+      vGold = max(vGold, 0.7 * nearResponse);
+    } else {
+      float onLine = max(onLattice(aUV.x, uCols, 40.0), onLattice(aUV.y, uRows, 22.0));
+      vAlpha *= mix(1.0, mix(0.5, 1.7, onLine), nearResponse);
+    }
   }
 
   // Industry cloud glows from its own centre: hot in the middle, a faint

@@ -39,6 +39,7 @@ attribute float aGold;
 varying float vAlpha;
 varying float vGold;
 varying float vDetect;
+varying float vSheet;
 
 float hash21(float x, float y) {
   float n = fract(x * 12.9898 + y * 78.233);
@@ -462,6 +463,7 @@ vec3 halo(vec3 seed) {
 
 vec3 formation(int s, float t) {
   vec3 seed = position;
+  vSheet = 0.0;
 
   if (s <= 0) {
     // Unmanaged: an unstructured cloud with slow, aimless drift.
@@ -526,21 +528,25 @@ vec3 formation(int s, float t) {
     return mix(orb, path, onTrail);
   }
   if (s == 5) {
-    // Response: the original filled disc. The middle sags around a sphere.
+    // Response: the filled disc, pitched so the middle sinks. vSheet is the
+    // disc radius before that pitch, so the pulse rides the ellipse.
     vec3 p = vec3(0.0);
-    if (aRand < 0.16) {
+    if (aRand < 0.22) {
       float az = seed.x * TAU;
       float cosP = seed.y * 2.0 - 1.0;
       float sinP = sqrt(max(0.0, 1.0 - cosP * cosP));
-      float R = 1.45 * pow(seed.z, 0.62);
+      float R = 1.55 * pow(max(seed.z, 0.08), 0.45);
       p = vec3(cos(az) * sinP * R, cosP * R, sin(az) * sinP * R);
     } else {
       float a = loopAngle(aUV.x, uCols) + t * 0.015;
       float rad = sqrt(seed.x) * 6.5;
-      float well = exp(-rad * rad / 8.0);
-      p = vec3(cos(a) * rad * 1.55, sin(a) * rad, (seed.z - 0.5) * 0.35 - well * 1.6);
+      float well = 2.5 * exp(-rad * rad / 9.0);
+      vSheet = rad;
+      p = vec3(cos(a) * rad * 1.55, sin(a) * rad, well + (seed.z - 0.5) * 0.28);
     }
-    return p;
+    float cp = 0.8775826;
+    float sp = 0.4794255;
+    return vec3(p.x, p.y * cp - p.z * sp, p.y * sp + p.z * cp);
   }
   // Strategy pages use the same drifting cloud as Unmanaged.
   return vec3(
@@ -689,18 +695,17 @@ void main() {
     vAlpha *= mix(1.0, 2.6, vDetect);
   }
 
-  // Response: one pulse leaves the sphere and dies before the rim.
-  // The sphere is brighter in the middle so it reads as a ball, not a dot.
+  // Response: the pulse uses the disc radius, so it stays on the ellipse.
+  // The sphere is solid yellow and drawn with thicker dots.
   float nearResponse = (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
   if (nearResponse > 0.0) {
-    float rad = length(pos.xy);
-    float front = mod(uTime * 1.15, 9.0);
-    float band = smoothstep(0.7, 0.0, abs(rad - front));
-    float die = 1.0 - smoothstep(5.0, 6.4, front);
-    vGold = max(vGold, band * die * nearResponse);
-    float onSphere = 1.0 - step(0.16, aRand);
-    float core = pow(clamp(1.0 - length(pos.xyz) / 1.45, 0.0, 1.0), 1.25);
-    vAlpha *= mix(1.0, mix(0.55, 1.9, core), onSphere * nearResponse);
+    float front = mod(uTime * 1.05, 8.2);
+    float band = smoothstep(0.42, 0.0, abs(vSheet - front));
+    float die = 1.0 - smoothstep(4.6, 6.1, front);
+    vGold = max(vGold, band * die * step(0.2, vSheet) * nearResponse);
+    float onSphere = 1.0 - step(0.22, aRand);
+    vGold = max(vGold, onSphere * nearResponse);
+    vAlpha *= mix(1.0, 1.65, onSphere * nearResponse);
   }
 
   // Industry cloud glows from its own centre: hot in the middle, a faint
@@ -738,9 +743,10 @@ void main() {
   vAlpha *= mix(1.0, 1.7, uResolve);
 
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
-  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45;
+  float onSpherePt = (1.0 - step(0.22, aRand)) * (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
+  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 4.5;
   float px = size * uPixelRatio * (44.0 / max(-mv.z, 0.001));
-  float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom);
+  float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom) + onSpherePt * 14.0;
   gl_PointSize = min(px, cap) * (1.0 - hide);
   if (hide > 0.97) {
     gl_Position = vec4(3.0, 3.0, 0.0, 1.0);
@@ -760,6 +766,7 @@ uniform vec3 uDetect;
 varying float vAlpha;
 varying float vGold;
 varying float vDetect;
+varying float vSheet;
 
 void main() {
   vec2 d = gl_PointCoord - 0.5;

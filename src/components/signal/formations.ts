@@ -766,24 +766,30 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       ];
     }
     case 5: {
-      // Response: the original filled disc, with a sphere in the middle.
-      // Points near the centre sag, so the sheet warps. Nothing is removed,
-      // which is what left a hole.
-      if (rand < 0.16) {
+      // Response: the filled disc, pitched so the middle sinks around a sphere.
+      const pitch = 0.5;
+      const cp = Math.cos(pitch);
+      const sp = Math.sin(pitch);
+      let x = 0;
+      let y = 0;
+      let z = 0;
+      if (rand < 0.22) {
         const az = seed[0] * TAU;
         const cosP = seed[1] * 2 - 1;
         const sinP = Math.sqrt(Math.max(0, 1 - cosP * cosP));
-        const R = 1.45 * Math.pow(seed[2], 0.62);
-        return [Math.cos(az) * sinP * R, cosP * R, Math.sin(az) * sinP * R];
+        const R = 1.55 * Math.pow(Math.max(seed[2], 0.08), 0.45);
+        x = Math.cos(az) * sinP * R;
+        y = cosP * R;
+        z = Math.sin(az) * sinP * R;
+      } else {
+        const a = loop(u, p.cols) + t * 0.015;
+        const rad = Math.sqrt(seed[0]) * 6.5;
+        const well = 2.5 * Math.exp(-(rad * rad) / 9);
+        x = Math.cos(a) * rad * 1.55;
+        y = Math.sin(a) * rad;
+        z = well + (seed[2] - 0.5) * 0.28;
       }
-      const a = loop(u, p.cols) + t * 0.015;
-      const rad = Math.sqrt(seed[0]) * 6.5;
-      const well = Math.exp(-(rad * rad) / 8);
-      return [
-        Math.cos(a) * rad * 1.55,
-        Math.sin(a) * rad,
-        (seed[2] - 0.5) * 0.35 - well * 1.6,
-      ];
+      return [x, y * cp - z * sp, y * sp + z * cp];
     }
     default: {
       // Strategy pages use the same drifting cloud as Unmanaged.

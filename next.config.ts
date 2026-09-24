@@ -5,6 +5,7 @@ const nextConfig: NextConfig = {
   // other host: any IPv4 address, and any hostname that contains a dot.
   // Restart `next dev` after changing this.
   allowedDevOrigins: ["*.*.*.*", "**.*"],
+  devIndicators: false,
   async redirects() {
     return [
       {

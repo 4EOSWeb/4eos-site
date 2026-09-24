@@ -44,7 +44,10 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image" },
   robots: { index: true, follow: true },
-  icons: { icon: "/icon.png", apple: "/apple-icon.png" },
+  icons: {
+    icon: "/brand/4eos-icon.svg",
+    apple: "/brand/4eos-icon.svg",
+  },
 };
 
 export const viewport: Viewport = {

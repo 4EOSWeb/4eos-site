@@ -701,11 +701,11 @@ void main() {
     vGold = max(vGold, shaft * atPerimeter * nearSecurity);
 
     // Marked endpoints light red when the shaft hits them, then stay red
-    // for about half a second. The beam moves at 0.55 rad/s, so 0.28 rad
-    // behind the shaft is that half-second. aGold is seeded once, so the
+    // for about 1.5 seconds. The beam moves at 0.55 rad/s, so 0.84 rad
+    // behind the shaft is that linger. aGold is seeded once, so the
     // same dots detect on every pass.
     float marked = step(0.91, aGold);
-    float linger = smoothstep(-0.30, -0.04, da) * (1.0 - smoothstep(0.0, 0.02, da));
+    float linger = smoothstep(-0.84, -0.50, da) * (1.0 - smoothstep(0.0, 0.02, da));
     vDetect = marked * nearSecurity * max(shaft, linger);
     vAlpha *= mix(1.0, 2.6, vDetect);
   }

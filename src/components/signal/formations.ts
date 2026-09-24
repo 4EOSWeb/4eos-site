@@ -71,20 +71,24 @@ export function latticeSize(count: number) {
 }
 
 /**
- * The six industry clouds sit in the open space to the right of the names.
- * Keep the centre and radius in step with the GLSL.
+ * The six industry clouds travel a sideways oval in the open field.
+ * The left edge stays near world x 0.6 so the clouds clear the names.
+ * Keep the centre and both radii in step with the GLSL.
  */
-export const CLUSTER_CX = 4.2;
+export const CLUSTER_CX = 5.5;
 export const CLUSTER_CY = 0.2;
-export const CLUSTER_R = 4.1;
-/** Radians per second. The six clouds travel around the circle. */
+export const CLUSTER_RX = 4.9;
+export const CLUSTER_RY = 3.2;
+/** Radians per second. The six clouds travel around the oval. */
 export const CLUSTER_ORBIT = 0.18;
 /** Radians per second. The orbs turn inside each cloud. */
 export const HALO_ORBIT = 0.62;
+/** Share of each cloud's halo that sits on the oval between the clouds. */
+export const TRAIL_SHARE = 0.1;
 
 export function clusterCenter(k: number, t = 0): [number, number] {
   const a = (k / 6) * TAU - Math.PI / 2 + t * CLUSTER_ORBIT;
-  return [CLUSTER_CX + Math.cos(a) * CLUSTER_R, CLUSTER_CY + Math.sin(a) * CLUSTER_R];
+  return [CLUSTER_CX + Math.cos(a) * CLUSTER_RX, CLUSTER_CY + Math.sin(a) * CLUSTER_RY];
 }
 
 function yawAboutY(p: Vec3, spin: number): Vec3 {
@@ -731,10 +735,22 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       return [Math.cos(a) * r * 1.8, Math.sin(a) * r, (seed[2] - 0.5) * 0.7];
     }
     case 4: {
-      // Industries: six marks, each in a cloud. The clouds travel around
-      // the circle, and the orbs turn inside each cloud.
+      // Industries: six marks, each in a cloud. The clouds travel a
+      // sideways oval, and the orbs turn inside each cloud. A thin share
+      // of the halo sits on the oval between the clouds.
       const k = Math.min(5, Math.floor(rand * 6));
       const a = (k / 6) * TAU - Math.PI / 2 + t * CLUSTER_ORBIT;
+      const onTrail = seed[2] >= ICON_CUT && fract(seed[0] * 17.13) < TRAIL_SHARE;
+      if (onTrail) {
+        const along = 0.32 + fract(seed[1] * 13.1) * 0.36;
+        const trailA = a + along * (TAU / 6);
+        const jitter = (fract(seed[0] * 7.7) - 0.5) * 0.55;
+        return [
+          CLUSTER_CX + Math.cos(trailA) * (CLUSTER_RX + jitter),
+          CLUSTER_CY + Math.sin(trailA) * (CLUSTER_RY + jitter * 0.35),
+          (seed[2] - 0.5) * 0.35,
+        ];
+      }
       const extra = fract(rand * 6);
       const mark = industryGlyph(k, seed, extra);
       let local: Vec3 =
@@ -743,8 +759,8 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
           : industryHalo(seed);
       if (seed[2] >= ICON_CUT) local = yawAboutY(local, t * HALO_ORBIT);
       return [
-        CLUSTER_CX + Math.cos(a) * CLUSTER_R + local[0],
-        CLUSTER_CY + Math.sin(a) * CLUSTER_R + local[1],
+        CLUSTER_CX + Math.cos(a) * CLUSTER_RX + local[0],
+        CLUSTER_CY + Math.sin(a) * CLUSTER_RY + local[1],
         local[2],
       ];
     }

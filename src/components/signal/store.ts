@@ -113,11 +113,25 @@ export function setResolve(value: number) {
   signal.invalidate?.();
 }
 
+const focusListeners = new Set<Listener>();
+
+export function subscribeFocus(fn: Listener) {
+  focusListeners.add(fn);
+  return () => {
+    focusListeners.delete(fn);
+  };
+}
+
+export function getFocus() {
+  return signal.focus;
+}
+
 export function setFocus(cluster: number | null) {
   const next = cluster ?? -1;
   if (next !== signal.focus) {
     signal.focus = next;
     signal.focusAge = 0;
+    focusListeners.forEach((fn) => fn());
   }
   signal.invalidate?.();
 }

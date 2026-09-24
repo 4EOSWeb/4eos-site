@@ -496,8 +496,9 @@ vec3 formation(int s, float t) {
     return vec3(cos(a) * r * 1.8, sin(a) * r, (seed.z - 0.5) * 0.7);
   }
   if (s == 4) {
-    // Industries: six clouds travel around the circle. The orbs turn
+    // Industries: six clouds travel a sideways oval. The orbs turn
     // inside each cloud. A focused mark yaws only while zoomed.
+    // Centre (5.5, 0.2), radii 4.9 and 3.2. Keep in step with formations.ts.
     float k = min(floor(aRand * 6.0), 5.0);
     float match = uFocus < 0.0 ? 0.0 : (1.0 - step(0.5, abs(k - uFocus)));
     // Skip the mark maths for clusters the zoom has already dropped.
@@ -506,11 +507,20 @@ vec3 formation(int s, float t) {
     }
     float a = k / 6.0 * TAU - 1.5707963 + t * 0.18;
     float extra = fract(aRand * 6.0);
+    float onTrail = step(0.34, seed.z) * (1.0 - step(0.1, fract(seed.x * 17.13)));
     vec3 local = seed.z < 0.34 ? glyph(k, seed, extra) * 0.22 : halo(seed);
     float spin = seed.z < 0.34 ? t * 0.35 * uZoom * match : t * 0.62;
     local = yaw(local, spin);
-    // Radius 4.1, centre x 4.2. Keep both in step with formations.ts.
-    return vec3(cos(a) * 4.1 + 4.2 + local.x, sin(a) * 4.1 + 0.2 + local.y, local.z);
+    float along = 0.32 + fract(seed.y * 13.1) * 0.36;
+    float trailA = a + along * (TAU / 6.0);
+    float jitter = (fract(seed.x * 7.7) - 0.5) * 0.55;
+    vec3 orb = vec3(cos(a) * 4.9 + 5.5 + local.x, sin(a) * 3.2 + 0.2 + local.y, local.z);
+    vec3 path = vec3(
+      cos(trailA) * (4.9 + jitter) + 5.5,
+      sin(trailA) * (3.2 + jitter * 0.35) + 0.2,
+      (seed.z - 0.5) * 0.35
+    );
+    return mix(orb, path, onTrail);
   }
   if (s == 5) {
     // Response: a calm disc, a tight inbox, and a few issues that leave
@@ -696,9 +706,13 @@ void main() {
   if (nearIndustries > 0.0) {
     float kk = min(floor(aRand * 6.0), 5.0);
     float ca = kk / 6.0 * 6.2831853 - 1.5707963 + uTime * 0.18;
-    vec2 ctr = vec2(cos(ca) * 4.1 + 4.2, sin(ca) * 4.1 + 0.2);
+    vec2 ctr = vec2(cos(ca) * 4.9 + 5.5, sin(ca) * 3.2 + 0.2);
     float rad = length(vec3(pos.x - ctr.x, pos.y - ctr.y, pos.z));
     core = pow(clamp(1.0 - rad / 2.5, 0.0, 1.0), 1.35);
+    // Points on the oval are outside every cloud, so the halo falloff
+    // would hide them. Keep that dusting at the ordinary point weight.
+    float onTrail = step(0.34, position.z) * (1.0 - step(0.1, fract(position.x * 17.13)));
+    onHalo *= 1.0 - onTrail;
   }
   vAlpha *= mix(1.0, 1.35, onGlyph);
   vAlpha *= mix(1.0, mix(0.16, 1.85, core), onHalo);

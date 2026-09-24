@@ -7,9 +7,11 @@ import { SignalChapter } from "@/components/signal/SignalChapter";
 import { PHASE_INDEX } from "@/components/signal/formations";
 import {
   getChapterIndex,
+  getFocus,
   setFocus,
   setScene,
   subscribeChapter,
+  subscribeFocus,
 } from "@/components/signal/store";
 import { Footer } from "@/components/layout/Footer";
 import { Nav } from "@/components/layout/Nav";
@@ -187,6 +189,22 @@ function Security() {
 }
 
 function Industries() {
+  const [focus, setShown] = useState(-1);
+  useEffect(() => {
+    const apply = () => {
+      const onChapter = getChapterIndex() === PHASE_INDEX.industries;
+      setShown(onChapter ? getFocus() : -1);
+    };
+    apply();
+    const offFocus = subscribeFocus(apply);
+    const offChapter = subscribeChapter(apply);
+    return () => {
+      offFocus();
+      offChapter();
+    };
+  }, []);
+  const note = focus >= 0 && focus < industries.length ? industries[focus].note : "";
+
   return (
     <SignalChapter phase="industries" id="chapter-industries">
       <section className={CHAPTER}>
@@ -213,6 +231,9 @@ function Industries() {
               </li>
             ))}
           </ol>
+          <p className="lede mt-8 max-w-[42ch] min-h-[4.5em]" aria-live="polite">
+            {note}
+          </p>
       </section>
     </SignalChapter>
   );

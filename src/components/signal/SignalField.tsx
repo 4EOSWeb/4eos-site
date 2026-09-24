@@ -6,7 +6,7 @@ import * as THREE from "three";
 import { buildSeeds, clusterCenter, latticeSize } from "./formations";
 import { fragmentShader, vertexShader } from "./shader";
 import { setMouse, signal } from "./store";
-import { POINT_BUDGET, prefersReducedMotion, type DeviceTier } from "@/lib/env";
+import { MOBILE_FIT, POINT_BUDGET, prefersReducedMotion, type DeviceTier } from "@/lib/env";
 
 const BASE_COLOR = new THREE.Color("#4f86b4");
 const ACCENT_COLOR = new THREE.Color("#f5b700");
@@ -18,10 +18,12 @@ function Points({
   count,
   still,
   lite,
+  mobile,
 }: {
   count: number;
   still: boolean;
   lite: boolean;
+  mobile: boolean;
 }) {
   const material = useRef<THREE.ShaderMaterial>(null);
   const { invalidate } = useThree();
@@ -68,13 +70,14 @@ function Points({
       uScene: { value: 0 },
       uSceneMix: { value: 0 },
       uLite: { value: lite ? 1 : 0 },
+      uMobile: { value: mobile ? 1 : 0 },
       uCols: { value: cols },
       uRows: { value: rows },
       uBase: { value: BASE_COLOR },
       uAccent: { value: ACCENT_COLOR },
       uDetect: { value: DETECT_COLOR },
     };
-  }, [lite, count]);
+  }, [lite, mobile, count]);
 
   useEffect(() => {
     signal.invalidate = invalidate;
@@ -150,7 +153,15 @@ function Points({
   );
 }
 
-function CameraRig({ still, lite }: { still: boolean; lite: boolean }) {
+function CameraRig({
+  still,
+  lite,
+  mobile,
+}: {
+  still: boolean;
+  lite: boolean;
+  mobile: boolean;
+}) {
   useFrame((state, delta) => {
     const zooming =
       signal.focus >= 0 &&
@@ -173,13 +184,15 @@ function CameraRig({ still, lite }: { still: boolean; lite: boolean }) {
     if (Math.abs(signal.zoom - signal.zoomR) < 0.0005) signal.zoomR = signal.zoom;
 
     const z = signal.zoomR;
-    const nearZ = lite ? 13.5 : 9;
+    const fit = mobile ? MOBILE_FIT : 1;
+    const restZ = mobile ? 24 : 20;
+    const nearZ = mobile ? 16 : lite ? 13.5 : 9;
     state.camera.position.set(
-      signal.lookX * z * 0.55,
-      signal.lookY * z * 0.55,
-      20 + (nearZ - 20) * z,
+      signal.lookX * z * 0.55 * fit,
+      signal.lookY * z * 0.55 * fit,
+      restZ + (nearZ - restZ) * z,
     );
-    state.camera.lookAt(signal.lookX * z, signal.lookY * z, 0);
+    state.camera.lookAt(signal.lookX * z * fit, signal.lookY * z * fit, 0);
   });
   return null;
 }
@@ -218,6 +231,7 @@ export default function SignalField({ tier }: { tier: DeviceTier }) {
   if (count === 0) return null;
 
   const lite = tier === "reduced";
+  const mobile = tier === "mobile";
   const frameloop = !awake ? "never" : still ? "demand" : "always";
 
   return (
@@ -228,20 +242,21 @@ export default function SignalField({ tier }: { tier: DeviceTier }) {
     >
       <Canvas
         frameloop={frameloop}
-        dpr={lite ? 1 : [1, 1.5]}
+        dpr={lite || mobile ? 1 : [1, 1.5]}
         gl={{
           antialias: false,
           alpha: true,
-          powerPreference: "high-performance",
+          powerPreference: mobile ? "low-power" : "high-performance",
         }}
         camera={{ fov: 45, position: [0, 0, 20], near: 0.1, far: 100 }}
       >
-        <CameraRig still={still} lite={lite} />
+        <CameraRig still={still} lite={lite} mobile={mobile} />
         <Points
-          key={`${count}-${still ? "still" : "live"}-${lite ? "lite" : "full"}`}
+          key={`${count}-${still ? "still" : "live"}-${lite ? "lite" : "full"}-${mobile ? "mobile" : "desk"}`}
           count={count}
           still={still}
           lite={lite}
+          mobile={mobile}
         />
       </Canvas>
     </div>

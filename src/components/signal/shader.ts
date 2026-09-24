@@ -25,6 +25,7 @@ uniform float uFocusAge;
 uniform float uZoom;
 uniform float uZoomOn;
 uniform float uLite;
+uniform float uMobile;
 uniform float uScene;
 uniform float uSceneMix;
 uniform float uCols;
@@ -766,6 +767,10 @@ void main() {
   // Driven by the contact form: the field tightens as the form completes.
   vAlpha *= mix(1.0, 1.7, uResolve);
 
+  // Phones scale the finished picture so it sits inside a narrow frame.
+  // uMobile is 0 on desktop, which leaves pos untouched.
+  pos.xy *= mix(1.0, 0.58, uMobile);
+
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   float onSpherePt = (1.0 - step(0.04, aRand)) * (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
   float onGridPt = step(0.04, aRand) * (1.0 - step(0.22, fract(aRand * 7.13))) * (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
@@ -773,8 +778,10 @@ void main() {
   float keptPt = step(fract(position.z * 13.7), mix(mix(0.55, 1.0, vSheet / 6.1), mix(0.5, 1.0, vSheet / 6.48), onSpokePt));
   onGridPt *= keptPt;
   float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 4.2 + onGlyph * 1.15 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 0.55;
+  size *= mix(1.0, 1.25, uMobile);
   float px = size * uPixelRatio * (44.0 / max(-mv.z, 0.001));
   float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom) + onSpherePt * 2.0 + vDetect * 14.0;
+  cap = mix(cap, min(cap, 6.0), uMobile);
   gl_PointSize = min(px, cap) * (1.0 - hide);
   if (hide > 0.97) {
     gl_Position = vec4(3.0, 3.0, 0.0, 1.0);

@@ -1,14 +1,20 @@
 import type { CSSProperties } from "react";
 
 /**
- * The wordmark was redrawn as vector from the only asset that existed — a
- * 480x246 raster. The single-colour variant is applied as a CSS mask so it
- * inherits currentColor instead of needing a separate file per tone.
+ * Wordmarks are the supplied drawings, white on transparent. The solid
+ * mark is the bar. The line mark is the footer. The lockup mask is only
+ * used when a lockup is asked for in mono.
  */
 
 const RATIO = {
-  mark: 464.17 / 169.5,
+  solid: 1476 / 553,
+  line: 1478 / 548,
   lockup: 464.17 / 230.67,
+} as const;
+
+const WORDMARK = {
+  solid: "/brand/4eos-wordmark.png",
+  line: "/brand/4eos-wordmark-line.png",
 } as const;
 
 const MASK = {
@@ -21,18 +27,11 @@ const BRAND_SRC = {
   lockup: "/brand/4eos-lockup.svg",
 } as const;
 
-/** Brand drawing filled solid white. The traced mono file cuts holes, and
- *  the gold stroke reads as a break through the letters on the dark bar. */
-const ON_DARK_SRC = {
-  mark: "/brand/4eos-mark-bone.svg",
-  lockup: "/brand/4eos-lockup.svg",
-} as const;
-
-type Variant = keyof typeof RATIO;
-
 type LogoProps = {
-  variant?: Variant;
-  /** "mono" inherits currentColor; "brand" keeps navy and gold. */
+  /** Solid wordmark, or the double-line wordmark. */
+  mark?: keyof typeof WORDMARK;
+  variant?: "mark" | "lockup";
+  /** "brand" keeps the navy and gold lockup. */
   tone?: "mono" | "brand";
   /** Rendered height in pixels. Omit it to use the fluid --logo-h token. */
   height?: number;
@@ -41,13 +40,14 @@ type LogoProps = {
 };
 
 export function Logo({
+  mark = "solid",
   variant = "mark",
   tone = "mono",
   height,
   className = "",
   title = "4EOS",
 }: LogoProps) {
-  const ratio = RATIO[variant];
+  const ratio = variant === "lockup" ? RATIO.lockup : RATIO[mark];
   const width = height != null ? Math.round(height * ratio * 100) / 100 : undefined;
   const box: CSSProperties =
     height != null
@@ -55,10 +55,16 @@ export function Logo({
       : { height: "var(--logo-h)", width: "auto", aspectRatio: `${ratio}` };
 
   if (tone === "brand" || variant === "mark") {
+    const src =
+      tone === "brand"
+        ? BRAND_SRC[variant]
+        : variant === "mark"
+          ? WORDMARK[mark]
+          : MASK.lockup;
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={tone === "brand" ? BRAND_SRC[variant] : ON_DARK_SRC[variant]}
+        src={src}
         alt={title}
         width={width}
         height={height}

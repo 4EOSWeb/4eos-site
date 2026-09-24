@@ -10,7 +10,7 @@ export function Footer() {
         <div className="grid gap-16 md:grid-cols-12 md:gap-8">
           <div className="md:col-span-5">
             <Link href="/" aria-label="4EOS home" className="inline-flex">
-              <Logo height={28} />
+              <Logo mark="line" height={36} />
             </Link>
             <p className="lede mt-8 max-w-sm">
               {site.tagline}

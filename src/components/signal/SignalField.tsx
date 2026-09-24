@@ -242,7 +242,7 @@ export default function SignalField({ tier }: { tier: DeviceTier }) {
     >
       <Canvas
         frameloop={frameloop}
-        dpr={lite || mobile ? 1 : [1, 1.5]}
+        dpr={lite ? 1 : [1, 1.5]}
         gl={{
           antialias: false,
           alpha: true,

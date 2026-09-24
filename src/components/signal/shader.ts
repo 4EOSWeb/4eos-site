@@ -767,9 +767,15 @@ void main() {
   // Driven by the contact form: the field tightens as the form completes.
   vAlpha *= mix(1.0, 1.7, uResolve);
 
-  // Phones scale the finished picture so it sits inside a narrow frame.
-  // uMobile is 0 on desktop, which leaves pos untouched.
-  pos.xy *= mix(1.0, 0.58, uMobile);
+  // Phones only. uMobile is 0 on desktop, so none of this moves the picture.
+  // The discovery lattice turns upright so the tall frame can hold it.
+  float onDiscovery = 1.0 - clamp(abs(ph - 1.0), 0.0, 1.0);
+  pos.xy = mix(pos.xy, vec2(-pos.y, pos.x), onDiscovery * uMobile);
+  // The drifting cloud (unmanaged and strategy) is widened in y until it
+  // covers a 9:16 frame. Other formations keep the shared phone scale.
+  float onCloud = max(1.0 - clamp(abs(ph), 0.0, 1.0), 1.0 - clamp(abs(ph - 6.0), 0.0, 1.0));
+  vec2 fit = vec2(mix(1.0, 0.58, uMobile));
+  pos.xy *= mix(fit, vec2(0.5, 1.22), onCloud * uMobile);
 
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   float onSpherePt = (1.0 - step(0.04, aRand)) * (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
@@ -781,7 +787,7 @@ void main() {
   size *= mix(1.0, 1.25, uMobile);
   float px = size * uPixelRatio * (44.0 / max(-mv.z, 0.001));
   float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom) + onSpherePt * 2.0 + vDetect * 14.0;
-  cap = mix(cap, min(cap, 6.0), uMobile);
+  cap = mix(cap, min(cap, 8.0), uMobile);
   gl_PointSize = min(px, cap) * (1.0 - hide);
   if (hide > 0.97) {
     gl_Position = vec4(3.0, 3.0, 0.0, 1.0);

@@ -55,7 +55,7 @@ export function detectTier(): DeviceTier {
 export const POINT_BUDGET: Record<DeviceTier, number> = {
   full: 60_000,
   reduced: 24_000,
-  mobile: 8_000,
+  mobile: 12_000,
   none: 0,
 };
 

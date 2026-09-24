@@ -549,7 +549,7 @@ vec3 formation(int s, float t) {
         float spokeR = seed.x * 6.48;
         // Keep dots in proportion to line length so the inner rings and the
         // meeting point are not a pile of the same count.
-        float keep = mix(pow(ringR / 6.1, 1.7), pow(clamp(spokeR / 6.48, 0.08, 1.0), 1.35), spoke);
+        float keep = mix(mix(0.55, 1.0, ringR / 6.1), mix(0.5, 1.0, spokeR / 6.48), spoke);
         if (fract(seed.z * 13.7) <= keep) {
           rad = mix(ringR, spokeR, spoke);
           a = mix(a, spk / 12.0 * TAU + t * 0.015, spoke);
@@ -722,11 +722,9 @@ void main() {
     vAlpha *= mix(1.0, 1.7, pulse * nearResponse);
     float onGrid = step(0.04, aRand) * (1.0 - step(0.22, fract(aRand * 7.13)));
     float onSpoke = onGrid * step(0.5, fract(aRand * 3.1));
-    float kept = step(fract(position.z * 13.7), mix(pow(clamp(vSheet / 6.1, 0.0, 1.0), 1.7), pow(clamp(vSheet / 6.48, 0.08, 1.0), 1.35), onSpoke));
+    float kept = step(fract(position.z * 13.7), mix(mix(0.55, 1.0, vSheet / 6.1), mix(0.5, 1.0, vSheet / 6.48), onSpoke));
     onGrid *= kept;
-    onSpoke *= kept;
-    vAlpha *= mix(1.0, 1.55, onGrid * nearResponse);
-    vAlpha *= mix(1.0, 0.48, onSpoke * nearResponse);
+    vAlpha *= mix(1.0, 1.45, onGrid * nearResponse);
   }
 
   // Industry cloud glows from its own centre: hot in the middle, a faint
@@ -767,10 +765,9 @@ void main() {
   float onSpherePt = (1.0 - step(0.04, aRand)) * (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
   float onGridPt = step(0.04, aRand) * (1.0 - step(0.22, fract(aRand * 7.13))) * (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
   float onSpokePt = onGridPt * step(0.5, fract(aRand * 3.1));
-  float keptPt = step(fract(position.z * 13.7), mix(pow(clamp(vSheet / 6.1, 0.0, 1.0), 1.7), pow(clamp(vSheet / 6.48, 0.08, 1.0), 1.35), onSpokePt));
+  float keptPt = step(fract(position.z * 13.7), mix(mix(0.55, 1.0, vSheet / 6.1), mix(0.5, 1.0, vSheet / 6.48), onSpokePt));
   onGridPt *= keptPt;
-  onSpokePt *= keptPt;
-  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 0.35;
+  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 0.55;
   float px = size * uPixelRatio * (44.0 / max(-mv.z, 0.001));
   float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom) + onSpherePt * 2.0;
   gl_PointSize = min(px, cap) * (1.0 - hide);

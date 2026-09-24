@@ -23,6 +23,7 @@ uniform float uGlowScale;
 uniform float uFocus;
 uniform float uFocusAge;
 uniform float uZoom;
+uniform float uZoomOn;
 uniform float uLite;
 uniform float uScene;
 uniform float uSceneMix;
@@ -507,7 +508,7 @@ vec3 formation(int s, float t) {
     float onTrail = step(0.34, seed.z) * (1.0 - step(0.1, fract(seed.x * 17.13)));
     // A zoom draws only the one cloud. The oval dusting stays in the wide
     // field, and the other five clouds are not computed.
-    if (uZoom > 0.02 && uFocus >= 0.0 && (match < 0.5 || onTrail > 0.5)) {
+    if (uZoomOn > 0.5 && uFocus >= 0.0 && (match < 0.5 || onTrail > 0.5)) {
       return vec3(0.0, -40.0, 0.0);
     }
     float a = k / 6.0 * TAU - 1.5707963 + t * 0.18;
@@ -751,7 +752,7 @@ void main() {
   // A zoom shows only the focused cloud. Drop the other clusters and the
   // oval dusting on the first frame instead of fading them in.
   float hide = 0.0;
-  if (nearIndustries > 0.0 && uFocus >= 0.0 && uZoom > 0.02) {
+  if (nearIndustries > 0.0 && uFocus >= 0.0 && uZoomOn > 0.5) {
     float k = floor(aRand * 6.0);
     float match = 1.0 - step(0.5, abs(k - uFocus));
     float onTrail = step(0.34, position.z) * (1.0 - step(0.1, fract(position.x * 17.13)));

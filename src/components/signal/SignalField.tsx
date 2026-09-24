@@ -64,6 +64,7 @@ function Points({
       uFocus: { value: -1 },
       uFocusAge: { value: 0 },
       uZoom: { value: 0 },
+      uZoomOn: { value: 0 },
       uScene: { value: 0 },
       uSceneMix: { value: 0 },
       uLite: { value: lite ? 1 : 0 },
@@ -115,6 +116,7 @@ function Points({
     u.uScene.value = signal.sceneShown;
     u.uSceneMix.value = signal.sceneMix;
     u.uZoom.value = signal.zoomR;
+    u.uZoomOn.value = signal.zoom > 0.02 || signal.zoomR > 0.02 ? 1 : 0;
 
     // Cursor NDC → world XY on the field plane, through the camera that is
     // actually looking. The old frustum map (NDC * 14.5, 8.1) only held at z=20.
@@ -149,7 +151,7 @@ function Points({
 }
 
 function CameraRig({ still, lite }: { still: boolean; lite: boolean }) {
-  useFrame((state) => {
+  useFrame((state, delta) => {
     const zooming =
       signal.focus >= 0 &&
       signal.focus < 6 &&
@@ -163,9 +165,12 @@ function CameraRig({ still, lite }: { still: boolean; lite: boolean }) {
       signal.lookX = x;
       signal.lookY = y;
     }
-    // Snap onto the cloud. Easing through the approach redraws the whole
-    // field at every distance, which is what stalls a slower GPU.
-    signal.zoomR = signal.zoom;
+    // Travel in. The other clouds drop as soon as the zoom is asked for,
+    // so the approach is one cloud getting closer rather than a jump.
+    const dt = Math.min(delta, 0.05);
+    const zoomStep = still ? 1 : 1 - Math.pow(0.18, dt);
+    signal.zoomR += (signal.zoom - signal.zoomR) * zoomStep;
+    if (Math.abs(signal.zoom - signal.zoomR) < 0.0005) signal.zoomR = signal.zoom;
 
     const z = signal.zoomR;
     const nearZ = lite ? 13.5 : 9;

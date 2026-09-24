@@ -149,44 +149,32 @@ function Points({
 }
 
 function CameraRig({ still, lite }: { still: boolean; lite: boolean }) {
-  useFrame((state, delta) => {
-    // Lite devices snap the zoom. A slow GPU makes a multi-frame fly-in
-    // stall, because each closer frame is more expensive than the last.
-    const dt = Math.min(delta, 0.2);
-    if (
-      !still &&
+  useFrame((state) => {
+    const zooming =
       signal.focus >= 0 &&
       signal.focus < 6 &&
       signal.zoom > 0.02 &&
-      Math.abs(signal.phase - 4) < 0.6
-    ) {
-      const [x, y] = clusterCenter(signal.focus, state.clock.elapsedTime);
+      Math.abs(signal.phase - 4) < 0.6;
+    if (zooming) {
+      const [x, y] = clusterCenter(
+        signal.focus,
+        still ? 0 : state.clock.elapsedTime,
+      );
       signal.lookX = x;
       signal.lookY = y;
     }
-    const zoomStep = still || lite ? 1 : 1 - Math.pow(0.0004, dt);
-    signal.zoomR += (signal.zoom - signal.zoomR) * zoomStep;
-    if (Math.abs(signal.zoom - signal.zoomR) < 0.0005) {
-      signal.zoomR = signal.zoom;
-    }
+    // Snap onto the cloud. Easing through the approach redraws the whole
+    // field at every distance, which is what stalls a slower GPU.
+    signal.zoomR = signal.zoom;
 
-    const step = still || lite ? 1 : 1 - Math.pow(0.0015, Math.min(delta, 0.05));
     const z = signal.zoomR;
     const nearZ = lite ? 13.5 : 9;
-    const camX = signal.lookX * z * 0.55;
-    const camY = signal.lookY * z * 0.55;
-    const camZ = 20 + (nearZ - 20) * z;
-    const lookX = signal.lookX * z;
-    const lookY = signal.lookY * z;
-
-    if (still || lite) {
-      state.camera.position.set(camX, camY, camZ);
-    } else {
-      state.camera.position.x += (camX - state.camera.position.x) * step;
-      state.camera.position.y += (camY - state.camera.position.y) * step;
-      state.camera.position.z += (camZ - state.camera.position.z) * step;
-    }
-    state.camera.lookAt(lookX, lookY, 0);
+    state.camera.position.set(
+      signal.lookX * z * 0.55,
+      signal.lookY * z * 0.55,
+      20 + (nearZ - 20) * z,
+    );
+    state.camera.lookAt(signal.lookX * z, signal.lookY * z, 0);
   });
   return null;
 }

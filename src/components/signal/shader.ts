@@ -501,13 +501,14 @@ vec3 formation(int s, float t) {
     // Centre (5.5, 0.2), radii 4.9 and 3.2. Keep in step with formations.ts.
     float k = min(floor(aRand * 6.0), 5.0);
     float match = uFocus < 0.0 ? 0.0 : (1.0 - step(0.5, abs(k - uFocus)));
-    // Skip the mark maths for clusters the zoom has already dropped.
-    if (uZoom > 0.45 && uFocus >= 0.0 && match < 0.5) {
+    float onTrail = step(0.34, seed.z) * (1.0 - step(0.1, fract(seed.x * 17.13)));
+    // A zoom draws only the one cloud. The oval dusting stays in the wide
+    // field, and the other five clouds are not computed.
+    if (uZoom > 0.02 && uFocus >= 0.0 && (match < 0.5 || onTrail > 0.5)) {
       return vec3(0.0, -40.0, 0.0);
     }
     float a = k / 6.0 * TAU - 1.5707963 + t * 0.18;
     float extra = fract(aRand * 6.0);
-    float onTrail = step(0.34, seed.z) * (1.0 - step(0.1, fract(seed.x * 17.13)));
     vec3 local = seed.z < 0.34 ? glyph(k, seed, extra) * 0.22 : halo(seed);
     float spin = seed.z < 0.34 ? t * 0.35 * uZoom * match : t * 0.62;
     local = yaw(local, spin);
@@ -635,10 +636,15 @@ void main() {
     if (nearIndustries > 0.0) {
       float k = floor(aRand * 6.0);
       float match = 1.0 - step(0.5, abs(k - uFocus));
+      // The oval dusting is not part of a cloud, so a highlight does not
+      // pull it forward or light it as a line off the orb.
+      float onTrail = step(0.34, position.z) * (1.0 - step(0.1, fract(position.x * 17.13)));
       float dim = mix(0.32, 0.08, uZoom);
       float lift = mix(1.85, 2.1, uZoom);
-      vAlpha *= mix(dim, lift, match);
-      pos.z += match * 1.5 * nearIndustries;
+      if (onTrail < 0.5) {
+        vAlpha *= mix(dim, lift, match);
+        pos.z += match * 1.5 * nearIndustries;
+      }
     }
   }
 
@@ -718,13 +724,14 @@ void main() {
   vAlpha *= mix(1.0, mix(0.16, 1.85, core), onHalo);
   vAlpha *= mix(1.0, 1.7, device * sceneOff);
 
-  // Once a zoom is underway, stop rasterising the other five clusters.
-  // That is the expensive part of flying in on a slower GPU.
+  // A zoom shows only the focused cloud. Drop the other clusters and the
+  // oval dusting on the first frame instead of fading them in.
   float hide = 0.0;
-  if (nearIndustries > 0.0 && uFocus >= 0.0) {
+  if (nearIndustries > 0.0 && uFocus >= 0.0 && uZoom > 0.02) {
     float k = floor(aRand * 6.0);
     float match = 1.0 - step(0.5, abs(k - uFocus));
-    hide = (1.0 - match) * smoothstep(0.06, 0.28, uZoom);
+    float onTrail = step(0.34, position.z) * (1.0 - step(0.1, fract(position.x * 17.13)));
+    hide = max(1.0 - match, onTrail);
   }
 
   // Driven by the contact form: the field tightens as the form completes.

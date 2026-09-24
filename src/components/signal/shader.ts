@@ -526,25 +526,21 @@ vec3 formation(int s, float t) {
     return mix(orb, path, onTrail);
   }
   if (s == 5) {
-    // Response: a sphere in a disc. The disc falls toward the sphere.
-    // Pitch matches formations.ts so the dent reads as a gravity well.
+    // Response: the original filled disc. The middle sags around a sphere.
     vec3 p = vec3(0.0);
-    if (aRand < 0.2) {
+    if (aRand < 0.16) {
       float az = seed.x * TAU;
       float cosP = seed.y * 2.0 - 1.0;
       float sinP = sqrt(max(0.0, 1.0 - cosP * cosP));
-      float R = 1.65 * pow(seed.z, 0.62);
+      float R = 1.45 * pow(seed.z, 0.62);
       p = vec3(cos(az) * sinP * R, cosP * R, sin(az) * sinP * R);
     } else {
-      float a = loopAngle(aUV.x, uCols) + t * 0.012;
-      float rad = 2.15 + aUV.y * 4.9;
-      float well = 2.4 * exp(-(rad - 0.2) * (rad - 0.2) / 7.5);
-      float pulled = rad - well * 0.45;
-      p = vec3(cos(a) * pulled, sin(a) * pulled, well);
+      float a = loopAngle(aUV.x, uCols) + t * 0.015;
+      float rad = sqrt(seed.x) * 6.5;
+      float well = exp(-rad * rad / 8.0);
+      p = vec3(cos(a) * rad * 1.55, sin(a) * rad, (seed.z - 0.5) * 0.35 - well * 1.6);
     }
-    float cp = 0.5233660;
-    float sp = 0.8521080;
-    return vec3(p.x, p.y * cp - p.z * sp, p.y * sp + p.z * cp);
+    return p;
   }
   // Strategy pages use the same drifting cloud as Unmanaged.
   return vec3(
@@ -702,8 +698,8 @@ void main() {
     float band = smoothstep(0.7, 0.0, abs(rad - front));
     float die = 1.0 - smoothstep(5.0, 6.4, front);
     vGold = max(vGold, band * die * nearResponse);
-    float onSphere = 1.0 - step(0.2, aRand);
-    float core = pow(clamp(1.0 - length(pos.xyz) / 1.65, 0.0, 1.0), 1.25);
+    float onSphere = 1.0 - step(0.16, aRand);
+    float core = pow(clamp(1.0 - length(pos.xyz) / 1.45, 0.0, 1.0), 1.25);
     vAlpha *= mix(1.0, mix(0.55, 1.9, core), onSphere * nearResponse);
   }
 

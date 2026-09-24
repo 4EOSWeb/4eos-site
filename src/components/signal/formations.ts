@@ -38,7 +38,7 @@ export const PHASE_CAPTION: Record<Phase, string> = {
   security: "A perimeter closed around the environment.",
   industries:
     "Six industry marks — scales, umbrella, cross, crane, gear, and rising bars — each in its own cloud, set to the right of the names.",
-  response: "A sphere sits in the disc, and the disc bends around it. One pulse leaves the centre and dies before the rim.",
+  response: "The disc is whole. A sphere sits in the middle, and the sheet sags there.",
   strategy: "An unstructured field of drifting, unmonitored endpoints.",
 };
 
@@ -766,32 +766,24 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       ];
     }
     case 5: {
-      // Response: a sphere in a disc. The disc is a sheet, pitched so the
-      // dent reads, and it falls toward the sphere the way a gravity well does.
-      const pitch = 1.02;
-      const cp = Math.cos(pitch);
-      const sp = Math.sin(pitch);
-      let x = 0;
-      let y = 0;
-      let z = 0;
-      if (rand < 0.2) {
+      // Response: the original filled disc, with a sphere in the middle.
+      // Points near the centre sag, so the sheet warps. Nothing is removed,
+      // which is what left a hole.
+      if (rand < 0.16) {
         const az = seed[0] * TAU;
         const cosP = seed[1] * 2 - 1;
         const sinP = Math.sqrt(Math.max(0, 1 - cosP * cosP));
-        const R = 1.65 * Math.pow(seed[2], 0.62);
-        x = Math.cos(az) * sinP * R;
-        y = cosP * R;
-        z = Math.sin(az) * sinP * R;
-      } else {
-        const a = loop(u, p.cols) + t * 0.012;
-        const rad = 2.15 + v * 4.9;
-        const well = 2.4 * Math.exp(-((rad - 0.2) * (rad - 0.2)) / 7.5);
-        const pulled = rad - well * 0.45;
-        x = Math.cos(a) * pulled;
-        y = Math.sin(a) * pulled;
-        z = well;
+        const R = 1.45 * Math.pow(seed[2], 0.62);
+        return [Math.cos(az) * sinP * R, cosP * R, Math.sin(az) * sinP * R];
       }
-      return [x, y * cp - z * sp, y * sp + z * cp];
+      const a = loop(u, p.cols) + t * 0.015;
+      const rad = Math.sqrt(seed[0]) * 6.5;
+      const well = Math.exp(-(rad * rad) / 8);
+      return [
+        Math.cos(a) * rad * 1.55,
+        Math.sin(a) * rad,
+        (seed[2] - 0.5) * 0.35 - well * 1.6,
+      ];
     }
     default: {
       // Strategy pages use the same drifting cloud as Unmanaged.

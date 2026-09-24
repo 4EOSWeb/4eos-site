@@ -766,34 +766,51 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       ];
     }
     case 5: {
-      // Response: the filled disc stays flat past the middle. Only the
-      // neighbourhood of the sphere sags.
+      // Response: a flat elliptical sheet. Near the sphere it sags as a
+      // paraboloid. Grid lines are straight on that sheet, so they bend
+      // through the bowl instead of stopping on a ring.
+      const pitch = -0.72;
+      const cy = Math.cos(pitch);
+      const sy = Math.sin(pitch);
       if (rand < 0.04) {
         const az = seed[0] * TAU;
         const cosP = seed[1] * 2 - 1;
         const sinP = Math.sqrt(Math.max(0, 1 - cosP * cosP));
         const R = 0.55 * Math.pow(seed[2], 0.7);
-        return [Math.cos(az) * sinP * R, cosP * R, Math.sin(az) * sinP * R];
+        return [
+          Math.cos(az) * sinP * R,
+          -2.6 * sy + cosP * R + 0.35,
+          -2.6 * cy + Math.sin(az) * sinP * R,
+        ];
       }
-      let a = loop(u, p.cols) + t * 0.015;
-      let rad = Math.sqrt(seed[0]) * 6.5;
+      const a = loop(u, p.cols) + t * 0.015;
+      const rad = Math.sqrt(seed[0]) * 6.5;
+      let gx = Math.cos(a) * rad * 1.55;
+      let gy = Math.sin(a) * rad;
       if (fract(rand * 7.13) < 0.22) {
-        const spoke = fract(rand * 3.1) >= 0.5;
-        if (spoke) {
-          const spk = Math.min(11, Math.floor(seed[1] * 12));
-          a = (spk / 12) * TAU + t * 0.015;
-          rad = 0.58 + seed[0] * 5.9;
-        } else {
-          const ring = Math.min(9, Math.floor(seed[1] * 10));
-          rad = 0.58 + ring * 0.57;
-        }
+        const upright = fract(rand * 3.1) >= 0.5;
+        const line = Math.min(10, Math.floor(seed[1] * 11));
+        const n = (line / 10) * 1.76 - 0.88;
+        const chord = Math.sqrt(Math.max(0, 1 - n * n));
+        const vx = n * 10.08;
+        const vy = -6.5 * chord + seed[0] * 13 * chord;
+        const hx = -10.08 * chord + seed[0] * 20.16 * chord;
+        const hy = n * 6.5;
+        gx = upright ? vx : hx;
+        gy = upright ? vy : hy;
+        const cs = Math.cos(t * 0.015);
+        const sn = Math.sin(t * 0.015);
+        const rx = gx * cs - gy * sn;
+        const ry = gx * sn + gy * cs;
+        gx = rx;
+        gy = ry;
       }
-      const well = 1.7 * Math.exp(-(rad * rad) / 1.5);
-      return [
-        Math.cos(a) * rad * 1.55,
-        Math.sin(a) * rad - well,
-        (seed[2] - 0.5) * 0.28 - well * 0.45,
-      ];
+      const r = Math.hypot(gx / 1.55, gy);
+      const bowl = Math.max(0, 1 - (r * r) / (3.4 * 3.4));
+      const well = 2.6 * bowl;
+      const y = gy;
+      const z = -well;
+      return [gx, y * cy - z * sy, (seed[2] - 0.5) * 0.22 + y * sy + z * cy];
     }
     default: {
       // Strategy pages use the same drifting cloud as Unmanaged.

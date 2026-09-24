@@ -123,7 +123,7 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
             aria-label="Primary"
             className="hidden min-w-0 min-[1120px]:flex min-[1120px]:flex-1 min-[1120px]:justify-center"
           >
-            <ul className="flex items-center gap-[clamp(0.7rem,1.15vw,1.35rem)]">
+            <ul className="flex items-center gap-[clamp(0.35rem,calc(2.2vw-1.15rem),1.35rem)]">
               {headerNav.map((item) => {
                 const current = isCurrent(item.href, pathname);
                 return (

@@ -257,7 +257,7 @@ body {
 .bar-link {
   font-family: var(--font-body);
   font-weight: 500;
-  font-size: clamp(0.92rem, 1.08vw, 1.05rem);
+  font-size: clamp(1rem, 1.16vw, 1.14rem);
   letter-spacing: -0.015em;
   line-height: 1;
   white-space: nowrap;
@@ -267,6 +267,12 @@ body {
 .bar-link:hover,
 .bar-link[aria-current="page"] {
   color: var(--color-gold);
+}
+
+.site-bar .bar-btn {
+  height: 2.6rem;
+  padding-inline: 1.05rem;
+  font-size: clamp(0.92rem, 1.02vw, 1.02rem);
 }
 
 .bar-btn {

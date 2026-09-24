@@ -22,8 +22,9 @@ export const site = {
     country: "US",
   },
   social: {
-    linkedin: "https://www.linkedin.com/company/4eos",
-    facebook: "https://www.facebook.com/4EOSFortWayne",
+    facebook: "https://www.facebook.com/4EOSOfficial",
+    linkedin: "https://www.linkedin.com/company/28155015",
+    x: "https://x.com/4eosoffical",
   },
 } as const;
 

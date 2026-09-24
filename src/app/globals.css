@@ -438,20 +438,14 @@ html.signal-live .signal-poster {
   backdrop-filter: blur(12px);
 }
 
+/* A marker behind the glyphs only. It is inline so a wrapped line ends
+   at the last word instead of painting a panel. */
 .field-copy {
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
-  padding: 0.15em 0.4em;
-  border-radius: 2px;
-  background-color: rgba(5, 7, 10, 0.46);
-}
-
-@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-  .field-copy {
-    background-color: rgba(5, 7, 10, 0.28);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-  }
+  padding: 0.04em 0.16em;
+  border-radius: 0.12em;
+  background-color: rgba(0, 0, 0, 0.55);
 }
 
 .back-link {
@@ -481,32 +475,29 @@ html.signal-live .signal-poster {
   border-color: var(--color-hairline-bone);
 }
 
-.option-glass {
-  position: relative;
-  margin-top: 0.4rem;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
-  background: rgba(8, 12, 18, 0.46);
-  -webkit-backdrop-filter: blur(18px) saturate(1.2);
-  backdrop-filter: blur(18px) saturate(1.2);
-}
-
-.option-glass::before {
+/* One gold cursor light on every frosted surface. */
+.sheet-glass::after,
+.sheet-ink-glass::after,
+.menu-glass::after,
+.site-bar::after {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 2;
   pointer-events: none;
   opacity: 0;
   background: radial-gradient(
-    220px circle at var(--gx, 50%) var(--gy, 0%),
-    rgba(255, 255, 255, 0.32),
+    220px circle at var(--gx, 50%) var(--gy, 50%),
+    rgba(245, 183, 0, 0.34),
     transparent 70%
   );
   transition: opacity 160ms linear;
 }
 
-.option-glass:hover::before {
+.sheet-glass:hover::after,
+.sheet-ink-glass:hover::after,
+.menu-glass:hover::after,
+.site-bar:hover::after {
   opacity: 1;
 }
 

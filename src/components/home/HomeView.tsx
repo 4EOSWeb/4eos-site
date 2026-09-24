@@ -59,7 +59,9 @@ function Hero() {
   return (
     <SignalChapter phase="unmanaged" id="chapter-unmanaged">
       <section className="flex h-full flex-col justify-end px-[var(--sheet-inset)] pt-[var(--hero-top)] pb-[var(--chapter-bottom)]">
-        <p className="micro field-copy text-fg">Fort Wayne · Since {site.founded}</p>
+        <p className="micro text-fg">
+          <span className="field-copy">Fort Wayne · Since {site.founded}</span>
+        </p>
         <h1 className="display hero-display mt-[clamp(0.75rem,2vh,1.5rem)]">
           IT that works
           <br />
@@ -71,9 +73,11 @@ function Hero() {
             way around.
           </span>
         </h1>
-        <p className="lede field-copy mt-[clamp(1rem,3vh,2.5rem)] max-w-[42ch]">
-          Managed IT, cybersecurity, and compliance for Indiana businesses.
-          We take ownership of the environment so the team can stay on the work.
+        <p className="lede mt-[clamp(1rem,3vh,2.5rem)] max-w-[42ch]">
+          <span className="field-copy">
+            Managed IT, cybersecurity, and compliance for Indiana businesses.
+            We take ownership of the environment so the team can stay on the work.
+          </span>
         </p>
       </section>
     </SignalChapter>
@@ -90,9 +94,11 @@ function Discovery() {
             text="An unmanaged environment is a field of endpoints nobody is watching."
             marks={["unmanaged", "nobody"]}
           />
-          <p className="lede field-copy mt-6 max-w-[42ch]">
-            We start by seeing what is actually there. Then the field resolves
-            onto a lattice — the same endpoints, finally accounted for.
+          <p className="lede mt-6 max-w-[42ch]">
+            <span className="field-copy">
+              We start by seeing what is actually there. Then the field resolves
+              onto a lattice — the same endpoints, finally accounted for.
+            </span>
           </p>
       </section>
     </SignalChapter>
@@ -127,9 +133,11 @@ function Ownership() {
           <h2 className="display chapter-display max-w-[16ch]">
             CompleteCare is not support. It is a system.
           </h2>
-          <p className="lede field-copy mt-5 max-w-[44ch]">
-            Three tiers. The field organises around whichever one the
-            environment needs — Base, Pro, or Premium.
+          <p className="lede mt-5 max-w-[44ch]">
+            <span className="field-copy">
+              Three tiers. The field organises around whichever one the
+              environment needs — Base, Pro, or Premium.
+            </span>
           </p>
           <div className="mt-10">
             <Accordion
@@ -142,11 +150,11 @@ function Ownership() {
                 children: (
                   <ul className="space-y-3">
                     {tier.points.map((p, i) => (
-                      <li key={p} className="field-copy flex gap-4 text-sm tracking-tight">
+                      <li key={p} className="flex gap-4 text-sm tracking-tight">
                         <span className="micro">
-                          {String(i + 1).padStart(2, "0")}
+                          <span className="field-copy">{String(i + 1).padStart(2, "0")}</span>
                         </span>
-                        {p}
+                        <span className="field-copy">{p}</span>
                       </li>
                     ))}
                   </ul>
@@ -170,22 +178,26 @@ function Security() {
             text="A perimeter forms. Threats are absorbed, not just reported."
             marks={["absorbed"]}
           />
-          <p className="lede field-copy mt-6 max-w-[42ch]">
-            NIST Cybersecurity Framework. HIPAA, PCI, and SEC compliance
-            support.
+          <p className="lede mt-6 max-w-[42ch]">
+            <span className="field-copy">
+              NIST Cybersecurity Framework. HIPAA, PCI, and SEC compliance
+              support.
+            </span>
           </p>
           <div className="mt-10 max-w-[42ch]">
             <h3 className="display text-[clamp(1.35rem,min(3vw,4vh),2.4rem)]">
               <span className="text-gold">SecureAI</span>
             </h3>
-            <p className="lede field-copy mt-4">
-              Sixty-plus models on one platform, with the data staying yours.
+            <p className="lede mt-4">
+              <span className="field-copy">
+                Sixty-plus models on one platform, with the data staying yours.
+              </span>
             </p>
             <Link
               href="/secureai"
-              className="micro field-copy mt-5 inline-flex items-center gap-3 text-gold"
+              className="micro mt-5 inline-flex items-center gap-3 text-gold"
             >
-              Read SecureAI <span aria-hidden>→</span>
+              <span className="field-copy">Read SecureAI <span aria-hidden>→</span></span>
             </Link>
           </div>
       </section>
@@ -213,9 +225,11 @@ function Industries() {
   return (
     <SignalChapter phase="industries" id="chapter-industries">
       <section className={CHAPTER}>
-          <p className="lede field-copy max-w-[44ch]">
-            Six practices. The field splits because the work is not generic,
-            and neither is the environment.
+          <p className="lede max-w-[44ch]">
+            <span className="field-copy">
+              Six practices. The field splits because the work is not generic,
+              and neither is the environment.
+            </span>
           </p>
           <ol className="mt-10 flex flex-col items-start">
             {industries.map((ind, i) => (
@@ -236,8 +250,8 @@ function Industries() {
               </li>
             ))}
           </ol>
-          <p className="lede field-copy mt-8 max-w-[42ch] min-h-[4.5em]" aria-live="polite">
-            {note}
+          <p className="lede mt-8 max-w-[42ch] min-h-[4.5em]" aria-live="polite">
+            {note ? <span className="field-copy">{note}</span> : null}
           </p>
       </section>
     </SignalChapter>
@@ -254,17 +268,19 @@ function Response() {
             text="A pulse travels out. Most issues never reach the inbox."
             marks={["never"]}
           />
-          <p className="lede field-copy mt-6 max-w-[42ch]">
-            Continuous monitoring. Live U.S.-based support. Eyes On Site
-            when the work still needs someone in the room. Existing client
-            with an issue — the help desk picks it up.
+          <p className="lede mt-6 max-w-[42ch]">
+            <span className="field-copy">
+              Continuous monitoring. Live U.S.-based support. Eyes On Site
+              when the work still needs someone in the room. Existing client
+              with an issue — the help desk picks it up.
+            </span>
           </p>
           <div className="mt-8 flex flex-wrap gap-8">
-            <Link href="/support" className="micro field-copy text-gold">
-              Request support →
+            <Link href="/support" className="micro text-gold">
+              <span className="field-copy">Request support →</span>
             </Link>
-            <Link href="/contact" className="micro field-copy hover:text-gold">
-              New client →
+            <Link href="/contact" className="micro hover:text-gold">
+              <span className="field-copy">New client →</span>
             </Link>
           </div>
       </section>
@@ -302,19 +318,20 @@ function Strategy() {
         <h2 className="display chapter-display max-w-[16ch]">
           A partner, <span className="text-gold">not a vendor.</span>
         </h2>
-        <p className="lede field-copy mt-[clamp(0.85rem,2.4vh,1.5rem)] max-w-[42ch]">
-          Founded in Fort Wayne in {site.founded}. Largest Dell reseller in
-          Northeast Indiana. One family of companies: 4EOS, Midwest VoIP,
-          SafeHouse DataCenter. One number to call.
+        <p className="lede mt-[clamp(0.85rem,2.4vh,1.5rem)] max-w-[42ch]">
+          <span className="field-copy">
+            Founded in Fort Wayne in {site.founded}. Largest Dell reseller in
+            Northeast Indiana. One family of companies: 4EOS, Midwest VoIP,
+            SafeHouse DataCenter. One number to call.
+          </span>
         </p>
-        <Link href="/why-4eos" className="micro field-copy mt-[clamp(0.75rem,2.2vh,2rem)] inline-flex text-gold">
-          Why 4EOS →
+        <Link href="/why-4eos" className="micro mt-[clamp(0.75rem,2.2vh,2rem)] inline-flex text-gold">
+          <span className="field-copy">Why 4EOS →</span>
         </Link>
-        <div className="mt-[clamp(0.75rem,2.2vh,2rem)]">
+        <div className="sheet-ink-glass relative mt-[clamp(0.75rem,2.2vh,2rem)] overflow-hidden rounded-[var(--radius-sheet)] px-[clamp(1rem,2.5vw,2rem)]">
           <Accordion
             key={collapsed ? "collapsed" : "open"}
             compact
-            glass
             defaultOpen={collapsed ? -1 : 0}
             items={services.map((s, i) => ({
               id: s.slug,

@@ -59,9 +59,12 @@ float loopAngle(float t, float n) {
 float onLattice(float t, float n, float every) {
   float index = floor(t * (n - 1.0) + 0.5);
   float stride = max(1.0, floor(n / every + 0.5));
-  float on = 1.0 - step(0.5, mod(index, stride));
-  on = max(on, step(n - 1.5, index));
-  return on;
+  // Stretch the stride so the last column lands on a line. Forcing that
+  // edge on by itself left a shorter gap than the rest of the grid.
+  float gaps = max(1.0, floor((n - 1.0) / stride));
+  float spacing = (n - 1.0) / gaps;
+  float nearest = round(index / spacing) * spacing;
+  return 1.0 - step(0.5, abs(index - nearest));
 }
 
 vec3 tube(vec3 a, vec3 b, float along, float ang, float rad) {
@@ -474,12 +477,11 @@ vec3 formation(int s, float t) {
     );
   }
   if (s == 1) {
-    // Discovery: a flat lattice. Depth would foreshorten the far columns,
-    // so every column shares one plane and the same screen height.
+    // Discovery: the cloud resolves onto a regular lattice.
     return vec3(
       (aUV.x - 0.5) * 26.0,
       (aUV.y - 0.5) * 13.6,
-      0.0
+      sin(aUV.x * 7.0 + t * 0.35) * 0.55
     );
   }
   if (s == 2) {

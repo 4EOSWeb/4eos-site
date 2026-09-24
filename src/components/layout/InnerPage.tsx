@@ -33,9 +33,17 @@ export function InnerPage({
     <Page phase={phase} tone={tone} focus={focus} zoom={zoom} scene={scene}>
       <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
         <BackLink href={backHref ?? "/"} label={backLabel ?? "Home"} />
-        {kicker ? <p className="micro field-copy mt-6">{kicker}</p> : null}
+        {kicker ? (
+          <p className="micro mt-6">
+            <span className="field-copy">{kicker}</span>
+          </p>
+        ) : null}
         <h1 className="display page-display mt-5 max-w-[18ch]">{title}</h1>
-        {lede ? <p className="lede field-copy mt-6 max-w-[46ch]">{lede}</p> : null}
+        {lede ? (
+          <p className="lede mt-6 max-w-[46ch]">
+            <span className="field-copy">{lede}</span>
+          </p>
+        ) : null}
       </section>
       {children ? (
         <>

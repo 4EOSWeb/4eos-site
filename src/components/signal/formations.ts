@@ -675,9 +675,7 @@ export function buildSeeds(count: number, seedValue = 0x4e05): PointSeed[] {
   const cells = cols * rows;
   const out: PointSeed[] = [];
   for (let i = 0; i < count; i++) {
-    // Extras walk the rectangle in order so every column, including the
-    // last, stays the same height.
-    const j = i % cells;
+    const j = (i * 13) % cells;
     out.push({
       seed: [rnd(), rnd(), rnd()],
       u: (j % cols) / (cols - 1),
@@ -708,8 +706,12 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       ];
     }
     case 1: {
-      // Discovery: a flat lattice so every column has the same height.
-      return [(u - 0.5) * 26, (v - 0.5) * 13.6, 0];
+      // Discovery: the cloud resolves onto a regular lattice.
+      return [
+        (u - 0.5) * 26,
+        (v - 0.5) * 13.6,
+        Math.sin(u * 7 + t * 0.35) * 0.55,
+      ];
     }
     case 2: {
       // Ownership: three concentric tiers — Base, Pro, Premium.

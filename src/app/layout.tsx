@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Archivo, Instrument_Sans, Geist_Mono } from "next/font/google";
 import { site, addressLine } from "@/lib/site";
 import { ChapterRail } from "@/components/layout/ChapterRail";
+import { GlassGlow } from "@/components/layout/GlassGlow";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { SignalClient } from "@/components/signal/SignalClient";
 import "./globals.css";
@@ -91,6 +92,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </a>
         <SmoothScroll />
         <SignalClient />
+        <GlassGlow />
         <ChapterRail />
         <div aria-hidden="true" className="film-grain" />
         {children}

@@ -17,7 +17,9 @@ export default function BlogIndex() {
     <Page phase="discovery">
       <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
         <BackLink href="/" label="Home" />
-        <p className="micro field-copy mt-6 text-fg-muted">Journal</p>
+        <p className="micro mt-6 text-fg-muted">
+          <span className="field-copy">Journal</span>
+        </p>
         <h1 className="display page-display mt-5 max-w-[14ch]">
           Notes from the work.
         </h1>

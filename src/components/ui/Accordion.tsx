@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState, type MouseEvent, type ReactNode } from "react";
+import { useId, useState, type ReactNode } from "react";
 
 export type AccordionItem = {
   id: string;
@@ -20,7 +20,6 @@ export function Accordion({
   onHover,
   defaultOpen = 0,
   compact = false,
-  glass = false,
 }: {
   items: AccordionItem[];
   onChange?: (index: number) => void;
@@ -28,8 +27,6 @@ export function Accordion({
   defaultOpen?: number;
   /** Tighter rows so a chapter list fits in one viewport. */
   compact?: boolean;
-  /** Frosted row with a cursor glow. For options sitting on the field. */
-  glass?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   const uid = useId();
@@ -41,23 +38,7 @@ export function Accordion({
         const panelId = `${uid}-panel-${i}`;
         const buttonId = `${uid}-button-${i}`;
         return (
-          <li
-            key={item.id}
-            className={
-              glass
-                ? "option-glass"
-                : "border-t border-hairline last:border-b"
-            }
-            onMouseMove={
-              glass
-                ? (event: MouseEvent<HTMLLIElement>) => {
-                    const row = event.currentTarget.getBoundingClientRect();
-                    event.currentTarget.style.setProperty("--gx", `${event.clientX - row.left}px`);
-                    event.currentTarget.style.setProperty("--gy", `${event.clientY - row.top}px`);
-                  }
-                : undefined
-            }
-          >
+          <li key={item.id} className="border-t border-hairline last:border-b">
             <h3>
               <button
                 id={buttonId}

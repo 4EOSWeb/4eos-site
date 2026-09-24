@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/brand/Logo";
+import { SocialMarks } from "@/components/layout/SocialMarks";
 import { addressLine, headerNav, site } from "@/lib/site";
 import { setMenuOpen } from "@/lib/menu";
 import { lockScroll, unlockScroll } from "@/lib/scroll";
@@ -142,6 +143,7 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
           </nav>
 
           <div className="ml-auto flex shrink-0 items-center gap-[clamp(0.5rem,1vw,0.9rem)]">
+            <SocialMarks className="mr-1 hidden min-[1280px]:flex" />
             <a
               href={site.phoneHref}
               className="bar-link hidden py-2 opacity-80 hover:opacity-100 min-[760px]:inline-flex"

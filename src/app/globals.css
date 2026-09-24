@@ -269,6 +269,14 @@ body {
   color: var(--color-gold);
 }
 
+.social-mark {
+  border-color: var(--color-hairline);
+}
+
+.site-bar-bone .social-mark {
+  border-color: var(--color-hairline-bone);
+}
+
 .site-bar .bar-btn {
   height: 2.6rem;
   padding-inline: 1.05rem;

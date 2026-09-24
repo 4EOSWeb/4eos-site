@@ -228,9 +228,9 @@ function Industries() {
               and neither is the environment.
             </span>
           </p>
-          <ol className="mt-8 flex min-h-0 flex-1 flex-col items-start border-t border-hairline max-md:mt-10 max-md:flex-none">
+          <ol className="mt-8 grid min-h-0 w-max flex-1 grid-rows-6 max-md:mt-10 max-md:flex max-md:w-auto max-md:flex-none max-md:flex-col">
             {industries.map((ind, i) => (
-              <li key={ind.slug} className="flex w-fit flex-1 items-center border-b border-hairline max-md:flex-none">
+              <li key={ind.slug} className="flex w-full items-center border-b border-hairline first:border-t max-md:w-fit max-md:flex-none">
                 <PhaseLink
                   href={`/industries/${ind.slug}`}
                   phase="industries"

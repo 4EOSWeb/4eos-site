@@ -779,13 +779,20 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       let rad = Math.sqrt(seed[0]) * 6.5;
       if (fract(rand * 7.13) < 0.22) {
         const spoke = fract(rand * 3.1) >= 0.5;
-        if (spoke) {
-          const spk = Math.min(11, Math.floor(seed[1] * 12));
-          a = (spk / 12) * TAU + t * 0.015;
-          rad = seed[0] * 6.48;
-        } else {
-          const ring = Math.min(9, Math.floor(seed[1] * 10));
-          rad = 1.15 + ring * 0.55;
+        const ring = Math.min(9, Math.floor(seed[1] * 10));
+        const ringR = 1.15 + ring * 0.55;
+        const spokeR = seed[0] * 6.48;
+        const keep = spoke
+          ? Math.pow(Math.min(1, Math.max(0.08, spokeR / 6.48)), 1.35)
+          : Math.pow(ringR / 6.1, 1.7);
+        if (fract(seed[2] * 13.7) <= keep) {
+          if (spoke) {
+            const spk = Math.min(11, Math.floor(seed[1] * 12));
+            a = (spk / 12) * TAU + t * 0.015;
+            rad = spokeR;
+          } else {
+            rad = ringR;
+          }
         }
       }
       const well = 1.7 * Math.exp(-(rad * rad) / 1.5);

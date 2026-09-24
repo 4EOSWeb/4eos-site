@@ -193,11 +193,8 @@ function Security() {
                 Sixty-plus models on one platform, with the data staying yours.
               </span>
             </p>
-            <Link
-              href="/secureai"
-              className="micro mt-5 inline-flex items-center gap-3 text-gold"
-            >
-              <span className="field-copy">Read SecureAI <span aria-hidden>→</span></span>
+            <Link href="/secureai" className="bar-btn bar-btn-line mt-5 inline-flex">
+              Read SecureAI <span aria-hidden>→</span>
             </Link>
           </div>
       </section>
@@ -276,11 +273,11 @@ function Response() {
             </span>
           </p>
           <div className="mt-8 flex flex-wrap gap-8">
-            <Link href="/support" className="micro text-gold">
-              <span className="field-copy">Request support →</span>
+            <Link href="/support" className="bar-btn bar-btn-line inline-flex">
+              Request support <span aria-hidden>→</span>
             </Link>
-            <Link href="/contact" className="micro hover:text-gold">
-              <span className="field-copy">New client →</span>
+            <Link href="/contact" className="bar-btn bar-btn-line inline-flex">
+              New client <span aria-hidden>→</span>
             </Link>
           </div>
       </section>
@@ -325,8 +322,8 @@ function Strategy() {
             SafeHouse DataCenter. One number to call.
           </span>
         </p>
-        <Link href="/why-4eos" className="micro mt-[clamp(0.75rem,2.2vh,2rem)] inline-flex text-gold">
-          <span className="field-copy">Why 4EOS →</span>
+        <Link href="/why-4eos" className="bar-btn bar-btn-line mt-[clamp(0.75rem,2.2vh,2rem)] inline-flex">
+          Why 4EOS <span aria-hidden>→</span>
         </Link>
         <div className="sheet-ink-glass relative mt-[clamp(0.75rem,2.2vh,2rem)] overflow-hidden rounded-[var(--radius-sheet)] px-[clamp(1rem,2.5vw,2rem)]">
           <Accordion

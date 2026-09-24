@@ -22,33 +22,28 @@ const routes = [
 export default function ContactPage() {
   return (
     <Page phase="discovery">
-      <Sheet tone="bone" className="min-h-[calc(100svh-var(--nav-h)-var(--sheet-inset))]">
+      <Sheet tone="ink" className="min-h-[calc(100svh-var(--nav-h)-var(--sheet-inset))]">
         <div className="sheet-pad sheet-y grid gap-12 md:grid-cols-12">
           <div className="md:col-span-5">
-            <BackLink href="/" label="Home" tone="bone" />
-            <h1 className="display page-display mt-6 text-bone-fg">
+            <BackLink href="/" label="Home" />
+            <p className="micro mt-6 text-fg-faint">New client</p>
+            <h1 className="display page-display mt-5">
               Tell us about the environment.
             </h1>
-            <p className="mt-8 text-[15px] leading-relaxed tracking-tight text-bone-muted">
-              New client. A senior engineer, not a salesperson, follows up.
-              Existing client with an issue — use Support.
+            <p className="lede mt-8">
+              A senior engineer, not a salesperson, follows up. Existing client
+              with an issue — use Support.
             </p>
             <ul className="mt-12">
               {routes.map((r) => (
-                <li
-                  key={r.label}
-                  className="border-t border-dashed border-[rgba(149,145,128,0.4)] py-4 last:border-b"
-                >
-                  <p className="micro text-bone-faint">{r.label}</p>
+                <li key={r.label} className="border-t border-hairline py-5 last:border-b">
+                  <p className="micro text-fg-faint">{r.label}</p>
                   {r.href ? (
-                    <a
-                      href={r.href}
-                      className="mt-1 block text-[15px] tracking-tight text-bone-fg hover:text-[color:var(--color-navy-deep)]"
-                    >
+                    <a href={r.href} className="mt-1 block text-[17px] tracking-tight hover:text-gold">
                       {r.value}
                     </a>
                   ) : (
-                    <p className="mt-1 text-[15px] tracking-tight">{r.value}</p>
+                    <p className="mt-1 text-[17px] tracking-tight">{r.value}</p>
                   )}
                 </li>
               ))}

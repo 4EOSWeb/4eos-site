@@ -475,7 +475,15 @@ html.signal-live .signal-poster {
   border-color: var(--color-hairline-bone);
 }
 
-/* One gold cursor light on every frosted surface. */
+/* Frost, then the cursor light, then the type. The light stays inside the
+   glass so it cannot cover the logo or the copy. */
+.sheet-glass,
+.sheet-ink-glass,
+.menu-glass,
+.site-bar {
+  isolation: isolate;
+}
+
 .sheet-glass::after,
 .sheet-ink-glass::after,
 .menu-glass::after,
@@ -483,7 +491,7 @@ html.signal-live .signal-poster {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 2;
+  z-index: -1;
   pointer-events: none;
   opacity: 0;
   background: radial-gradient(

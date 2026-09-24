@@ -75,7 +75,7 @@ export function latticeSize(count: number) {
  * The left edge stays near world x 0.6 so the clouds clear the names.
  * Keep the centre and both radii in step with the GLSL.
  */
-export const CLUSTER_CX = 5.5;
+export const CLUSTER_CX = 3.4;
 export const CLUSTER_CY = 0.2;
 export const CLUSTER_RX = 4.9;
 export const CLUSTER_RY = 3.2;
@@ -217,17 +217,18 @@ function deviceLocal(kind: number, seed: Vec3): Vec3 {
     if (part < 0.88) return faceFrame(u, v, -0.5, 0.5, -0.68, 0.68, 1.24, 2, 0.055);
     return faceFrame(u, v, -0.44, 0.44, -1.16, 1.18, -0.68, 0, 0.06);
   }
-  if (part < 0.16) return faceFrame(u, v, -1.2, -0.12, 0.12, 1.22, 0.28, 0, 0.07);
-  if (part < 0.28) return faceFrame(u, v, -0.28, 0.28, 0.12, 1.22, -1.2, 1, 0.05);
-  if (part < 0.36) return faceFrame(u, v, -1.2, -0.12, -0.28, 0.28, 1.22, 2, 0.05);
-  if (part < 0.5) return faceFrame(u, v, 0.18, 0.95, -0.7, 1.28, 0.48, 0, 0.06);
-  if (part < 0.66) {
+  if (part < 0.14) return faceFrame(u, v, -1.2, -0.12, 0.12, 1.22, 0.28, 0, 0.07);
+  if (part < 0.24) return faceFrame(u, v, -0.28, 0.28, 0.12, 1.22, -1.2, 1, 0.05);
+  if (part < 0.32) return faceFrame(u, v, -1.2, -0.12, -0.28, 0.28, 1.22, 2, 0.05);
+  if (part < 0.46) return faceFrame(u, v, 0.18, 0.95, -0.7, 1.28, 0.48, 0, 0.06);
+  if (part < 0.6) {
     const bay = Math.min(3, Math.floor(u * 4));
     return [0.28 + v * 0.55, -0.42 + bay * 0.4, 0.52];
   }
-  if (part < 0.82) return faceFrame(u, v, -0.48, 0.48, -0.7, 1.28, 0.95, 1, 0.05);
-  if (part < 0.92) return faceFrame(u, v, 0.18, 0.95, -0.48, 0.48, 1.28, 2, 0.05);
-  return standNeck(-0.62, 0.12, -0.36, u, v);
+  if (part < 0.74) return faceFrame(u, v, -0.48, 0.48, -0.7, 1.28, 0.95, 1, 0.05);
+  if (part < 0.82) return faceFrame(u, v, 0.18, 0.95, -0.48, 0.48, 1.28, 2, 0.05);
+  if (part < 0.88) return standNeck(-0.62, 0.12, -0.5, u, v);
+  return [-1.2 + u * 1.16, -0.5, -0.42 + v * 0.84];
 }
 
 function placeDevice(

@@ -229,15 +229,17 @@ vec3 deviceLocal(float kind, vec3 seed) {
     else if (part < 0.74) p = faceFrame(u, v, -0.68, 0.68, -1.22, 1.24, -0.5, 1.0, 0.06);
     else if (part < 0.88) p = faceFrame(u, v, -0.5, 0.5, -0.68, 0.68, 1.24, 2.0, 0.055);
   } else {
-    if (part < 0.16) p = faceFrame(u, v, -1.2, -0.12, 0.12, 1.22, 0.28, 0.0, 0.07);
-    else if (part < 0.28) p = faceFrame(u, v, -0.28, 0.28, 0.12, 1.22, -1.2, 1.0, 0.05);
-    else if (part < 0.36) p = faceFrame(u, v, -1.2, -0.12, -0.28, 0.28, 1.22, 2.0, 0.05);
-    else if (part < 0.5) p = faceFrame(u, v, 0.18, 0.95, -0.7, 1.28, 0.48, 0.0, 0.06);
-    else if (part < 0.66) {
+    if (part < 0.14) p = faceFrame(u, v, -1.2, -0.12, 0.12, 1.22, 0.28, 0.0, 0.07);
+    else if (part < 0.24) p = faceFrame(u, v, -0.28, 0.28, 0.12, 1.22, -1.2, 1.0, 0.05);
+    else if (part < 0.32) p = faceFrame(u, v, -1.2, -0.12, -0.28, 0.28, 1.22, 2.0, 0.05);
+    else if (part < 0.46) p = faceFrame(u, v, 0.18, 0.95, -0.7, 1.28, 0.48, 0.0, 0.06);
+    else if (part < 0.6) {
       float bay = min(floor(u * 4.0), 3.0);
       p = vec3(0.28 + v * 0.55, -0.42 + bay * 0.4, 0.52);
-    } else if (part < 0.82) p = faceFrame(u, v, -0.48, 0.48, -0.7, 1.28, 0.95, 1.0, 0.05);
-    else if (part < 0.92) p = faceFrame(u, v, 0.18, 0.95, -0.48, 0.48, 1.28, 2.0, 0.05);
+    }     else if (part < 0.74) p = faceFrame(u, v, -0.48, 0.48, -0.7, 1.28, 0.95, 1.0, 0.05);
+    else if (part < 0.82) p = faceFrame(u, v, 0.18, 0.95, -0.48, 0.48, 1.28, 2.0, 0.05);
+    else if (part < 0.88) p = standNeck(-0.62, 0.12, -0.5, u, v);
+    else p = vec3(-1.2 + u * 1.16, -0.5, -0.42 + v * 0.84);
   }
   return p;
 }
@@ -498,7 +500,7 @@ vec3 formation(int s, float t) {
   if (s == 4) {
     // Industries: six clouds travel a sideways oval. The orbs turn
     // inside each cloud. A focused mark yaws only while zoomed.
-    // Centre (5.5, 0.2), radii 4.9 and 3.2. Keep in step with formations.ts.
+    // Centre (3.4, 0.2), radii 4.9 and 3.2. Keep in step with formations.ts.
     float k = min(floor(aRand * 6.0), 5.0);
     float match = uFocus < 0.0 ? 0.0 : (1.0 - step(0.5, abs(k - uFocus)));
     float onTrail = step(0.34, seed.z) * (1.0 - step(0.1, fract(seed.x * 17.13)));
@@ -515,9 +517,9 @@ vec3 formation(int s, float t) {
     float along = 0.32 + fract(seed.y * 13.1) * 0.36;
     float trailA = a + along * (TAU / 6.0);
     float jitter = (fract(seed.x * 7.7) - 0.5) * 0.55;
-    vec3 orb = vec3(cos(a) * 4.9 + 5.5 + local.x, sin(a) * 3.2 + 0.2 + local.y, local.z);
+    vec3 orb = vec3(cos(a) * 4.9 + 3.4 + local.x, sin(a) * 3.2 + 0.2 + local.y, local.z);
     vec3 path = vec3(
-      cos(trailA) * (4.9 + jitter) + 5.5,
+      cos(trailA) * (4.9 + jitter) + 3.4,
       sin(trailA) * (3.2 + jitter * 0.35) + 0.2,
       (seed.z - 0.5) * 0.35
     );
@@ -712,7 +714,7 @@ void main() {
   if (nearIndustries > 0.0) {
     float kk = min(floor(aRand * 6.0), 5.0);
     float ca = kk / 6.0 * 6.2831853 - 1.5707963 + uTime * 0.18;
-    vec2 ctr = vec2(cos(ca) * 4.9 + 5.5, sin(ca) * 3.2 + 0.2);
+    vec2 ctr = vec2(cos(ca) * 4.9 + 3.4, sin(ca) * 3.2 + 0.2);
     float rad = length(vec3(pos.x - ctr.x, pos.y - ctr.y, pos.z));
     core = pow(clamp(1.0 - rad / 2.5, 0.0, 1.0), 1.35);
     // Points on the oval are outside every cloud, so the halo falloff

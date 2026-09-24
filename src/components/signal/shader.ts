@@ -502,7 +502,7 @@ vec3 formation(int s, float t) {
   if (s == 4) {
     // Industries: six clouds travel a sideways oval. The orbs turn
     // inside each cloud. A focused mark yaws only while zoomed.
-    // Centre (3.4, 0.2), radii 4.9 and 3.2. Keep in step with formations.ts.
+    // Centre (4.2, 0.2), radii 5.8 and 4.3. Keep in step with formations.ts.
     float k = min(floor(aRand * 6.0), 5.0);
     float match = uFocus < 0.0 ? 0.0 : (1.0 - step(0.5, abs(k - uFocus)));
     float onTrail = step(0.34, seed.z) * (1.0 - step(0.1, fract(seed.x * 17.13)));
@@ -519,10 +519,10 @@ vec3 formation(int s, float t) {
     float along = 0.32 + fract(seed.y * 13.1) * 0.36;
     float trailA = a + along * (TAU / 6.0);
     float jitter = (fract(seed.x * 7.7) - 0.5) * 0.55;
-    vec3 orb = vec3(cos(a) * 4.9 + 3.4 + local.x, sin(a) * 3.2 + 0.2 + local.y, local.z);
+    vec3 orb = vec3(cos(a) * 5.8 + 4.2 + local.x, sin(a) * 4.3 + 0.2 + local.y, local.z);
     vec3 path = vec3(
-      cos(trailA) * (4.9 + jitter) + 3.4,
-      sin(trailA) * (3.2 + jitter * 0.35) + 0.2,
+      cos(trailA) * (5.8 + jitter) + 4.2,
+      sin(trailA) * (4.3 + jitter * 0.35) + 0.2,
       (seed.z - 0.5) * 0.35
     );
     return mix(orb, path, onTrail);
@@ -738,7 +738,7 @@ void main() {
   if (nearIndustries > 0.0) {
     float kk = min(floor(aRand * 6.0), 5.0);
     float ca = kk / 6.0 * 6.2831853 - 1.5707963 + uTime * 0.18;
-    vec2 ctr = vec2(cos(ca) * 4.9 + 3.4, sin(ca) * 3.2 + 0.2);
+    vec2 ctr = vec2(cos(ca) * 5.8 + 4.2, sin(ca) * 4.3 + 0.2);
     float rad = length(vec3(pos.x - ctr.x, pos.y - ctr.y, pos.z));
     core = pow(clamp(1.0 - rad / 2.5, 0.0, 1.0), 1.35);
     // Points on the oval are outside every cloud, so the halo falloff

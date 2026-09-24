@@ -75,10 +75,10 @@ export function latticeSize(count: number) {
  * The left edge stays near world x 0.6 so the clouds clear the names.
  * Keep the centre and both radii in step with the GLSL.
  */
-export const CLUSTER_CX = 3.4;
+export const CLUSTER_CX = 4.2;
 export const CLUSTER_CY = 0.2;
-export const CLUSTER_RX = 4.9;
-export const CLUSTER_RY = 3.2;
+export const CLUSTER_RX = 5.8;
+export const CLUSTER_RY = 4.3;
 /** Radians per second. The six clouds travel around the oval. */
 export const CLUSTER_ORBIT = 0.18;
 /** Radians per second. The orbs turn inside each cloud. */

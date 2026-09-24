@@ -221,21 +221,21 @@ function Industries() {
 
   return (
     <SignalChapter phase="industries" id="chapter-industries">
-      <section className={CHAPTER}>
-          <p className="lede max-w-[44ch]">
+      <section className={`${CHAPTER} flex h-full flex-col`}>
+          <p className="lede max-w-[44ch] shrink-0">
             <span className="field-copy">
               Six practices. The field splits because the work is not generic,
               and neither is the environment.
             </span>
           </p>
-          <ol className="mt-10 flex flex-col items-start">
+          <ol className="mt-8 flex min-h-0 flex-1 flex-col items-start border-t border-hairline max-md:mt-10 max-md:flex-none">
             {industries.map((ind, i) => (
-              <li key={ind.slug} className="w-fit border-b border-hairline first:border-t">
+              <li key={ind.slug} className="flex w-fit flex-1 items-center border-b border-hairline max-md:flex-none">
                 <PhaseLink
                   href={`/industries/${ind.slug}`}
                   phase="industries"
                   focus={i}
-                  className="inline-flex items-baseline gap-[3vw] py-[clamp(0.35rem,1.05vh,1rem)] transition-colors hover:text-gold"
+                  className="inline-flex h-full items-center gap-[3vw] py-[clamp(0.35rem,1.05vh,1rem)] transition-colors hover:text-gold md:py-0"
                 >
                   <span className="micro w-8 shrink-0">
                     {String(i + 1).padStart(2, "0")}
@@ -247,7 +247,7 @@ function Industries() {
               </li>
             ))}
           </ol>
-          <p className="lede mt-8 max-w-[42ch] min-h-[4.5em]" aria-live="polite">
+          <p className="lede mt-8 max-w-[42ch] min-h-[4.5em] shrink-0" aria-live="polite">
             {note ? <span className="field-copy">{note}</span> : null}
           </p>
       </section>

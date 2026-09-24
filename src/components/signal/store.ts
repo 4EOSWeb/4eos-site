@@ -86,9 +86,15 @@ export function getChapterIndex() {
   return chapterIndex;
 }
 
-export function setPhase(next: number | Phase) {
-  const value = typeof next === "number" ? next : PHASE_INDEX[next];
-  signal.phase = Math.min(MAX_PHASE, Math.max(0, value));
+/**
+ * Set while a route is taking the field to a specific chapter. Scroll
+ * triggers on the page being left must not drag the field back through
+ * the earlier chapters on the way out.
+ */
+let heldPhase: number | null = null;
+
+function writePhase(value: number) {
+  signal.phase = value;
   if (typeof document !== "undefined") {
     document.documentElement.dataset.signalPhase = String(signal.phase);
   }
@@ -96,11 +102,28 @@ export function setPhase(next: number | Phase) {
   signal.invalidate?.();
 }
 
+export function setPhase(next: number | Phase) {
+  const value = typeof next === "number" ? next : PHASE_INDEX[next];
+  const clamped = Math.min(MAX_PHASE, Math.max(0, value));
+  if (heldPhase !== null && clamped !== heldPhase) return;
+  writePhase(clamped);
+}
+
+/** Pin the field on this chapter and ignore scroll updates until the story page returns. */
+export function holdPhase(next: number | Phase) {
+  const value = typeof next === "number" ? next : PHASE_INDEX[next];
+  heldPhase = Math.min(MAX_PHASE, Math.max(0, value));
+  signal.rendered = heldPhase;
+  writePhase(heldPhase);
+}
+
+export function releasePhaseHold() {
+  heldPhase = null;
+}
+
 /** Jump without easing — used on route changes so pages do not animate in. */
 export function snapPhase(next: number | Phase) {
-  setPhase(next);
-  signal.rendered = signal.phase;
-  signal.invalidate?.();
+  holdPhase(next);
 }
 
 export function setIntensity(value: number) {

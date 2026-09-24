@@ -8,6 +8,7 @@ import { PHASE_INDEX } from "@/components/signal/formations";
 import {
   getChapterIndex,
   getFocus,
+  releasePhaseHold,
   setFocus,
   setScene,
   subscribeChapter,
@@ -28,6 +29,10 @@ const CHAPTER =
   "px-[var(--sheet-inset)] pt-[var(--chapter-top)] pb-[var(--chapter-bottom)]";
 
 export function HomeView() {
+  useEffect(() => {
+    releasePhaseHold();
+  }, []);
+
   return (
     <>
       <SignalBackdrop phase="unmanaged" />

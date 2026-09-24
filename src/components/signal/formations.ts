@@ -38,7 +38,7 @@ export const PHASE_CAPTION: Record<Phase, string> = {
   security: "A perimeter closed around the environment.",
   industries:
     "Six industry marks — scales, umbrella, cross, crane, gear, and rising bars — each in its own cloud, set to the right of the names.",
-  response: "A pulse that leaves the centre and dies before it reaches the inbox.",
+  response: "Three pulses leave the centre. Most sparks die on the way. A few reach the inbox.",
   strategy: "An unstructured field of drifting, unmonitored endpoints.",
 };
 
@@ -766,20 +766,27 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       ];
     }
     case 5: {
-      // Response: a calm disc. A few issues leave the rim and go out
-      // before a tight inbox at the centre. The pulse itself is drawn
-      // in the shader; this is only the endpoints.
+      // Response: a calm disc and a tight inbox. Sparks ride out with the
+      // pulses and most go dark before the rim. A few turn back and arrive.
       if (rand < 0.07) {
         const a = seed[0] * TAU;
         const rad = Math.sqrt(seed[1]) * 0.55;
         return [Math.cos(a) * rad * 1.15, Math.sin(a) * rad, (seed[2] - 0.5) * 0.22];
       }
-      if (rand > 0.93) {
-        const travel = fract(t * 0.35 + seed[1]);
-        if (travel > 0.72) return [0, -40, 0];
-        const a = loop(u, p.cols);
-        const rad = 7.2 - travel * 6.39;
-        return [Math.cos(a) * rad * 1.55, Math.sin(a) * rad, (seed[2] - 0.5) * 0.3];
+      if (rand > 0.96) {
+        const life = fract(t * 0.28 + seed[1]);
+        if (life > 0.92) return [0, -40, 0];
+        const a = seed[2] * TAU;
+        const rad = 5.4 - life * 4.9;
+        return [Math.cos(a) * rad * 1.35, Math.sin(a) * rad, (seed[0] - 0.5) * 0.2];
+      }
+      if (rand > 0.78) {
+        const life = fract(t * 0.42 + seed[1]);
+        if (life > 0.78) return [0, -40, 0];
+        const a = seed[2] * TAU;
+        const dieAt = 1.6 + seed[0] * 3.6;
+        const rad = 0.35 + life * dieAt;
+        return [Math.cos(a) * rad * 1.35, Math.sin(a) * rad, (seed[0] - 0.5) * 0.22];
       }
       const a = loop(u, p.cols) + t * 0.015;
       const rad = Math.sqrt(seed[0]) * 6.5;

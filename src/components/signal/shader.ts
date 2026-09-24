@@ -526,19 +526,26 @@ vec3 formation(int s, float t) {
     return mix(orb, path, onTrail);
   }
   if (s == 5) {
-    // Response: a calm disc, a tight inbox, and a few issues that leave
-    // the rim and extinguish before they arrive.
+    // Response: a calm disc and a tight inbox. Sparks ride out with the
+    // pulses and most go dark before the rim. A few turn back and arrive.
     vec3 p = vec3(0.0);
     if (aRand < 0.07) {
       float a = seed.x * TAU;
       float rad = sqrt(seed.y) * 0.55;
       p = vec3(cos(a) * rad * 1.15, sin(a) * rad, (seed.z - 0.5) * 0.22);
-    } else if (aRand > 0.93) {
-      float travel = fract(t * 0.35 + seed.y);
-      float a = loopAngle(aUV.x, uCols);
-      float rad = 7.2 - travel * 6.39;
-      p = vec3(cos(a) * rad * 1.55, sin(a) * rad, (seed.z - 0.5) * 0.3);
-      if (travel > 0.72) p = vec3(0.0, -40.0, 0.0);
+    } else if (aRand > 0.96) {
+      float life = fract(t * 0.28 + seed.y);
+      float a = seed.z * TAU;
+      float rad = 5.4 - life * 4.9;
+      p = vec3(cos(a) * rad * 1.35, sin(a) * rad, (seed.x - 0.5) * 0.2);
+      if (life > 0.92) p = vec3(0.0, -40.0, 0.0);
+    } else if (aRand > 0.78) {
+      float life = fract(t * 0.42 + seed.y);
+      float a = seed.z * TAU;
+      float dieAt = 1.6 + seed.x * 3.6;
+      float rad = 0.35 + life * dieAt;
+      p = vec3(cos(a) * rad * 1.35, sin(a) * rad, (seed.x - 0.5) * 0.22);
+      if (life > 0.78) p = vec3(0.0, -40.0, 0.0);
     } else {
       float a = loopAngle(aUV.x, uCols) + t * 0.015;
       float rad = sqrt(seed.x) * 6.5;
@@ -693,16 +700,24 @@ void main() {
     vAlpha *= mix(1.0, 2.6, vDetect);
   }
 
-  // Response: a soft pulse leaves the centre and dies before the rim.
-  // The inbox is the tight cluster; stray issues have already gone out.
+  // Response: three pulses leave the centre and die before the rim.
+  // Sparks riding out go gold, then dark. The few coming back, and the
+  // inbox, stay lit.
   float nearResponse = (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
   if (nearResponse > 0.0) {
     float rad = length(pos.xy / vec2(1.55, 1.0));
-    float front = mod(uTime * 1.4, 8.0);
-    float band = smoothstep(0.85, 0.0, abs(rad - front));
-    float die = 1.0 - smoothstep(4.2, 5.4, front);
-    vGold = max(vGold, band * die * nearResponse);
-    if (aRand < 0.07) vGold = max(vGold, 0.65 * nearResponse);
+    float wave = 0.0;
+    for (int i = 0; i < 3; i++) {
+      float front = mod(uTime * 1.15 + float(i) * 2.7, 9.0);
+      float band = smoothstep(0.55, 0.0, abs(rad - front));
+      float wake = smoothstep(1.35, 0.05, front - rad) * step(rad, front);
+      float die = 1.0 - smoothstep(4.4, 5.8, front);
+      wave = max(wave, (band + wake * 0.45) * die);
+    }
+    vGold = max(vGold, wave * nearResponse);
+    if (aRand > 0.78 && aRand <= 0.96) vGold = max(vGold, 0.85 * nearResponse);
+    if (aRand > 0.96 || aRand < 0.07) vGold = max(vGold, 0.7 * nearResponse);
+    vAlpha *= mix(1.0, 1.35, wave * nearResponse);
   }
 
   // Industry cloud glows from its own centre: hot in the middle, a faint

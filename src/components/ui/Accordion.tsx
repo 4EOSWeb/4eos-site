@@ -6,7 +6,7 @@ export type AccordionItem = {
   id: string;
   index?: string;
   title: string;
-  statement?: string;
+  statement?: ReactNode;
   children: ReactNode;
 };
 

@@ -146,7 +146,7 @@ function Ownership() {
               items={tiers.map((tier) => ({
                 id: tier.name,
                 title: tier.name,
-                statement: tier.statement,
+                statement: <span className="field-copy">{tier.statement}</span>,
                 children: (
                   <ul className="space-y-3">
                     {tier.points.map((p, i) => (

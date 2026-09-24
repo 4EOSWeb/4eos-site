@@ -165,12 +165,16 @@ function CameraRig({ still, lite }: { still: boolean; lite: boolean }) {
       signal.lookX = x;
       signal.lookY = y;
     }
-    // Travel in. The other clouds drop as soon as the zoom is asked for,
-    // so the approach is one cloud getting closer rather than a jump.
-    const dt = Math.min(delta, 0.05);
-    const zoomStep = still ? 1 : 1 - Math.pow(0.18, dt);
-    signal.zoomR += (signal.zoom - signal.zoomR) * zoomStep;
-    if (Math.abs(signal.zoom - signal.zoomR) < 0.0005) signal.zoomR = signal.zoom;
+    // Travel in. Closing snaps back, so the oval is there again before the
+    // next hover instead of waiting out the ease.
+    if (signal.zoom <= 0.02 || still) {
+      signal.zoomR = signal.zoom;
+    } else {
+      const dt = Math.min(delta, 0.05);
+      const zoomStep = 1 - Math.pow(0.18, dt);
+      signal.zoomR += (signal.zoom - signal.zoomR) * zoomStep;
+      if (Math.abs(signal.zoom - signal.zoomR) < 0.0005) signal.zoomR = signal.zoom;
+    }
 
     const z = signal.zoomR;
     const nearZ = lite ? 13.5 : 9;

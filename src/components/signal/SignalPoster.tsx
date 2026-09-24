@@ -70,17 +70,9 @@ export function SignalPoster({
       const device = tier === 0 && devicePick - Math.floor(devicePick) <= 0.2;
       o = device ? 0.92 : tier === 0 ? Math.min(1, o * 1.2) : o * 0.28;
     }
-    if (!showScene && phase === "response") {
-      if (s.rand < 0.1) {
-        // Photon ring around the hole.
-        gold = true;
-        o = 0.92;
-        r = Math.round(r * 1.15 * 10) / 10;
-      } else if (s.rand > 0.94) {
-        // Infalling matter.
-        gold = true;
-        o = 0.7;
-      }
+    if (!showScene && phase === "response" && s.rand < 0.07) {
+      gold = true;
+      o = 0.9;
     }
     if (!showScene && phase === "industries") {
       const k = Math.min(5, Math.floor(s.rand * 6));

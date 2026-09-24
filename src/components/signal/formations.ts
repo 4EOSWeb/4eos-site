@@ -38,8 +38,7 @@ export const PHASE_CAPTION: Record<Phase, string> = {
   security: "A perimeter closed around the environment.",
   industries:
     "Six industry marks — scales, umbrella, cross, crane, gear, and rising bars — each in its own cloud, set to the right of the names.",
-  response:
-    "A black hole ringed with light, above a gravity grid that bends down into its throat.",
+  response: "A pulse that leaves the centre and dies before it reaches the inbox.",
   strategy: "An unstructured field of drifting, unmonitored endpoints.",
 };
 
@@ -750,31 +749,24 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       ];
     }
     case 5: {
-      // Response: a black hole on a bending gravity plane. Most points draw
-      // the funnel of revolution; a bright ring rims the hole; a little
-      // matter spirals in and is gone at the edge. Twin of `s == 5` in
-      // shader.ts — keep every constant in step.
-      const holeY = 1.4;
-      const ringR = 2.6;
-      if (rand < 0.1) {
-        const ang = seed[0] * TAU + t * 0.15;
-        const r = ringR + (seed[1] - 0.5) * 0.16;
-        return [Math.cos(ang) * r, holeY + Math.sin(ang) * r, (seed[2] - 0.5) * 0.22];
+      // Response: a calm disc. A few issues leave the rim and go out
+      // before a tight inbox at the centre. The pulse itself is drawn
+      // in the shader; this is only the endpoints.
+      if (rand < 0.07) {
+        const a = seed[0] * TAU;
+        const rad = Math.sqrt(seed[1]) * 0.55;
+        return [Math.cos(a) * rad * 1.15, Math.sin(a) * rad, (seed[2] - 0.5) * 0.22];
       }
-      if (rand > 0.94) {
-        const travel = fract(t * 0.25 + seed[1]);
-        if (travel > 0.9) return [0, -40, 0];
-        const rad = 5.85 + (ringR - 5.85) * travel;
-        const ang = seed[0] * TAU + travel * 7.0;
-        return [Math.cos(ang) * rad, holeY + Math.sin(ang) * rad, (seed[2] - 0.5) * 0.4];
+      if (rand > 0.93) {
+        const travel = fract(t * 0.35 + seed[1]);
+        if (travel > 0.72) return [0, -40, 0];
+        const a = loop(u, p.cols);
+        const rad = 7.2 - travel * 6.39;
+        return [Math.cos(a) * rad * 1.55, Math.sin(a) * rad, (seed[2] - 0.5) * 0.3];
       }
-      const rimR = 6.5;
-      const throatR = 0.42;
-      const well = 1.85;
-      const rho = throatR + (rimR - throatR) * Math.pow(v, 1.7);
-      const a = loop(u, p.cols);
-      const y = -2.4 - well * (1 / rho - 1 / rimR);
-      return [Math.cos(a) * rho * 1.35, y, Math.sin(a) * rho];
+      const a = loop(u, p.cols) + t * 0.015;
+      const rad = Math.sqrt(seed[0]) * 6.5;
+      return [Math.cos(a) * rad * 1.55, Math.sin(a) * rad, (seed[2] - 0.5) * 0.45];
     }
     default: {
       // Strategy pages use the same drifting cloud as Unmanaged.

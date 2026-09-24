@@ -527,51 +527,30 @@ vec3 formation(int s, float t) {
     return mix(orb, path, onTrail);
   }
   if (s == 5) {
-    // Response: a flat elliptical sheet. Near the sphere it sags as a
-    // paraboloid. The lines are straight on that sheet, so they bend with
-    // the bowl and cross it instead of stopping on a ring.
+    // Response: the filled disc, pitched so the middle sinks. vSheet is the
+    // disc radius before that pitch, so the pulse rides the ellipse.
+    // Spokes run to the bottom of the well and meet there.
     vec3 p = vec3(0.0);
-    float pitch = -0.72;
-    float cy = cos(pitch);
-    float sy = sin(pitch);
     if (aRand < 0.04) {
       float az = seed.x * TAU;
       float cosP = seed.y * 2.0 - 1.0;
       float sinP = sqrt(max(0.0, 1.0 - cosP * cosP));
       float R = 0.55 * pow(seed.z, 0.7);
-      vec3 seat = vec3(0.0, -2.6 * sy, -2.6 * cy);
-      p = seat + vec3(cos(az) * sinP * R, cosP * R + 0.35, sin(az) * sinP * R);
+      p = vec3(cos(az) * sinP * R, cosP * R, sin(az) * sinP * R);
     } else {
       float a = loopAngle(aUV.x, uCols) + t * 0.015;
       float rad = sqrt(seed.x) * 6.5;
-      float gx = cos(a) * rad * 1.55;
-      float gy = sin(a) * rad;
       float grid = 1.0 - step(0.22, fract(aRand * 7.13));
       if (grid > 0.5) {
-        float upright = step(0.5, fract(aRand * 3.1));
-        float line = min(floor(seed.y * 11.0), 10.0);
-        float n = (line / 10.0) * 1.76 - 0.88;
-        float chord = sqrt(max(0.0, 1.0 - n * n));
-        float vx = n * 10.08;
-        float vy = mix(-6.5 * chord, 6.5 * chord, seed.x);
-        float hx = mix(-10.08 * chord, 10.08 * chord, seed.x);
-        float hy = n * 6.5;
-        gx = mix(hx, vx, upright);
-        gy = mix(hy, vy, upright);
-        float cs = cos(t * 0.015);
-        float sn = sin(t * 0.015);
-        float rx = gx * cs - gy * sn;
-        float ry = gx * sn + gy * cs;
-        gx = rx;
-        gy = ry;
+        float spoke = step(0.5, fract(aRand * 3.1));
+        float ring = min(floor(seed.y * 10.0), 9.0);
+        float spk = min(floor(seed.y * 12.0), 11.0);
+        rad = mix(1.15 + ring * 0.55, seed.x * 6.48, spoke);
+        a = mix(a, spk / 12.0 * TAU + t * 0.015, spoke);
       }
-      float r = length(vec2(gx / 1.55, gy));
-      float bowl = clamp(1.0 - (r * r) / (3.4 * 3.4), 0.0, 1.0);
-      float well = 2.6 * bowl;
-      vSheet = r;
-      float y = gy;
-      float z = -well;
-      p = vec3(gx, y * cy - z * sy, (seed.z - 0.5) * 0.22 + y * sy + z * cy);
+      float well = 1.7 * exp(-rad * rad / 1.5);
+      vSheet = rad;
+      p = vec3(cos(a) * rad * 1.55, sin(a) * rad - well, (seed.z - 0.5) * 0.28 - well * 0.45);
     }
     return p;
   }

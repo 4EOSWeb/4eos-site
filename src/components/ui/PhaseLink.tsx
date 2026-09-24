@@ -8,6 +8,7 @@ import { holdPhase, setFocus, setLook } from "@/components/signal/store";
 
 export function PhaseLink({
   href,
+  phase,
   focus,
   className = "",
   children,

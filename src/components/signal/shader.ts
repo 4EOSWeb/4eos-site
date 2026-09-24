@@ -531,22 +531,20 @@ vec3 formation(int s, float t) {
     // Response: the filled disc, pitched so the middle sinks. vSheet is the
     // disc radius before that pitch, so the pulse rides the ellipse.
     vec3 p = vec3(0.0);
-    if (aRand < 0.22) {
+    if (aRand < 0.04) {
       float az = seed.x * TAU;
       float cosP = seed.y * 2.0 - 1.0;
       float sinP = sqrt(max(0.0, 1.0 - cosP * cosP));
-      float R = 1.55 * pow(max(seed.z, 0.08), 0.45);
+      float R = 0.55 * pow(seed.z, 0.7);
       p = vec3(cos(az) * sinP * R, cosP * R, sin(az) * sinP * R);
     } else {
       float a = loopAngle(aUV.x, uCols) + t * 0.015;
       float rad = sqrt(seed.x) * 6.5;
-      float well = 2.5 * exp(-rad * rad / 9.0);
+      float well = 0.9 * exp(-rad * rad / 1.35);
       vSheet = rad;
-      p = vec3(cos(a) * rad * 1.55, sin(a) * rad, well + (seed.z - 0.5) * 0.28);
+      p = vec3(cos(a) * rad * 1.55, sin(a) * rad - well, (seed.z - 0.5) * 0.28 - well * 0.35);
     }
-    float cp = 0.8775826;
-    float sp = 0.4794255;
-    return vec3(p.x, p.y * cp - p.z * sp, p.y * sp + p.z * cp);
+    return p;
   }
   // Strategy pages use the same drifting cloud as Unmanaged.
   return vec3(
@@ -703,9 +701,8 @@ void main() {
     float band = smoothstep(0.42, 0.0, abs(vSheet - front));
     float die = 1.0 - smoothstep(4.6, 6.1, front);
     vGold = max(vGold, band * die * step(0.2, vSheet) * nearResponse);
-    float onSphere = 1.0 - step(0.22, aRand);
-    vGold = max(vGold, onSphere * nearResponse);
-    vAlpha *= mix(1.0, 1.65, onSphere * nearResponse);
+    float onSphere = 1.0 - step(0.04, aRand);
+    vGold = max(vGold, onSphere * 0.45 * nearResponse);
   }
 
   // Industry cloud glows from its own centre: hot in the middle, a faint
@@ -743,10 +740,10 @@ void main() {
   vAlpha *= mix(1.0, 1.7, uResolve);
 
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
-  float onSpherePt = (1.0 - step(0.22, aRand)) * (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
-  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 4.5;
+  float onSpherePt = (1.0 - step(0.04, aRand)) * (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
+  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8;
   float px = size * uPixelRatio * (44.0 / max(-mv.z, 0.001));
-  float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom) + onSpherePt * 14.0;
+  float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom) + onSpherePt * 2.0;
   gl_PointSize = min(px, cap) * (1.0 - hide);
   if (hide > 0.97) {
     gl_Position = vec4(3.0, 3.0, 0.0, 1.0);

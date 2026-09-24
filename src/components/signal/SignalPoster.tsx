@@ -70,9 +70,10 @@ export function SignalPoster({
       const device = tier === 0 && devicePick - Math.floor(devicePick) <= 0.2;
       o = device ? 0.92 : tier === 0 ? Math.min(1, o * 1.2) : o * 0.28;
     }
-    if (!showScene && phase === "response" && s.rand < 0.07) {
-      gold = true;
-      o = 0.9;
+    if (!showScene && phase === "response" && s.rand < 0.2) {
+      const rad = Math.hypot(x, y, z);
+      const core = Math.pow(Math.max(0, 1 - rad / 1.65), 1.25);
+      o = Math.round((0.22 + core * 0.7) * 100) / 100;
     }
     if (!showScene && phase === "industries") {
       const k = Math.min(5, Math.floor(s.rand * 6));

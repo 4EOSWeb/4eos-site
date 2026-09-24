@@ -526,32 +526,25 @@ vec3 formation(int s, float t) {
     return mix(orb, path, onTrail);
   }
   if (s == 5) {
-    // Response: a calm disc and a tight inbox. Sparks ride out with the
-    // pulses and most go dark before the rim. A few turn back and arrive.
+    // Response: a sphere in a disc. The disc falls toward the sphere.
+    // Pitch matches formations.ts so the dent reads as a gravity well.
     vec3 p = vec3(0.0);
-    if (aRand < 0.07) {
-      float a = seed.x * TAU;
-      float rad = sqrt(seed.y) * 0.55;
-      p = vec3(cos(a) * rad * 1.15, sin(a) * rad, (seed.z - 0.5) * 0.22);
-    } else if (aRand > 0.96) {
-      float life = fract(t * 0.28 + seed.y);
-      float a = seed.z * TAU;
-      float rad = 5.4 - life * 4.9;
-      p = vec3(cos(a) * rad * 1.35, sin(a) * rad, (seed.x - 0.5) * 0.2);
-      if (life > 0.92) p = vec3(0.0, -40.0, 0.0);
-    } else if (aRand > 0.78) {
-      float life = fract(t * 0.42 + seed.y);
-      float a = seed.z * TAU;
-      float dieAt = 1.6 + seed.x * 3.6;
-      float rad = 0.35 + life * dieAt;
-      p = vec3(cos(a) * rad * 1.35, sin(a) * rad, (seed.x - 0.5) * 0.22);
-      if (life > 0.78) p = vec3(0.0, -40.0, 0.0);
+    if (aRand < 0.2) {
+      float az = seed.x * TAU;
+      float cosP = seed.y * 2.0 - 1.0;
+      float sinP = sqrt(max(0.0, 1.0 - cosP * cosP));
+      float R = 1.65 * pow(seed.z, 0.62);
+      p = vec3(cos(az) * sinP * R, cosP * R, sin(az) * sinP * R);
     } else {
-      float a = loopAngle(aUV.x, uCols) + t * 0.015;
-      float rad = sqrt(seed.x) * 6.5;
-      p = vec3(cos(a) * rad * 1.55, sin(a) * rad, (seed.z - 0.5) * 0.45);
+      float a = loopAngle(aUV.x, uCols) + t * 0.012;
+      float rad = 2.15 + aUV.y * 4.9;
+      float well = 2.4 * exp(-(rad - 0.2) * (rad - 0.2) / 7.5);
+      float pulled = rad - well * 0.45;
+      p = vec3(cos(a) * pulled, sin(a) * pulled, well);
     }
-    return p;
+    float cp = 0.5233660;
+    float sp = 0.8521080;
+    return vec3(p.x, p.y * cp - p.z * sp, p.y * sp + p.z * cp);
   }
   // Strategy pages use the same drifting cloud as Unmanaged.
   return vec3(
@@ -700,24 +693,18 @@ void main() {
     vAlpha *= mix(1.0, 2.6, vDetect);
   }
 
-  // Response: three pulses leave the centre and die before the rim.
-  // Sparks riding out go gold, then dark. The few coming back, and the
-  // inbox, stay lit.
+  // Response: one pulse leaves the sphere and dies before the rim.
+  // The sphere is brighter in the middle so it reads as a ball, not a dot.
   float nearResponse = (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
   if (nearResponse > 0.0) {
-    float rad = length(pos.xy / vec2(1.55, 1.0));
-    float wave = 0.0;
-    for (int i = 0; i < 3; i++) {
-      float front = mod(uTime * 1.15 + float(i) * 2.7, 9.0);
-      float band = smoothstep(0.55, 0.0, abs(rad - front));
-      float wake = smoothstep(1.35, 0.05, front - rad) * step(rad, front);
-      float die = 1.0 - smoothstep(4.4, 5.8, front);
-      wave = max(wave, (band + wake * 0.45) * die);
-    }
-    vGold = max(vGold, wave * nearResponse);
-    if (aRand > 0.78 && aRand <= 0.96) vGold = max(vGold, 0.85 * nearResponse);
-    if (aRand > 0.96 || aRand < 0.07) vGold = max(vGold, 0.7 * nearResponse);
-    vAlpha *= mix(1.0, 1.35, wave * nearResponse);
+    float rad = length(pos.xy);
+    float front = mod(uTime * 1.15, 9.0);
+    float band = smoothstep(0.7, 0.0, abs(rad - front));
+    float die = 1.0 - smoothstep(5.0, 6.4, front);
+    vGold = max(vGold, band * die * nearResponse);
+    float onSphere = 1.0 - step(0.2, aRand);
+    float core = pow(clamp(1.0 - length(pos.xyz) / 1.65, 0.0, 1.0), 1.25);
+    vAlpha *= mix(1.0, mix(0.55, 1.9, core), onSphere * nearResponse);
   }
 
   // Industry cloud glows from its own centre: hot in the middle, a faint

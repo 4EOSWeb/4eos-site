@@ -38,7 +38,7 @@ export const PHASE_CAPTION: Record<Phase, string> = {
   security: "A perimeter closed around the environment.",
   industries:
     "Six industry marks — scales, umbrella, cross, crane, gear, and rising bars — each in its own cloud, set to the right of the names.",
-  response: "Three pulses leave the centre. Most sparks die on the way. A few reach the inbox.",
+  response: "A sphere sits in the disc, and the disc bends around it. One pulse leaves the centre and dies before the rim.",
   strategy: "An unstructured field of drifting, unmonitored endpoints.",
 };
 
@@ -766,31 +766,32 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       ];
     }
     case 5: {
-      // Response: a calm disc and a tight inbox. Sparks ride out with the
-      // pulses and most go dark before the rim. A few turn back and arrive.
-      if (rand < 0.07) {
-        const a = seed[0] * TAU;
-        const rad = Math.sqrt(seed[1]) * 0.55;
-        return [Math.cos(a) * rad * 1.15, Math.sin(a) * rad, (seed[2] - 0.5) * 0.22];
+      // Response: a sphere in a disc. The disc is a sheet, pitched so the
+      // dent reads, and it falls toward the sphere the way a gravity well does.
+      const pitch = 1.02;
+      const cp = Math.cos(pitch);
+      const sp = Math.sin(pitch);
+      let x = 0;
+      let y = 0;
+      let z = 0;
+      if (rand < 0.2) {
+        const az = seed[0] * TAU;
+        const cosP = seed[1] * 2 - 1;
+        const sinP = Math.sqrt(Math.max(0, 1 - cosP * cosP));
+        const R = 1.65 * Math.pow(seed[2], 0.62);
+        x = Math.cos(az) * sinP * R;
+        y = cosP * R;
+        z = Math.sin(az) * sinP * R;
+      } else {
+        const a = loop(u, p.cols) + t * 0.012;
+        const rad = 2.15 + v * 4.9;
+        const well = 2.4 * Math.exp(-((rad - 0.2) * (rad - 0.2)) / 7.5);
+        const pulled = rad - well * 0.45;
+        x = Math.cos(a) * pulled;
+        y = Math.sin(a) * pulled;
+        z = well;
       }
-      if (rand > 0.96) {
-        const life = fract(t * 0.28 + seed[1]);
-        if (life > 0.92) return [0, -40, 0];
-        const a = seed[2] * TAU;
-        const rad = 5.4 - life * 4.9;
-        return [Math.cos(a) * rad * 1.35, Math.sin(a) * rad, (seed[0] - 0.5) * 0.2];
-      }
-      if (rand > 0.78) {
-        const life = fract(t * 0.42 + seed[1]);
-        if (life > 0.78) return [0, -40, 0];
-        const a = seed[2] * TAU;
-        const dieAt = 1.6 + seed[0] * 3.6;
-        const rad = 0.35 + life * dieAt;
-        return [Math.cos(a) * rad * 1.35, Math.sin(a) * rad, (seed[0] - 0.5) * 0.22];
-      }
-      const a = loop(u, p.cols) + t * 0.015;
-      const rad = Math.sqrt(seed[0]) * 6.5;
-      return [Math.cos(a) * rad * 1.55, Math.sin(a) * rad, (seed[2] - 0.5) * 0.45];
+      return [x, y * cp - z * sp, y * sp + z * cp];
     }
     default: {
       // Strategy pages use the same drifting cloud as Unmanaged.

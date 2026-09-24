@@ -463,7 +463,6 @@ vec3 halo(vec3 seed) {
 
 vec3 formation(int s, float t) {
   vec3 seed = position;
-  vSheet = 0.0;
 
   if (s <= 0) {
     // Unmanaged: an unstructured cloud with slow, aimless drift.
@@ -540,9 +539,9 @@ vec3 formation(int s, float t) {
     } else {
       float a = loopAngle(aUV.x, uCols) + t * 0.015;
       float rad = sqrt(seed.x) * 6.5;
-      float well = 0.9 * exp(-rad * rad / 1.35);
+      float well = 1.7 * exp(-rad * rad / 1.5);
       vSheet = rad;
-      p = vec3(cos(a) * rad * 1.55, sin(a) * rad - well, (seed.z - 0.5) * 0.28 - well * 0.35);
+      p = vec3(cos(a) * rad * 1.55, sin(a) * rad - well, (seed.z - 0.5) * 0.28 - well * 0.45);
     }
     return p;
   }
@@ -585,6 +584,7 @@ void main() {
   int b = int(min(floor(ph) + 1.0, 6.0));
   float m = smoothstep(0.0, 1.0, fract(ph));
 
+  vSheet = 0.0;
   vec3 pos = mix(formation(a, uTime), formation(b, uTime), m);
 
   // A slice of the lit ownership ring becomes devices. They start above
@@ -697,12 +697,13 @@ void main() {
   // The sphere is solid yellow and drawn with thicker dots.
   float nearResponse = (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
   if (nearResponse > 0.0) {
-    float front = mod(uTime * 1.05, 8.2);
-    float band = smoothstep(0.42, 0.0, abs(vSheet - front));
-    float die = 1.0 - smoothstep(4.6, 6.1, front);
-    vGold = max(vGold, band * die * step(0.2, vSheet) * nearResponse);
+    float front = mod(uTime * 0.9, 7.4);
+    float band = smoothstep(0.62, 0.0, abs(vSheet - front));
+    float die = 1.0 - smoothstep(5.2, 6.3, front);
+    float pulse = band * die * step(0.15, vSheet);
     float onSphere = 1.0 - step(0.04, aRand);
-    vGold = max(vGold, onSphere * 0.45 * nearResponse);
+    vGold = max(vGold, max(pulse, onSphere) * 0.85 * nearResponse);
+    vAlpha *= mix(1.0, 1.7, pulse * nearResponse);
   }
 
   // Industry cloud glows from its own centre: hot in the middle, a faint

@@ -777,7 +777,7 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       }
       const a = loop(u, p.cols) + t * 0.015;
       const rad = Math.sqrt(seed[0]) * 6.5;
-      const well = 0.9 * Math.exp(-(rad * rad) / 1.35);
+      const well = 1.7 * Math.exp(-(rad * rad) / 1.5);
       return [
         Math.cos(a) * rad * 1.55,
         Math.sin(a) * rad - well,

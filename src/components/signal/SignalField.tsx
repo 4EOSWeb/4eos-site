@@ -10,7 +10,7 @@ import { POINT_BUDGET, prefersReducedMotion, type DeviceTier } from "@/lib/env";
 
 const BASE_COLOR = new THREE.Color("#4f86b4");
 const ACCENT_COLOR = new THREE.Color("#f5b700");
-const DETECT_COLOR = new THREE.Color("#e23b2c");
+const DETECT_COLOR = new THREE.Color("#ff3b2e");
 const _ndc = new THREE.Vector3();
 const _dir = new THREE.Vector3();
 

@@ -700,14 +700,15 @@ void main() {
     float atPerimeter = smoothstep(5.4, 6.3, ellipseR) * (1.0 - smoothstep(6.9, 7.5, ellipseR));
     vGold = max(vGold, shaft * atPerimeter * nearSecurity);
 
-    // Marked endpoints light red when the shaft hits them, then stay red
-    // for about 1.5 seconds. The beam moves at 0.55 rad/s, so 0.84 rad
-    // behind the shaft is that linger. aGold is seeded once, so the
-    // same dots detect on every pass.
-    float marked = step(0.91, aGold);
+    // A few interior dots are threats. They stay out of the blue border,
+    // glow red when the shaft hits them, and linger for about 1.5s.
+    // The beam moves at 0.55 rad/s, so 0.84 rad behind it is that linger.
+    float inside = (1.0 - step(0.3, aRand)) * (1.0 - smoothstep(4.6, 5.15, ellipseR));
+    float marked = inside * step(0.999, aGold);
     float linger = smoothstep(-0.84, -0.50, da) * (1.0 - smoothstep(0.0, 0.02, da));
     vDetect = marked * nearSecurity * max(shaft, linger);
-    vAlpha *= mix(1.0, 2.6, vDetect);
+    vGold *= 1.0 - marked * nearSecurity;
+    vAlpha *= mix(1.0, 5.5, vDetect);
   }
 
   // Response: the pulse uses the disc radius, so it stays on the ellipse.
@@ -768,9 +769,9 @@ void main() {
   float onSpokePt = onGridPt * step(0.5, fract(aRand * 3.1));
   float keptPt = step(fract(position.z * 13.7), mix(mix(0.55, 1.0, vSheet / 6.1), mix(0.5, 1.0, vSheet / 6.48), onSpokePt));
   onGridPt *= keptPt;
-  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 0.55;
+  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 4.2 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 0.55;
   float px = size * uPixelRatio * (44.0 / max(-mv.z, 0.001));
-  float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom) + onSpherePt * 2.0;
+  float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom) + onSpherePt * 2.0 + vDetect * 14.0;
   gl_PointSize = min(px, cap) * (1.0 - hide);
   if (hide > 0.97) {
     gl_Position = vec4(3.0, 3.0, 0.0, 1.0);
@@ -799,7 +800,8 @@ void main() {
 
   float soft = smoothstep(0.25, 0.0, r2);
   vec3 c = mix(uBase, uAccent, vGold);
-  c = mix(c, uDetect, vDetect);
+  vec3 threat = mix(uDetect, vec3(1.0, 0.78, 0.62), smoothstep(0.18, 0.0, r2));
+  c = mix(c, threat, vDetect);
   gl_FragColor = vec4(c, soft * vAlpha);
 }
 `;

@@ -1,23 +1,10 @@
 import type { NextConfig } from "next";
-import { networkInterfaces } from "node:os";
-
-/** Addresses on this machine, so a phone can open whatever IP the host has. */
-function localOrigins(): string[] {
-  const origins = new Set<string>();
-  for (const entries of Object.values(networkInterfaces())) {
-    for (const entry of entries ?? []) {
-      if (entry.internal) continue;
-      const address = entry.address.split("%")[0]?.toLowerCase();
-      if (address) origins.add(address);
-    }
-  }
-  return [...origins];
-}
 
 const nextConfig: NextConfig = {
-  // Dev assets are blocked unless the host is allowed. This follows the
-  // machine's current addresses instead of a fixed list.
-  allowedDevOrigins: localOrigins(),
+  // Dev-only. Next already allows localhost. These patterns allow every
+  // other host: any IPv4 address, and any hostname that contains a dot.
+  // Restart `next dev` after changing this.
+  allowedDevOrigins: ["*.*.*.*", "**.*"],
   async redirects() {
     return [
       {

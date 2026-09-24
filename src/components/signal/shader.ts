@@ -542,9 +542,9 @@ vec3 formation(int s, float t) {
       float grid = 1.0 - step(0.22, fract(aRand * 7.13));
       if (grid > 0.5) {
         float spoke = step(0.5, fract(aRand * 3.1));
-        float ring = min(floor(seed.y * 8.0), 7.0);
+        float ring = min(floor(seed.y * 10.0), 9.0);
         float spk = min(floor(seed.y * 12.0), 11.0);
-        rad = mix(1.15 + ring * 0.72, 0.85 + seed.x * 5.6, spoke);
+        rad = mix(0.58 + ring * 0.57, 0.58 + seed.x * 5.9, spoke);
         a = mix(a, spk / 12.0 * TAU + t * 0.015, spoke);
       }
       float well = 1.7 * exp(-rad * rad / 1.5);

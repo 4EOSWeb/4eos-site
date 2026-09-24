@@ -782,10 +782,10 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
         if (spoke) {
           const spk = Math.min(11, Math.floor(seed[1] * 12));
           a = (spk / 12) * TAU + t * 0.015;
-          rad = 0.85 + seed[0] * 5.6;
+          rad = 0.58 + seed[0] * 5.9;
         } else {
-          const ring = Math.min(7, Math.floor(seed[1] * 8));
-          rad = 1.15 + ring * 0.72;
+          const ring = Math.min(9, Math.floor(seed[1] * 10));
+          rad = 0.58 + ring * 0.57;
         }
       }
       const well = 1.7 * Math.exp(-(rad * rad) / 1.5);

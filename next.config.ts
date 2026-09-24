@@ -1,30 +1,23 @@
 import type { NextConfig } from "next";
+import { networkInterfaces } from "node:os";
+
+/** Addresses on this machine, so a phone can open whatever IP the host has. */
+function localOrigins(): string[] {
+  const origins = new Set<string>();
+  for (const entries of Object.values(networkInterfaces())) {
+    for (const entry of entries ?? []) {
+      if (entry.internal) continue;
+      const address = entry.address.split("%")[0]?.toLowerCase();
+      if (address) origins.add(address);
+    }
+  }
+  return [...origins];
+}
 
 const nextConfig: NextConfig = {
-  // Next.js only serves dev assets to localhost unless the host is listed.
-  // Opening the site at a LAN address was returning 403 for /_next, so the
-  // field never started. Private ranges cover a laptop whose address changes.
-  allowedDevOrigins: [
-    "192.168.153.31",
-    "192.168.*.*",
-    "10.*.*.*",
-    "172.16.*.*",
-    "172.17.*.*",
-    "172.18.*.*",
-    "172.19.*.*",
-    "172.20.*.*",
-    "172.21.*.*",
-    "172.22.*.*",
-    "172.23.*.*",
-    "172.24.*.*",
-    "172.25.*.*",
-    "172.26.*.*",
-    "172.27.*.*",
-    "172.28.*.*",
-    "172.29.*.*",
-    "172.30.*.*",
-    "172.31.*.*",
-  ],
+  // Dev assets are blocked unless the host is allowed. This follows the
+  // machine's current addresses instead of a fixed list.
+  allowedDevOrigins: localOrigins(),
   async redirects() {
     return [
       {

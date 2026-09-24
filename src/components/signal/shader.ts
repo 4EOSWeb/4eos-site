@@ -539,6 +539,14 @@ vec3 formation(int s, float t) {
     } else {
       float a = loopAngle(aUV.x, uCols) + t * 0.015;
       float rad = sqrt(seed.x) * 6.5;
+      float grid = 1.0 - step(0.22, fract(aRand * 7.13));
+      if (grid > 0.5) {
+        float spoke = step(0.5, fract(aRand * 3.1));
+        float ring = min(floor(seed.y * 8.0), 7.0);
+        float spk = min(floor(seed.y * 12.0), 11.0);
+        rad = mix(1.15 + ring * 0.72, 0.85 + seed.x * 5.6, spoke);
+        a = mix(a, spk / 12.0 * TAU + t * 0.015, spoke);
+      }
       float well = 1.7 * exp(-rad * rad / 1.5);
       vSheet = rad;
       p = vec3(cos(a) * rad * 1.55, sin(a) * rad - well, (seed.z - 0.5) * 0.28 - well * 0.45);
@@ -704,6 +712,8 @@ void main() {
     float onSphere = 1.0 - step(0.04, aRand);
     vGold = max(vGold, max(pulse, onSphere) * 0.85 * nearResponse);
     vAlpha *= mix(1.0, 1.7, pulse * nearResponse);
+    float onGrid = step(0.04, aRand) * (1.0 - step(0.22, fract(aRand * 7.13)));
+    vAlpha *= mix(1.0, 1.55, onGrid * nearResponse);
   }
 
   // Industry cloud glows from its own centre: hot in the middle, a faint
@@ -742,7 +752,8 @@ void main() {
 
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   float onSpherePt = (1.0 - step(0.04, aRand)) * (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
-  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8;
+  float onGridPt = step(0.04, aRand) * (1.0 - step(0.22, fract(aRand * 7.13))) * (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
+  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 0.8 + onGlyph * 0.45 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 1.15;
   float px = size * uPixelRatio * (44.0 / max(-mv.z, 0.001));
   float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom) + onSpherePt * 2.0;
   gl_PointSize = min(px, cap) * (1.0 - hide);

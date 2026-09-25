@@ -4,13 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/brand/Logo";
+import { MidwestLogo } from "@/components/brand/MidwestLogo";
 import { SocialMarks } from "@/components/layout/SocialMarks";
 import { addressLine, headerNav, site } from "@/lib/site";
 import { setMenuOpen } from "@/lib/menu";
 import { lockScroll, unlockScroll } from "@/lib/scroll";
 
-/** Matches the Tailwind `min-[1120px]` breakpoint that reveals the full bar. */
-const FULL_BAR = "(min-width: 1120px)";
+/** Both wordmarks need the row this wide before Services and the social icons keep their padding. */
+const FULL_BAR = "(min-width: 1440px)";
 
 const menuNav = [
   ...headerNav,
@@ -112,17 +113,26 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
         className={`site-bar fixed inset-x-0 top-0 z-50 ${ink ? "site-bar-bone" : ""}`}
       >
         <div className="flex h-[var(--nav-h)] items-center gap-[clamp(0.75rem,1.5vw,1.75rem)] px-[var(--sheet-inset)]">
-          <Link
-            href="/"
-            aria-label="4EOS home"
-            className="inline-flex shrink-0 items-center transition-opacity hover:opacity-80"
-          >
-            <Logo />
-          </Link>
+          <div className="brand-pair flex shrink-0 items-center gap-[clamp(0.7rem,1.15vw,1.15rem)]">
+            <Link
+              href="/"
+              aria-label="4EOS home"
+              className="inline-flex items-center transition-opacity hover:opacity-80"
+            >
+              <Logo />
+            </Link>
+            <Link
+              href="/services/voip"
+              aria-label="Midwest VoIP"
+              className="inline-flex items-center text-inherit transition-opacity hover:opacity-80"
+            >
+              <MidwestLogo />
+            </Link>
+          </div>
 
           <nav
             aria-label="Primary"
-            className="hidden min-w-0 min-[1120px]:flex min-[1120px]:flex-1 min-[1120px]:justify-center"
+            className="hidden min-w-0 min-[1440px]:flex min-[1440px]:flex-1 min-[1440px]:justify-center"
           >
             <ul className="flex items-center gap-[clamp(0.35rem,calc(2.2vw-1.15rem),1.35rem)]">
               {headerNav.map((item) => {
@@ -143,7 +153,7 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
           </nav>
 
           <div className="ml-auto flex shrink-0 items-center gap-[clamp(0.5rem,1vw,0.9rem)]">
-            <SocialMarks className="mr-1 hidden min-[1280px]:flex" />
+            <SocialMarks className="ml-4 hidden min-[1440px]:flex" />
             <a
               href={site.phoneHref}
               className="bar-link hidden py-2 opacity-80 hover:opacity-100 min-[760px]:inline-flex"
@@ -168,7 +178,7 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
               onClick={() => setOpen((v) => !v)}
               aria-expanded={open}
               aria-controls="site-menu"
-              className="bar-btn bar-btn-line inline-flex min-[1120px]:hidden"
+              className="bar-btn bar-btn-line inline-flex min-[1440px]:hidden"
             >
               {open ? "Close" : "Menu"}
             </button>

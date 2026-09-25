@@ -7,6 +7,7 @@ import type { Phase } from "@/components/signal/formations";
 export function InnerPage({
   phase,
   kicker,
+  brand,
   title,
   lede,
   children,
@@ -19,6 +20,8 @@ export function InnerPage({
 }: {
   phase: Phase;
   kicker?: string;
+  /** A brand mark in place of the kicker line. */
+  brand?: ReactNode;
   title: string;
   lede?: string;
   children?: ReactNode;
@@ -33,7 +36,9 @@ export function InnerPage({
     <Page phase={phase} tone={tone} focus={focus} zoom={zoom} scene={scene}>
       <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
         <BackLink href={backHref ?? "/"} label={backLabel ?? "Home"} />
-        {kicker ? (
+        {brand ? (
+          <div className="mt-6 text-fg">{brand}</div>
+        ) : kicker ? (
           <p className="micro mt-6">
             <span className="field-copy">{kicker}</span>
           </p>

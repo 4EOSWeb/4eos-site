@@ -58,6 +58,9 @@
      Windows scaling reports a shorter page still gets a bar that fits. */
   --nav-h: clamp(4.75rem, 9.2vh, 6rem);
   --logo-h: calc(var(--nav-h) * 0.64);
+  /* Both wordmarks share the bar. A slightly shorter lockup keeps
+     space before Services and before the social icons. */
+  --logo-pair-h: calc(var(--logo-h) * 0.72);
   --chapter-top: calc(var(--nav-h) + clamp(0.75rem, 6vh, 4.5rem));
   --hero-top: calc(var(--nav-h) + clamp(1rem, 8vh, 6rem));
   --chapter-bottom: clamp(4.25rem, 10vh, 7rem);
@@ -225,6 +228,10 @@ body {
     -webkit-backdrop-filter: blur(14px) saturate(1.08);
     backdrop-filter: blur(14px) saturate(1.08);
   }
+}
+
+.brand-pair {
+  --logo-h: var(--logo-pair-h);
 }
 
 /* The top bar. A light frost so the field stays visible through it. */

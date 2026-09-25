@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { MidwestLogo } from "@/components/brand/MidwestLogo";
 import { InnerPage } from "@/components/layout/InnerPage";
 import { PracticeBody } from "@/components/layout/PracticeBody";
 import { services } from "@/lib/content";
@@ -25,7 +26,8 @@ export default async function ServicePage({ params }: Props) {
   return (
     <InnerPage
       phase="unmanaged"
-      kicker={"family" in service ? service.family : "Practice"}
+      kicker={service.slug === "voip" ? undefined : "family" in service ? service.family : "Practice"}
+      brand={service.slug === "voip" ? <MidwestLogo height={56} /> : undefined}
       title={service.statement}
       lede={service.lede}
       backHref="/services"

@@ -11,9 +11,6 @@ import { MOBILE_FIT, POINT_BUDGET, prefersReducedMotion, type DeviceTier } from 
 const BASE_COLOR = new THREE.Color("#4f86b4");
 const ACCENT_COLOR = new THREE.Color("#f5b700");
 const DETECT_COLOR = new THREE.Color("#ff3b2e");
-const _ndc = new THREE.Vector3();
-const _dir = new THREE.Vector3();
-
 function Points({
   count,
   still,
@@ -61,8 +58,8 @@ function Points({
       uIntensity: { value: signal.intensity },
       uResolve: { value: signal.resolve },
       uPixelRatio: { value: 1 },
-      uMouse: { value: new THREE.Vector2(0, 0) },
-      uGlowScale: { value: 1 },
+      uPointer: { value: new THREE.Vector2(0, 0) },
+      uAspect: { value: 1 },
       uFieldGlow: { value: 1 },
       uFocus: { value: -1 },
       uFocusAge: { value: 0 },
@@ -124,18 +121,8 @@ function Points({
     u.uZoomOn.value = signal.zoom > 0.02 ? 1 : 0;
     u.uIconSpin.value = signal.iconSpin;
 
-    // Cursor NDC → world XY on the field plane, through the camera that is
-    // actually looking. The old frustum map (NDC * 14.5, 8.1) only held at z=20.
-    _ndc.set(signal.mouseRX, signal.mouseRY, 0.5).unproject(state.camera);
-    _dir.copy(_ndc).sub(state.camera.position);
-    if (Math.abs(_dir.z) > 1e-5) {
-      const t = -state.camera.position.z / _dir.z;
-      (u.uMouse.value as THREE.Vector2).set(
-        state.camera.position.x + _dir.x * t,
-        state.camera.position.y + _dir.y * t,
-      );
-    }
-    u.uGlowScale.value = state.camera.position.z / 20;
+    (u.uPointer.value as THREE.Vector2).set(signal.mouseRX, signal.mouseRY);
+    u.uAspect.value = state.size.width / Math.max(state.size.height, 1);
     u.uFieldGlow.value = mobile ? 0 : signal.fieldGlow;
 
     if (!still) u.uTime.value = state.clock.elapsedTime;

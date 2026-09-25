@@ -18,8 +18,8 @@ uniform float uPhase;
 uniform float uIntensity;
 uniform float uResolve;
 uniform float uPixelRatio;
-uniform vec2 uMouse;
-uniform float uGlowScale;
+uniform vec2 uPointer;
+uniform float uAspect;
 uniform float uFieldGlow;
 uniform float uFocus;
 uniform float uFocusAge;
@@ -632,11 +632,12 @@ void main() {
   }
   float sceneOff = 1.0 - uSceneMix;
 
-  // Flashlight: nearby points brighten. They do not move.
-  // uMouse is world XY on the z=0 plane, unprojected through the live camera.
-  // uGlowScale = camera.z / 20 so the shaft keeps its screen size when closer.
-  float toMouse = length(pos.xy - uMouse);
-  float glow = smoothstep(5.8 * uGlowScale, 0.0, toMouse) * uFieldGlow;
+  // Flashlight in screen space. A circle on the field plane stretches toward
+  // the edges of the view, so the radius is measured after projection.
+  vec4 glowClip = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
+  vec2 glowDelta = glowClip.xy / glowClip.w - uPointer;
+  glowDelta.x *= uAspect;
+  float glow = smoothstep(0.70, 0.0, length(glowDelta)) * uFieldGlow;
 
   float dens = mix(density(a), density(b), m);
   dens = mix(dens, serviceDensity(int(clamp(uScene, 0.0, 5.0))), uSceneMix);

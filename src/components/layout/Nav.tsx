@@ -9,6 +9,7 @@ import { SocialMarks } from "@/components/layout/SocialMarks";
 import { addressLine, headerNav, site } from "@/lib/site";
 import { setMenuOpen } from "@/lib/menu";
 import { lockScroll, unlockScroll } from "@/lib/scroll";
+import { snapToEl } from "@/lib/snap";
 
 /** Both wordmarks need the row this wide before Services and the social icons keep their padding. */
 const FULL_BAR = "(min-width: 1440px)";
@@ -115,9 +116,19 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
         <div className="flex h-[var(--nav-h)] items-center gap-[clamp(0.75rem,1.5vw,1.75rem)] px-[var(--sheet-inset)]">
           <div className="brand-pair flex shrink-0 items-center gap-[clamp(0.7rem,1.15vw,1.15rem)]">
             <Link
-              href="/"
+              href="/#chapter-unmanaged"
               aria-label="4EOS home"
               className="inline-flex items-center transition-opacity hover:opacity-80"
+              onClick={(event) => {
+                if (pathname !== "/") return;
+                event.preventDefault();
+                if (window.location.hash !== "#chapter-unmanaged") {
+                  window.location.hash = "chapter-unmanaged";
+                  return;
+                }
+                const chapter = document.getElementById("chapter-unmanaged");
+                if (chapter) snapToEl(chapter);
+              }}
             >
               <Logo />
             </Link>

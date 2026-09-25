@@ -459,15 +459,41 @@ html.signal-live .signal-poster {
 }
 
 .scroll-cue {
-  padding: 0.55rem 0.9rem;
+  gap: 0.15rem;
+  min-width: 5.5rem;
+  padding: 0.85rem 1.15rem 0.7rem;
   border: 1px solid rgba(245, 183, 0, 0.55);
-  border-radius: 999px;
+  border-radius: 1.25rem;
   background: rgba(5, 7, 10, 0.55);
   color: var(--color-gold);
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   letter-spacing: -0.02em;
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
+}
+
+.scroll-cue-chevron {
+  width: 2.75rem;
+  height: 2.75rem;
+  animation: scroll-cue-down 1.5s ease-in-out infinite;
+}
+
+@keyframes scroll-cue-down {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.65;
+  }
+  50% {
+    transform: translateY(7px);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue-chevron {
+    animation: none;
+  }
 }
 
 /* A marker behind the glyphs only. It is inline so a wrapped line ends
@@ -553,29 +579,6 @@ html.signal-live .signal-poster {
   opacity: 1;
 }
 
-.scroll-cue-line {
-  display: block;
-  width: 2.75rem;
-  height: 2px;
-  background: currentColor;
-  transform-origin: left center;
-  animation: scroll-cue 1.6s var(--ease-out-quint) infinite;
-}
-
-@keyframes scroll-cue {
-  0% {
-    transform: scaleX(0.35);
-    opacity: 0.35;
-  }
-  50% {
-    transform: scaleX(1);
-    opacity: 1;
-  }
-  100% {
-    transform: scaleX(0.35);
-    opacity: 0.35;
-  }
-}
 
 @media (prefers-reduced-motion: reduce) {
   .signal-poster {

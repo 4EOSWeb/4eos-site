@@ -20,6 +20,9 @@ function label(name: string) {
   return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
+/** How long the page must sit untouched before the down cue appears. */
+const IDLE_MS = 4500;
+
 /**
  * Bottom index and scroll prompt. Ticks replace the old right-hand list.
  * Gold marks the chapter you are in. The prompt stays until there is
@@ -31,6 +34,7 @@ export function ChapterRail() {
   const [targets, setTargets] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [more, setMore] = useState(false);
+  const [idle, setIdle] = useState(false);
 
   useEffect(() => {
     setActive(getChapterIndex());
@@ -68,6 +72,22 @@ export function ChapterRail() {
   }, [pathname, targets]);
 
   useEffect(() => {
+    let timer = 0;
+    const arm = () => {
+      setIdle(false);
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => setIdle(true), IDLE_MS);
+    };
+    arm();
+    const names = ["pointerdown", "pointermove", "wheel", "keydown", "touchstart"] as const;
+    for (const name of names) window.addEventListener(name, arm, { passive: true });
+    return () => {
+      window.clearTimeout(timer);
+      for (const name of names) window.removeEventListener(name, arm);
+    };
+  }, [pathname]);
+
+  useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (snapTargetCount() < 2) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
@@ -95,7 +115,6 @@ export function ChapterRail() {
 
   const story = targets >= 2;
   const current = story ? PHASES[active] : undefined;
-  const next = story && active < PHASES.length - 1 ? PHASES[active + 1] : undefined;
 
   if (menuOpen || (!story && !more)) return null;
 
@@ -131,15 +150,24 @@ export function ChapterRail() {
         <span />
       )}
 
-      {more ? (
+      {more && idle ? (
         <button
           type="button"
           onClick={() => (story ? snapNext() : window.scrollBy({ top: window.innerHeight * 0.85, behavior: "smooth" }))}
-          className="scroll-cue pointer-events-auto mb-1 flex shrink-0 items-center gap-3"
+          aria-label="Scroll down"
+          className="scroll-cue pointer-events-auto mb-1 flex shrink-0 flex-col items-center"
         >
+          <svg viewBox="0 0 24 24" aria-hidden="true" className="scroll-cue-chevron">
+            <path
+              d="M5 8.5 12 15.5 19 8.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
           <span>Scroll</span>
-          <span aria-hidden className="scroll-cue-line" />
-          {next ? <span className="max-w-[16ch] truncate">{label(next)}</span> : null}
         </button>
       ) : null}
     </div>

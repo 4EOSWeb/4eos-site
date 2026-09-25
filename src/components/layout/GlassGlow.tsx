@@ -11,17 +11,34 @@ export function GlassGlow() {
   useEffect(() => {
     if (detectTier() === "mobile") return;
 
-    const move = (event: PointerEvent) => {
-      const next = (event.target as Element | null)?.closest?.(GLASS) as HTMLElement | null;
+    let x = 0;
+    let y = 0;
+    let live = false;
+
+    const place = () => {
+      if (!live) return;
+      const hit = document.elementFromPoint(x, y);
+      const next = hit?.closest?.(GLASS) as HTMLElement | null;
       setFieldGlow(!next);
       if (!next) return;
       const box = next.getBoundingClientRect();
-      next.style.setProperty("--gx", `${event.clientX - box.left}px`);
-      next.style.setProperty("--gy", `${event.clientY - box.top}px`);
+      next.style.setProperty("--gx", `${x - box.left}px`);
+      next.style.setProperty("--gy", `${y - box.top}px`);
+    };
+
+    const move = (event: PointerEvent) => {
+      x = event.clientX;
+      y = event.clientY;
+      live = true;
+      place();
     };
 
     window.addEventListener("pointermove", move);
-    return () => window.removeEventListener("pointermove", move);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("scroll", place, true);
+    };
   }, []);
 
   return null;

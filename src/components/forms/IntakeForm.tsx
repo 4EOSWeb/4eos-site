@@ -178,7 +178,7 @@ function Field({
     ) => onChange(e.target.value),
     onFocus: () => setResolve(Math.max(0.08, value ? 0.4 : 0.15)),
     className:
-      "peer h-14 w-full rounded-[4px] border border-bone bg-white px-4 text-[15px] tracking-tight text-ink placeholder:text-bone-muted focus:border-ink focus:outline-none",
+      "peer h-14 w-full rounded-[4px] border border-hairline-strong bg-bone/14 px-4 text-[15px] tracking-tight text-fg placeholder:text-fg-faint focus:border-gold focus:outline-none",
   };
 
   return (

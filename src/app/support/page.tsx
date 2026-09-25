@@ -42,23 +42,17 @@ export default function SupportPage() {
             <h1 className="display page-display mt-5">
               Existing client. We already know the environment.
             </h1>
+            <p className="lede mt-8">
+              Down completely? Call, do not email. Outages get priority.
+            </p>
             <a
               href="https://4eos.screenconnect.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-8 block rounded-2xl bg-gold px-6 py-6 text-ink transition-opacity hover:opacity-90"
+              className="bar-btn bar-btn-line bar-btn-glow mt-8 inline-flex"
             >
-              <span className="block text-[clamp(1.6rem,2.4vw,2.15rem)] leading-none font-medium tracking-tight">
-                Start remote support
-              </span>
-              <span className="mt-3 block max-w-[34ch] text-[1.08rem] leading-snug">
-                Click here if someone from 4EOS asked to connect to your
-                computer. A new window opens. Follow what it shows you.
-              </span>
+              Remote support
             </a>
-            <p className="lede mt-8">
-              Down completely? Call, do not email. Outages get priority.
-            </p>
             <ul className="mt-12">
               {channels.map((c) => (
                 <li key={c.label} className="border-t border-hairline py-5 last:border-b">

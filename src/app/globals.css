@@ -317,6 +317,17 @@ body {
   border-color: var(--color-fg);
 }
 
+.bar-btn-glow {
+  border-color: rgba(245, 183, 0, 0.7);
+  color: var(--color-gold);
+  box-shadow: 0 0 18px rgba(245, 183, 0, 0.35);
+}
+
+.bar-btn-glow:hover {
+  border-color: var(--color-gold);
+  box-shadow: 0 0 26px rgba(245, 183, 0, 0.5);
+}
+
 .site-bar-bone .bar-btn-line {
   border-color: rgba(5, 7, 10, 0.28);
   color: var(--color-bone-fg);

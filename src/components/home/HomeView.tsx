@@ -10,6 +10,8 @@ import {
   getFocus,
   releasePhaseHold,
   setFocus,
+  setPhase,
+  signal,
   setScene,
   subscribeChapter,
   subscribeFocus,
@@ -32,6 +34,15 @@ const CHAPTER =
 export function HomeView() {
   useEffect(() => {
     releasePhaseHold();
+    const id = window.location.hash.slice(1);
+    const named = id ? document.getElementById(id) : null;
+    const fallback = id === "chapter-strategy-services"
+      ? document.getElementById("chapter-strategy")
+      : null;
+    const el = named ?? fallback ?? document.getElementById("chapter-unmanaged");
+    const phase = Number(el?.dataset.phase ?? 0);
+    signal.rendered = Number.isFinite(phase) ? phase : 0;
+    setPhase(signal.rendered);
   }, []);
 
   return (
@@ -325,7 +336,10 @@ function Strategy() {
         children: (
           <>
             <p className="body-sm">{s.lede}</p>
-            <Link href={`/services/${s.slug}`} className="bar-btn bar-btn-line mt-6 inline-flex">
+            <Link
+              href={`/services/${s.slug}?from=${collapsed ? "strategy-services" : "strategy"}`}
+              className="bar-btn bar-btn-line mt-6 inline-flex"
+            >
               Read <span aria-hidden>→</span>
             </Link>
           </>

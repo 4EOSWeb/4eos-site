@@ -24,7 +24,10 @@ const STEP_COOLDOWN_MS = 640;
 function scrollToHash() {
   const id = window.location.hash.slice(1);
   if (!id) return false;
-  const el = document.getElementById(id);
+  const el = document.getElementById(id)
+    ?? (id === "chapter-strategy-services"
+      ? document.getElementById("chapter-strategy")
+      : null);
   if (!el) return false;
   scroll.lenis?.resize();
   if (snapToEl(el)) return true;

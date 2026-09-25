@@ -8,7 +8,10 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { services } from "@/lib/content";
 import { breadcrumbSchema, faqSchema, graphSchema, serviceSchema } from "@/lib/schema";
 
-type Props = { params: Promise<{ slug: string }> };
+type Props = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ from?: string }>;
+};
 
 export function generateStaticParams() {
   return services.map((s) => ({ slug: s.slug }));
@@ -21,10 +24,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return { title: service.title, description: service.lede };
 }
 
-export default async function ServicePage({ params }: Props) {
+export default async function ServicePage({ params, searchParams }: Props) {
   const { slug } = await params;
+  const { from } = await searchParams;
   const service = services.find((s) => s.slug === slug);
   if (!service) notFound();
+  const fromStrategy = from === "strategy" || from === "strategy-services";
+  const backHref = from === "strategy-services"
+    ? "/#chapter-strategy-services"
+    : fromStrategy
+      ? "/#chapter-strategy"
+      : "/services";
+  const backLabel = fromStrategy ? "Strategy" : "Services";
 
   return (
     <InnerPage
@@ -33,8 +44,8 @@ export default async function ServicePage({ params }: Props) {
       brand={service.slug === "voip" ? <MidwestLogo height={56} /> : undefined}
       title={service.statement}
       lede={service.lede}
-      backHref="/services"
-      backLabel="Services"
+      backHref={backHref}
+      backLabel={backLabel}
     >
       <JsonLd
         data={graphSchema([

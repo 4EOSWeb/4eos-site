@@ -37,7 +37,7 @@ export default function PrivacyPage() {
           {
             heading: "How we use it",
             paragraphs: [
-              `The assessment form is delivered by an email service, Resend, to ${salesEmail}. The support form is delivered the same way to the help desk at ${site.helpdesk}. We do not sell personal information, and we do not share it for advertising.`,
+              `The assessment form is delivered by an email service, Resend, to ${salesEmail}. The support form is delivered the same way to the help desk at ${site.helpdesk}. When the ConnectWise connection is turned on, that same submission also opens a service ticket in ConnectWise. We do not sell personal information, and we do not share it for advertising.`,
               "We keep an inquiry for as long as we need it to respond and to keep a record of the request. Email us if you want a copy of a website inquiry, or if you want it deleted.",
             ],
           },

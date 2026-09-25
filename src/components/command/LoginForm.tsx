@@ -11,7 +11,7 @@ export function LoginForm() {
     setPending(true);
     setError(null);
     const data = new FormData(event.currentTarget);
-    const res = await fetch("/api/command/login", {
+    const res = await fetch("/api/analytics/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user: data.get("user"), password: data.get("password") }),
@@ -22,12 +22,12 @@ export function LoginForm() {
       setError(body?.reason === "unconfigured" ? "unconfigured" : "refused");
       return;
     }
-    window.location.href = "/command";
+    window.location.href = "/analytics";
   }
 
   return (
     <form onSubmit={onSubmit} className="command-login">
-      <p className="command-kicker">4EOS command</p>
+      <p className="command-kicker">4EOS analytics</p>
       <h1>Sign in.</h1>
       <label>
         Username

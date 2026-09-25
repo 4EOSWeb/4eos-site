@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { LoginForm } from "@/components/command/LoginForm";
 
 export const metadata: Metadata = {
-  title: "Command sign in",
+  title: "Analytics sign in",
   robots: { index: false, follow: false },
 };
 

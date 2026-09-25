@@ -29,6 +29,16 @@ const nextConfig: NextConfig = {
         destination: "/",
         permanent: true,
       },
+      {
+        source: "/command",
+        destination: "/analytics",
+        permanent: false,
+      },
+      {
+        source: "/command/:path*",
+        destination: "/analytics/:path*",
+        permanent: false,
+      },
     ];
   },
 };

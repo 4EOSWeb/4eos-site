@@ -1,7 +1,7 @@
 /** Paths that must never enter visitor totals. */
 export function isIgnoredPath(path: string) {
   return (
-    path.startsWith("/command") ||
+    path.startsWith("/analytics") ||
     path.startsWith("/signal-lab") ||
     path.startsWith("/api/")
   );

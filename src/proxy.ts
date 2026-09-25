@@ -4,7 +4,7 @@ import { analyticsConfigured, COMMAND_COOKIE, tokenValid } from "@/lib/analytics
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  if (pathname === "/command/login" || pathname === "/api/command/login") {
+  if (pathname === "/analytics/login" || pathname === "/api/analytics/login") {
     return NextResponse.next();
   }
   if (!analyticsConfigured()) {
@@ -16,9 +16,9 @@ export function proxy(request: NextRequest) {
   if (pathname.startsWith("/api/")) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
-  return NextResponse.redirect(new URL("/command/login", request.url));
+  return NextResponse.redirect(new URL("/analytics/login", request.url));
 }
 
 export const config = {
-  matcher: ["/command", "/command/:path*", "/api/command/:path*"],
+  matcher: ["/analytics", "/analytics/:path*", "/api/analytics/:path*"],
 };

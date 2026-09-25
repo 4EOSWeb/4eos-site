@@ -25,7 +25,7 @@ export function Beacon() {
   const marks = useRef(new Set<number>());
 
   useEffect(() => {
-    if (pathname.startsWith("/command") || pathname.startsWith("/signal-lab")) return;
+    if (pathname.startsWith("/analytics") || pathname.startsWith("/signal-lab")) return;
     const params = new URLSearchParams(window.location.search);
     const stored = sessionStorage.getItem("eos_acq");
     const acq = stored

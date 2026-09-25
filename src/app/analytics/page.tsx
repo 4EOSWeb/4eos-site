@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { CommandRoom } from "@/components/command/CommandRoom";
 
 export const metadata: Metadata = {
-  title: "Command",
+  title: "Analytics",
   robots: { index: false, follow: false },
 };
 

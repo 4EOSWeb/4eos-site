@@ -74,7 +74,7 @@ export function CommandRoom() {
   useEffect(() => {
     let stop = false;
     const load = () => {
-      void fetch(`/api/command/report?range=${range}`)
+      void fetch(`/api/analytics/report?range=${range}`)
         .then((res) => res.json())
         .then((data) => {
           if (!stop && data?.overview) setReport(data);
@@ -91,7 +91,7 @@ export function CommandRoom() {
   useEffect(() => {
     let stop = false;
     const load = () => {
-      void fetch("/api/command/live")
+      void fetch("/api/analytics/live")
         .then((res) => res.json())
         .then((data) => {
           if (!stop && data?.feed) setLive(data);
@@ -106,8 +106,8 @@ export function CommandRoom() {
   }, []);
 
   async function logout() {
-    await fetch("/api/command/logout", { method: "POST" });
-    window.location.href = "/command/login";
+    await fetch("/api/analytics/logout", { method: "POST" });
+    window.location.href = "/analytics/login";
   }
 
   if (!report) return <p className="command-kicker">Reading the record…</p>;
@@ -119,7 +119,7 @@ export function CommandRoom() {
     <div className="command">
       <header className="command-top">
         <div>
-          <p className="command-kicker">4EOS command</p>
+          <p className="command-kicker">4EOS analytics</p>
           <h1>Executive summary</h1>
         </div>
         <div className="command-ranges">

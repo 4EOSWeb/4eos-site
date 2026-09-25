@@ -40,7 +40,8 @@ export async function placeFromAddress(address: string | null): Promise<Place | 
 }
 
 function normalize(address: string | null) {
-  const ip = address?.split("%")[0]?.trim() ?? "";
+  let ip = address?.split("%")[0]?.trim() ?? "";
+  if (ip.startsWith("::ffff:")) ip = ip.slice(7);
   if (!ip || isPrivate(ip)) return null;
   return ip;
 }
@@ -52,6 +53,7 @@ async function fromIpinfo(ip: string): Promise<Place | null> {
     const response = await fetch(`https://ipinfo.io/${encodeURIComponent(ip)}/json`, {
       headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
       signal: AbortSignal.timeout(2500),
+      cache: "no-store",
     });
     if (!response.ok) return null;
     const body = (await response.json()) as {

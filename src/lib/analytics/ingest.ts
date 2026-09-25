@@ -75,15 +75,16 @@ export async function recordSignal(input: {
   const parsed = parseAgent(input.userAgent);
   const screen = cleanScreen(input.body.screen);
   const connection = cleanConnection(input.body.connection);
-  const place = await placeFromAddress(input.address ?? null);
-
   const existing = sessionId
-    ? (db.prepare("SELECT id, last_seen, trail, page_count FROM sessions WHERE id = ? AND kind = 'visitor'").get(sessionId) as
-        | { id: string; last_seen: number; trail: string; page_count: number }
+    ? (db.prepare("SELECT id, last_seen, trail, page_count, city, region FROM sessions WHERE id = ? AND kind = 'visitor'").get(sessionId) as
+        | { id: string; last_seen: number; trail: string; page_count: number; city: string | null; region: string | null }
         | undefined)
     : undefined;
 
-  if (!existing || now - existing.last_seen > SESSION_MS) {
+  const expired = !existing || now - existing.last_seen > SESSION_MS;
+  const place = !existing || expired || (!existing.city && !existing.region) ? await placeFromAddress(input.address ?? null) : null;
+
+  if (!existing || expired) {
     sessionId = randomUUID();
     db.prepare(
       `INSERT INTO sessions (
@@ -125,6 +126,20 @@ export async function recordSignal(input: {
     ).run(visitorId, now, now);
   } else {
     sessionId = existing.id;
+    if (place?.country || place?.region || place?.city) {
+      db.prepare(
+        `UPDATE sessions SET country = COALESCE(?, country), region = COALESCE(?, region), city = COALESCE(?, city),
+          lat = COALESCE(?, lat), lon = COALESCE(?, lon), isp = COALESCE(?, isp) WHERE id = ?`,
+      ).run(
+        place.country || null,
+        place.region || null,
+        place.city || null,
+        place.lat,
+        place.lon,
+        place.isp || null,
+        sessionId,
+      );
+    }
   }
 
   const detail = cleanDetail(name, input.body.detail);

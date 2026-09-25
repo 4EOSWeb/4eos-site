@@ -22,7 +22,7 @@ export function MidwestLogo({
 
   const style: CSSProperties = {
     display: "inline-block",
-    backgroundColor: "#fff",
+    backgroundColor: "currentColor",
     WebkitMaskImage: `url(${SRC})`,
     maskImage: `url(${SRC})`,
     WebkitMaskSize: "contain",

@@ -1,9 +1,8 @@
 import type { CSSProperties } from "react";
 
 /**
- * Wordmarks are the supplied drawings, white on transparent. The solid
- * mark is the bar. The line mark is the footer. The lockup mask is only
- * used when a lockup is asked for in mono.
+ * Wordmarks are the supplied drawings, used as masks so they take the
+ * text color. The solid mark is the bar. The line mark is the footer.
  */
 
 const RATIO = {
@@ -54,17 +53,11 @@ export function Logo({
       ? { height, width }
       : { height: "var(--logo-h)", width: "auto", aspectRatio: `${ratio}` };
 
-  if (tone === "brand" || variant === "mark") {
-    const src =
-      tone === "brand"
-        ? BRAND_SRC[variant]
-        : variant === "mark"
-          ? WORDMARK[mark]
-          : MASK.lockup;
+  if (tone === "brand") {
     return (
       // eslint-disable-next-line @next/next/no-img-element
       <img
-        src={src}
+        src={BRAND_SRC[variant]}
         alt={title}
         width={width}
         height={height}
@@ -74,11 +67,12 @@ export function Logo({
     );
   }
 
+  const src = variant === "mark" ? WORDMARK[mark] : MASK[variant];
   const style: CSSProperties = {
     display: "inline-block",
     backgroundColor: "currentColor",
-    WebkitMaskImage: `url(${MASK[variant]})`,
-    maskImage: `url(${MASK[variant]})`,
+    WebkitMaskImage: `url(${src})`,
+    maskImage: `url(${src})`,
     WebkitMaskSize: "contain",
     maskSize: "contain",
     WebkitMaskRepeat: "no-repeat",

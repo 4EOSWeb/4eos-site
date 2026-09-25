@@ -519,9 +519,9 @@ vec3 cubeLocal(float k, vec3 seed, float extra, float t) {
     float su = clamp(g.x * 1.28 / (3.15 - 1.02), -0.96, 0.96);
     float sv = clamp(g.y * 1.28 / (3.15 - 1.02), -0.96, 0.96);
     p = skinPoint(k, su, sv, -0.06, n, tu, tv);
-  } else if (seed.z < 0.72) {
+  } else if (seed.z < 0.88) {
     p = skinPoint(k, seed.x * 2.0 - 1.0, seed.y * 2.0 - 1.0, pow(hash21(seed.x, seed.y), 1.6) * 0.1, n, tu, tv);
-  } else if (seed.z < 0.96) {
+  } else if (seed.z < 0.975) {
     float which = min(floor(fract(extra * 12.17 + seed.x) * 12.0), 11.0);
     float along = (seed.y * 2.0 - 1.0) * 0.96;
     float ang = hash21(seed.x, extra) * 1.5707963;
@@ -770,7 +770,7 @@ void main() {
       float k = min(floor(aRand * 6.0), 5.0);
       float match = 1.0 - step(0.5, abs(k - uFocus));
       // Interior dust stays put. The chosen face lifts; the cube stays one object.
-      float skin = 1.0 - step(0.72, position.z);
+      float skin = 1.0 - step(0.88, position.z);
       vAlpha *= mix(1.0, mix(0.55, 1.35, match), skin);
     }
   }
@@ -838,12 +838,13 @@ void main() {
   }
 
   // The cube is brightest on the faces turned toward the camera.
-  // Marks read first. Edges carry a little more than the panel.
+  // Marks read first. Fillets and corners stay quieter so they do not flare.
   float nearIndustries = (1.0 - clamp(abs(ph - 4.0), 0.0, 1.0)) * sceneOff;
   float onGlyph = (1.0 - step(0.38, position.z)) * nearIndustries;
-  float onHalo = step(0.38, position.z) * (1.0 - step(0.96, position.z)) * nearIndustries;
-  float onCorner = step(0.96, position.z) * nearIndustries;
-  float core = 0.0;
+  float onFace = step(0.38, position.z) * (1.0 - step(0.88, position.z)) * nearIndustries;
+  float onEdge = step(0.88, position.z) * (1.0 - step(0.975, position.z)) * nearIndustries;
+  float onCorner = step(0.975, position.z) * nearIndustries;
+  float onHalo = max(onFace, onEdge);
   float facing = 1.0;
   if (nearIndustries > 0.0) {
     float kk = min(floor(aRand * 6.0), 5.0);
@@ -858,11 +859,10 @@ void main() {
     float inner = 3.15 - 1.02;
     vec3 nrm = local - clamp(local, -inner, inner);
     facing = clamp((uCube * nrm).z / max(length(nrm), 0.001), 0.0, 1.0);
-    // Plateau once a surface faces the camera. A squared falloff turns the
-    // nearest corner into a hotspot under additive blending.
-    core = mix(0.4, 1.0, smoothstep(0.05, 0.5, facing));
     // Marks are the accent. The panel stays blue so the symbol reads first.
     vGold = max(vGold, onGlyph * facing * 0.92);
+    // Random accent specks stay off the rim. They were reading as corner flares.
+    vGold *= 1.0 - step(0.88, position.z) * nearIndustries;
     if (uFocus >= 0.0) {
       float match = 1.0 - step(0.5, abs(kk - uFocus));
       vGold = max(vGold, onGlyph * match * facing);
@@ -872,16 +872,20 @@ void main() {
     if (uZoom > 0.15) {
       float faceMatch = 1.0 - step(0.5, abs(kk - uFocus));
       float bodyMatch = step(0.25, facing);
-      float onBody = step(0.72, position.z);
+      float onBody = step(0.88, position.z);
       float match = uFocus < 0.0 ? facing : mix(faceMatch, bodyMatch, onBody);
       float approach = smoothstep(0.2, 0.72, uZoom);
       vAlpha *= mix(1.0, mix(0.05, 1.0, match), approach);
       vAlpha *= mix(1.0, 0.22, smoothstep(0.8, 1.0, uZoom));
     }
   }
-  vAlpha *= mix(1.0, mix(1.7, 2.9, facing), onGlyph);
-  vAlpha *= mix(1.0, mix(0.7, 1.0, core), onHalo);
-  vAlpha *= mix(1.0, mix(0.7, 1.0, core), onCorner);
+  // Edge-on faces collapse into a line under additive blending. Fade
+  // them out so the rim stays the same brightness as the front panel.
+  float front = smoothstep(0.2, 0.75, facing);
+  vAlpha *= mix(1.0, mix(0.04, 2.05, front), onGlyph);
+  vAlpha *= mix(1.0, mix(0.03, 1.65, front), onFace);
+  vAlpha *= mix(1.0, mix(0.0, 0.07, front), onEdge);
+  vAlpha *= mix(1.0, mix(0.0, 0.04, front), onCorner);
   vAlpha *= mix(1.0, 1.7, device * sceneOff);
 
   float hide = 0.0;
@@ -905,7 +909,10 @@ void main() {
   float onSpokePt = onGridPt * step(0.5, fract(aRand * 3.1));
   float keptPt = step(fract(position.z * 13.7), mix(mix(0.55, 1.0, vSheet / 6.1), mix(0.5, 1.0, vSheet / 6.48), onSpokePt));
   onGridPt *= keptPt;
-  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 4.2 + onGlyph * 1.65 + onHalo * 0.35 + onCorner * 0.12 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 0.55;
+  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 4.2 + onGlyph * 1.65 + onFace * 0.28 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 0.55;
+  size *= mix(1.0, 0.85, onFace);
+  size *= mix(1.0, 0.32, onEdge);
+  size *= mix(1.0, 0.22, onCorner);
   float phoneScale = mix(1.25, 0.48, clamp(onGlyph, 0.0, 1.0));
   phoneScale = mix(phoneScale, 0.4, clamp(onHalo, 0.0, 1.0));
   size *= mix(1.0, phoneScale, uMobile);

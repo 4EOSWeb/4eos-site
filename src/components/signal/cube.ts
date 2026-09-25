@@ -16,15 +16,13 @@ export const CUBE_CY = 0.05;
 /** seed.z below this draws the industry mark, sitting on the face. */
 export const CUBE_ICON = 0.38;
 /** seed.z below this is a flat face. */
-export const CUBE_SHELL = 0.72;
+export const CUBE_SHELL = 0.88;
 /** seed.z below this is a rounded edge. The rest is a rounded corner. */
-export const CUBE_EDGE = 0.96;
+export const CUBE_EDGE = 0.975;
 /** Mark size in world units. */
 const ICON_SCALE = 1.28;
 /** Corner radius. The flat face ends at CUBE_H - DIE_R. */
 const DIE_R = 1.02;
-
-const TAU = Math.PI * 2;
 
 function fract(n: number) {
   return n - Math.floor(n);
@@ -208,8 +206,10 @@ export function cubeLocal(
   seed: Vec3,
   extra: number,
   glyph: Vec3 | null,
-  _t: number,
+  t: number,
 ): Vec3 {
+  // Dots are fixed on the die. `t` is only the cube's rotation, applied outside.
+  void t;
   if (glyph) {
     const su = clamp((glyph[0] * ICON_SCALE) / DIE_A, -0.96, 0.96);
     const sv = clamp((glyph[1] * ICON_SCALE) / DIE_A, -0.96, 0.96);

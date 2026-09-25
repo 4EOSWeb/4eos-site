@@ -459,7 +459,7 @@ vec3 serviceAt(int s, float t) {
 
 vec3 skinPoint(float k, float su, float sv, float depth, vec3 n, vec3 tu, vec3 tv) {
   float d = 5.4 - depth;
-  float a = 3.65;
+  float a = 3.2;
   return n * d + tu * su * a + tv * sv * a;
 }
 
@@ -468,9 +468,9 @@ vec3 edgePoint(float which, float along, float ang) {
   float quad = floor(which / 3.0);
   float s1 = mod(quad, 2.0) < 0.5 ? -1.0 : 1.0;
   float s2 = quad < 1.5 ? -1.0 : 1.0;
-  float t = along * 3.65;
-  float c = 3.65 + cos(ang) * 1.75;
-  float s = 3.65 + sin(ang) * 1.75;
+  float t = along * 3.2;
+  float c = 3.2 + cos(ang) * 2.2;
+  float s = 3.2 + sin(ang) * 2.2;
   vec3 p = vec3(s1 * c, s2 * s, t);
   if (axis < 0.5) p = vec3(t, s1 * c, s2 * s);
   else if (axis < 1.5) p = vec3(s2 * s, t, s1 * c);
@@ -484,11 +484,11 @@ vec3 cornerPoint(float which, float u, float v) {
   float phi = u * 1.5707963;
   float mu = clamp(v, 0.0, 1.0);
   float sinT = sqrt(max(0.0, 1.0 - mu * mu));
-  float a = 3.65;
+  float a = 3.2;
   return vec3(
-    sx * (a + 1.75 * sinT * cos(phi)),
-    sy * (a + 1.75 * sinT * sin(phi)),
-    sz * (a + 1.75 * mu)
+    sx * (a + 2.2 * sinT * cos(phi)),
+    sy * (a + 2.2 * sinT * sin(phi)),
+    sz * (a + 2.2 * mu)
   );
 }
 
@@ -516,14 +516,14 @@ vec3 cubeLocal(float k, vec3 seed, float extra, float t) {
   vec3 p = n * 5.4;
   if (seed.z < 0.38) {
     vec3 g = glyph(k, seed, extra);
-    float su = clamp(g.x * 2.19 / 3.65, -0.96, 0.96);
-    float sv = clamp(g.y * 2.19 / 3.65, -0.96, 0.96);
+    float su = clamp(g.x * 1.76 / 3.2, -0.96, 0.96);
+    float sv = clamp(g.y * 1.76 / 3.2, -0.96, 0.96);
     p = skinPoint(k, su, sv, -0.1, n, tu, tv);
-  } else if (seed.z < 0.88) {
+  } else if (seed.z < 0.64) {
     p = skinPoint(k, seed.x * 2.0 - 1.0, seed.y * 2.0 - 1.0, pow(hash21(seed.x, seed.y), 1.6) * 0.17, n, tu, tv);
-  } else if (seed.z < 0.975) {
+  } else if (seed.z < 0.93) {
     float which = min(floor(fract(extra * 12.17 + seed.x) * 12.0), 11.0);
-    float along = (seed.y * 2.0 - 1.0) * 0.96;
+    float along = (seed.y * 2.0 - 1.0) * 0.99;
     float ang = hash21(seed.x, extra) * 1.5707963;
     p = edgePoint(which, along, ang);
   } else {
@@ -770,7 +770,7 @@ void main() {
       float k = min(floor(aRand * 6.0), 5.0);
       float match = 1.0 - step(0.5, abs(k - uFocus));
       // Interior dust stays put. The chosen face lifts; the cube stays one object.
-      float skin = 1.0 - step(0.88, position.z);
+      float skin = 1.0 - step(0.64, position.z);
       vAlpha *= mix(1.0, mix(0.55, 1.35, match), skin);
     }
   }
@@ -837,13 +837,12 @@ void main() {
     vAlpha *= mix(1.0, 1.45, onGrid * nearResponse);
   }
 
-  // The cube is brightest on the faces turned toward the camera.
-  // Marks read first. Fillets and corners stay quieter so they do not flare.
+  // Faces, fillets, and corners are one die. The mark sits on the flat.
   float nearIndustries = (1.0 - clamp(abs(ph - 4.0), 0.0, 1.0)) * sceneOff;
   float onGlyph = (1.0 - step(0.38, position.z)) * nearIndustries;
-  float onFace = step(0.38, position.z) * (1.0 - step(0.88, position.z)) * nearIndustries;
-  float onEdge = step(0.88, position.z) * (1.0 - step(0.975, position.z)) * nearIndustries;
-  float onCorner = step(0.975, position.z) * nearIndustries;
+  float onFace = step(0.38, position.z) * (1.0 - step(0.64, position.z)) * nearIndustries;
+  float onEdge = step(0.64, position.z) * (1.0 - step(0.93, position.z)) * nearIndustries;
+  float onCorner = step(0.93, position.z) * nearIndustries;
   float onHalo = max(onFace, onEdge);
   float facing = 1.0;
   if (nearIndustries > 0.0) {
@@ -856,13 +855,13 @@ void main() {
       uCube[0][2], uCube[1][2], uCube[2][2]
     );
     vec3 local = cubeT * (pos - vec3(3.32, 0.0, 0.0));
-    float inner = 3.65;
+    float inner = 3.2;
     vec3 nrm = local - clamp(local, -inner, inner);
     facing = clamp((uCube * nrm).z / max(length(nrm), 0.001), 0.0, 1.0);
     // Marks are the accent. The panel stays blue so the symbol reads first.
     vGold = max(vGold, onGlyph * facing * 0.92);
     // Random accent specks stay off the rim. They were reading as corner flares.
-    vGold *= 1.0 - step(0.88, position.z) * nearIndustries;
+    vGold *= 1.0 - step(0.64, position.z) * nearIndustries;
     if (uFocus >= 0.0) {
       float match = 1.0 - step(0.5, abs(kk - uFocus));
       vGold = max(vGold, onGlyph * match * facing);
@@ -872,7 +871,7 @@ void main() {
     if (uZoom > 0.15) {
       float faceMatch = 1.0 - step(0.5, abs(kk - uFocus));
       float bodyMatch = step(0.25, facing);
-      float onBody = step(0.88, position.z);
+      float onBody = step(0.64, position.z);
       float match = uFocus < 0.0 ? facing : mix(faceMatch, bodyMatch, onBody);
       float approach = smoothstep(0.2, 0.72, uZoom);
       vAlpha *= mix(1.0, mix(0.05, 1.0, match), approach);
@@ -881,11 +880,11 @@ void main() {
   }
   // A three-quarter view still shows the side faces. Back faces drop
   // off so they do not pile through the cube into a bright corner.
-  float lit = mix(0.16, 1.0, smoothstep(0.04, 0.62, facing));
+  // Keep the bevel as bright as the flat. A hard falloff leaves six squares.
+  float lit = mix(0.72, 1.0, smoothstep(0.0, 0.4, facing));
   vAlpha *= mix(1.0, mix(1.55, 2.65, lit), onGlyph);
-  vAlpha *= mix(1.0, mix(0.5, 1.4, lit), onFace);
-  vAlpha *= mix(1.0, mix(0.22, 0.72, lit), onEdge);
-  vAlpha *= mix(1.0, mix(0.12, 0.4, lit), onCorner);
+  vAlpha *= mix(1.0, mix(0.85, 1.25, lit), max(onFace, onEdge));
+  vAlpha *= mix(1.0, mix(0.7, 1.1, lit), onCorner);
   vAlpha *= mix(1.0, 1.7, device * sceneOff);
 
   float hide = 0.0;
@@ -910,9 +909,8 @@ void main() {
   float keptPt = step(fract(position.z * 13.7), mix(mix(0.55, 1.0, vSheet / 6.1), mix(0.5, 1.0, vSheet / 6.48), onSpokePt));
   onGridPt *= keptPt;
   float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 4.2 + onGlyph * 1.65 + onFace * 0.4 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 0.55;
-  size *= mix(1.0, 1.62, onFace);
-  size *= mix(1.0, 0.85, onEdge);
-  size *= mix(1.0, 0.6, onCorner);
+  size *= mix(1.0, 1.45, max(onFace, onEdge));
+  size *= mix(1.0, 1.15, onCorner);
   float phoneScale = mix(1.25, 0.48, clamp(onGlyph, 0.0, 1.0));
   phoneScale = mix(phoneScale, 0.4, clamp(onHalo, 0.0, 1.0));
   size *= mix(1.0, phoneScale, uMobile);

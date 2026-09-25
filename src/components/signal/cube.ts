@@ -16,13 +16,13 @@ export const CUBE_CY = 0;
 /** seed.z below this draws the industry mark, sitting on the face. */
 export const CUBE_ICON = 0.38;
 /** seed.z below this is a flat face. */
-export const CUBE_SHELL = 0.88;
+export const CUBE_SHELL = 0.64;
 /** seed.z below this is a rounded edge. The rest is a rounded corner. */
-export const CUBE_EDGE = 0.975;
-/** Mark size in world units. */
-const ICON_SCALE = 2.19;
-/** Corner radius. The flat face ends at CUBE_H - DIE_R. */
-const DIE_R = 1.75;
+export const CUBE_EDGE = 0.93;
+/** Mark size in world units. Stays on the flat, short of the bevel. */
+const ICON_SCALE = 1.76;
+/** Corner radius. Large enough that the silhouette is a die, not a box. */
+const DIE_R = 2.2;
 
 function fract(n: number) {
   return n - Math.floor(n);
@@ -223,7 +223,7 @@ export function cubeLocal(
   if (seed[2] < CUBE_EDGE) {
     const which = Math.min(11, Math.floor(fract(extra * 12.17 + seed[0]) * 12));
     // Fixed on the fillet. Stops at the sphere so the corner is not drawn twice.
-    const along = (seed[1] * 2 - 1) * 0.96;
+    const along = (seed[1] * 2 - 1) * 0.99;
     const ang = hash21(seed[0], extra) * (Math.PI / 2);
     return edgePoint(which, along, ang);
   }

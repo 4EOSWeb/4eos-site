@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { CUBE_CX, CUBE_CY, cubeGoal, quatDot, quatToMat, slerpQuat, type Quat } from "./cube";
+import { CUBE_CX, CUBE_CY, CUBE_H, cubeGoal, quatDot, quatToMat, slerpQuat, type Quat } from "./cube";
 import { buildSeeds, latticeSize } from "./formations";
 import { fragmentShader, vertexShader } from "./shader";
 import { CONFIDENT_SETTLE, FLOW_DAMPING, FLOW_STIFFNESS, ORGANIC_FLOW } from "./flow";
@@ -233,13 +233,19 @@ function CameraRig({
       cubeQuat[2] = goal[2];
       cubeQuat[3] = goal[3];
     } else {
-      const rate = face < 0 ? 1.8 : 2.3;
-      const next = slerpQuat(cubeQuat, goal, 1 - Math.exp(-rate * dt));
-      const arrived = face >= 0 && quatDot(next, goal) > 0.9995;
-      cubeQuat[0] = arrived ? goal[0] : next[0];
-      cubeQuat[1] = arrived ? goal[1] : next[1];
-      cubeQuat[2] = arrived ? goal[2] : next[2];
-      cubeQuat[3] = arrived ? goal[3] : next[3];
+      const rate = face < 0 ? 1.8 : 2.4;
+      let frac = 1 - Math.exp(-rate * dt);
+      if (face >= 0) {
+        // Finish on the face in this frame once the leftover turn is
+        // under a pixel. Copying the goal earlier was a visible snap.
+        const ang = 2 * Math.acos(Math.min(1, quatDot(cubeQuat, goal)));
+        if (ang * (1 - frac) < 0.004) frac = 1;
+      }
+      const next = slerpQuat(cubeQuat, goal, frac);
+      cubeQuat[0] = next[0];
+      cubeQuat[1] = next[1];
+      cubeQuat[2] = next[2];
+      cubeQuat[3] = next[3];
     }
     if (!holdFace) cubeLatch = face;
     const m = quatToMat(cubeQuat);
@@ -258,7 +264,7 @@ function CameraRig({
     // Rest camera is the wide chapter. Zoom travels through the front face
     // (the face sits near z = 3.15) and comes out the far side.
     const restZ = mobile ? 24 : 20;
-    const throughZ = -0.85;
+    const throughZ = -Math.max(0.85, CUBE_H * 0.35);
     state.camera.position.set(
       CUBE_CX * z * fit,
       CUBE_CY * z * fit,

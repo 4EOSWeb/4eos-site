@@ -458,8 +458,8 @@ vec3 serviceAt(int s, float t) {
 }
 
 vec3 skinPoint(float k, float su, float sv, float depth, vec3 n, vec3 tu, vec3 tv) {
-  float d = 3.15 - depth;
-  float a = 3.15 - 1.02;
+  float d = 5.4 - depth;
+  float a = 3.65;
   return n * d + tu * su * a + tv * sv * a;
 }
 
@@ -468,9 +468,9 @@ vec3 edgePoint(float which, float along, float ang) {
   float quad = floor(which / 3.0);
   float s1 = mod(quad, 2.0) < 0.5 ? -1.0 : 1.0;
   float s2 = quad < 1.5 ? -1.0 : 1.0;
-  float t = along * (3.15 - 1.02);
-  float c = (3.15 - 1.02) + cos(ang) * 1.02;
-  float s = (3.15 - 1.02) + sin(ang) * 1.02;
+  float t = along * 3.65;
+  float c = 3.65 + cos(ang) * 1.75;
+  float s = 3.65 + sin(ang) * 1.75;
   vec3 p = vec3(s1 * c, s2 * s, t);
   if (axis < 0.5) p = vec3(t, s1 * c, s2 * s);
   else if (axis < 1.5) p = vec3(s2 * s, t, s1 * c);
@@ -484,11 +484,11 @@ vec3 cornerPoint(float which, float u, float v) {
   float phi = u * 1.5707963;
   float mu = clamp(v, 0.0, 1.0);
   float sinT = sqrt(max(0.0, 1.0 - mu * mu));
-  float a = 3.15 - 1.02;
+  float a = 3.65;
   return vec3(
-    sx * (a + 1.02 * sinT * cos(phi)),
-    sy * (a + 1.02 * sinT * sin(phi)),
-    sz * (a + 1.02 * mu)
+    sx * (a + 1.75 * sinT * cos(phi)),
+    sy * (a + 1.75 * sinT * sin(phi)),
+    sz * (a + 1.75 * mu)
   );
 }
 
@@ -513,14 +513,14 @@ vec3 cubeLocal(float k, vec3 seed, float extra, float t) {
     n = vec3(0.0, -1.0, 0.0); tu = vec3(1.0, 0.0, 0.0); tv = vec3(0.0, 0.0, 1.0);
   }
 
-  vec3 p = n * 3.15;
+  vec3 p = n * 5.4;
   if (seed.z < 0.38) {
     vec3 g = glyph(k, seed, extra);
-    float su = clamp(g.x * 1.28 / (3.15 - 1.02), -0.96, 0.96);
-    float sv = clamp(g.y * 1.28 / (3.15 - 1.02), -0.96, 0.96);
-    p = skinPoint(k, su, sv, -0.06, n, tu, tv);
+    float su = clamp(g.x * 2.19 / 3.65, -0.96, 0.96);
+    float sv = clamp(g.y * 2.19 / 3.65, -0.96, 0.96);
+    p = skinPoint(k, su, sv, -0.1, n, tu, tv);
   } else if (seed.z < 0.88) {
-    p = skinPoint(k, seed.x * 2.0 - 1.0, seed.y * 2.0 - 1.0, pow(hash21(seed.x, seed.y), 1.6) * 0.1, n, tu, tv);
+    p = skinPoint(k, seed.x * 2.0 - 1.0, seed.y * 2.0 - 1.0, pow(hash21(seed.x, seed.y), 1.6) * 0.17, n, tu, tv);
   } else if (seed.z < 0.975) {
     float which = min(floor(fract(extra * 12.17 + seed.x) * 12.0), 11.0);
     float along = (seed.y * 2.0 - 1.0) * 0.96;
@@ -572,11 +572,11 @@ vec3 formation(int s, float t) {
   }
   if (s == 4) {
     // Industries: one cube, six faces. Rotation arrives as uCube.
-    // Centre (5.85, 0.05), half-edge 3.15. Keep in step with cube.ts.
+    // Centre (3.32, 0), half-edge 5.4. Keep in step with cube.ts.
     float k = min(floor(aRand * 6.0), 5.0);
     float extra = fract(aRand * 6.0);
     vec3 local = cubeLocal(k, seed, extra, t);
-    return uCube * local + vec3(5.85, 0.05, 0.0);
+    return uCube * local + vec3(3.32, 0.0, 0.0);
   }
   if (s == 5) {
     // Response: the filled disc, pitched so the middle sinks. vSheet is the
@@ -855,8 +855,8 @@ void main() {
       uCube[0][1], uCube[1][1], uCube[2][1],
       uCube[0][2], uCube[1][2], uCube[2][2]
     );
-    vec3 local = cubeT * (pos - vec3(5.85, 0.05, 0.0));
-    float inner = 3.15 - 1.02;
+    vec3 local = cubeT * (pos - vec3(3.32, 0.0, 0.0));
+    float inner = 3.65;
     vec3 nrm = local - clamp(local, -inner, inner);
     facing = clamp((uCube * nrm).z / max(length(nrm), 0.001), 0.0, 1.0);
     // Marks are the accent. The panel stays blue so the symbol reads first.
@@ -879,13 +879,13 @@ void main() {
       vAlpha *= mix(1.0, 0.22, smoothstep(0.8, 1.0, uZoom));
     }
   }
-  // Edge-on faces collapse into a line under additive blending. Fade
-  // them out so the rim stays the same brightness as the front panel.
-  float front = smoothstep(0.2, 0.75, facing);
-  vAlpha *= mix(1.0, mix(0.04, 2.05, front), onGlyph);
-  vAlpha *= mix(1.0, mix(0.03, 1.65, front), onFace);
-  vAlpha *= mix(1.0, mix(0.0, 0.07, front), onEdge);
-  vAlpha *= mix(1.0, mix(0.0, 0.04, front), onCorner);
+  // A three-quarter view still shows the side faces. Back faces drop
+  // off so they do not pile through the cube into a bright corner.
+  float lit = mix(0.16, 1.0, smoothstep(0.04, 0.62, facing));
+  vAlpha *= mix(1.0, mix(1.55, 2.65, lit), onGlyph);
+  vAlpha *= mix(1.0, mix(0.5, 1.4, lit), onFace);
+  vAlpha *= mix(1.0, mix(0.22, 0.72, lit), onEdge);
+  vAlpha *= mix(1.0, mix(0.12, 0.4, lit), onCorner);
   vAlpha *= mix(1.0, 1.7, device * sceneOff);
 
   float hide = 0.0;
@@ -909,10 +909,10 @@ void main() {
   float onSpokePt = onGridPt * step(0.5, fract(aRand * 3.1));
   float keptPt = step(fract(position.z * 13.7), mix(mix(0.55, 1.0, vSheet / 6.1), mix(0.5, 1.0, vSheet / 6.48), onSpokePt));
   onGridPt *= keptPt;
-  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 4.2 + onGlyph * 1.65 + onFace * 0.28 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 0.55;
-  size *= mix(1.0, 0.85, onFace);
-  size *= mix(1.0, 0.32, onEdge);
-  size *= mix(1.0, 0.22, onCorner);
+  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 4.2 + onGlyph * 1.65 + onFace * 0.4 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 0.55;
+  size *= mix(1.0, 1.62, onFace);
+  size *= mix(1.0, 0.85, onEdge);
+  size *= mix(1.0, 0.6, onCorner);
   float phoneScale = mix(1.25, 0.48, clamp(onGlyph, 0.0, 1.0));
   phoneScale = mix(phoneScale, 0.4, clamp(onHalo, 0.0, 1.0));
   size *= mix(1.0, phoneScale, uMobile);

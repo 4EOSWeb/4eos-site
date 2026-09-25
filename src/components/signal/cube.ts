@@ -7,11 +7,11 @@
 export type Vec3 = [number, number, number];
 export type Quat = [number, number, number, number];
 
-/** Half-edge. Large enough to dominate the right side of the chapter. */
-export const CUBE_H = 3.15;
-/** Sits right of the names. The left face stays clear of the type. */
-export const CUBE_CX = 5.85;
-export const CUBE_CY = 0.05;
+/** Half-edge. Fills the open space to the right of the names. */
+export const CUBE_H = 5.4;
+/** Centre of the gap between the longest name and the right edge. */
+export const CUBE_CX = 3.32;
+export const CUBE_CY = 0;
 
 /** seed.z below this draws the industry mark, sitting on the face. */
 export const CUBE_ICON = 0.38;
@@ -20,9 +20,9 @@ export const CUBE_SHELL = 0.88;
 /** seed.z below this is a rounded edge. The rest is a rounded corner. */
 export const CUBE_EDGE = 0.975;
 /** Mark size in world units. */
-const ICON_SCALE = 1.28;
+const ICON_SCALE = 2.19;
 /** Corner radius. The flat face ends at CUBE_H - DIE_R. */
-const DIE_R = 1.02;
+const DIE_R = 1.75;
 
 function fract(n: number) {
   return n - Math.floor(n);
@@ -213,11 +213,11 @@ export function cubeLocal(
   if (glyph) {
     const su = clamp((glyph[0] * ICON_SCALE) / DIE_A, -0.96, 0.96);
     const sv = clamp((glyph[1] * ICON_SCALE) / DIE_A, -0.96, 0.96);
-    return skinPoint(k, su, sv, -0.06);
+    return skinPoint(k, su, sv, -0.1);
   }
 
   if (seed[2] < CUBE_SHELL) {
-    return skinPoint(k, seed[0] * 2 - 1, seed[1] * 2 - 1, Math.pow(hash21(seed[0], seed[1]), 1.6) * 0.1);
+    return skinPoint(k, seed[0] * 2 - 1, seed[1] * 2 - 1, Math.pow(hash21(seed[0], seed[1]), 1.6) * 0.17);
   }
 
   if (seed[2] < CUBE_EDGE) {

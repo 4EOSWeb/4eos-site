@@ -798,6 +798,13 @@ html.signal-live .signal-poster {
   color: var(--fg);
 }
 
+.command-gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem var(--sheet-inset);
+}
+
 .command-kicker,
 .command-stat p,
 .command-panel h3 {
@@ -948,7 +955,7 @@ html.signal-live .signal-poster {
 }
 
 .command-login {
-  max-width: 24rem;
+  width: min(24rem, 100%);
   display: grid;
   gap: 0.8rem;
 }

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function CommandLoginPage() {
   return (
-    <main id="main" className="command-shell">
+    <main id="main" className="command-shell command-gate">
       <LoginForm />
     </main>
   );

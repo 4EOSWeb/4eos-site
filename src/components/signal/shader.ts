@@ -472,6 +472,99 @@ vec3 halo(vec3 seed) {
   return vec3(cos(az) * sinP * R, cosP * R, sin(az) * sinP * R);
 }
 
+// Neck membership. Twin of onIndustryNeck() in formations.ts.
+float onNeck(vec3 seed) {
+  return step(0.34, seed.z) * (1.0 - step(0.34, fract(seed.x * 17.13)));
+}
+
+float neckDir(vec3 seed) {
+  return step(0.5, fract(seed.y * 13.1)) * 2.0 - 1.0;
+}
+
+vec2 orbitCenter(float a) {
+  return vec2(cos(a) * 5.8 + 4.2, sin(a) * 4.3 + 0.2);
+}
+
+float neckJoin(float len) {
+  return min(2.5 * 0.42, len * 0.26);
+}
+
+// Hyperboloid from inside the lobe to the waist. Twin of industryNeck().
+vec3 industryNeck(float a, float dir, vec3 seed) {
+  float b = a + dir * 1.0471975512;
+  vec2 delta = orbitCenter(b) - orbitCenter(a);
+  float len = max(length(delta), 0.001);
+  vec3 axis = vec3(delta / len, 0.0);
+  float halfL = len * 0.5;
+  float join = neckJoin(len);
+  float rhoJoin = 1.72;
+  float waist2 = 1.44;
+  float along = pow(fract(seed.z * 9.17), 1.15);
+  float fill = pow(fract(seed.x * 7.7), 0.72);
+  float taper = 1.0 - along;
+  float rho = sqrt(waist2 + max(0.0, rhoJoin * rhoJoin - waist2) * taper * taper);
+  float dist = join + (halfL - join + 0.08) * along;
+  return tube(vec3(0.0), axis * len, dist / len, fract(seed.y * 11.3) * TAU, rho * fill);
+}
+
+// Brightness from the ring's centreline, so a waist lights like a lobe.
+// Twin of the neck profile in industryNeck().
+float medialCore(vec3 world, float a) {
+  vec3 local = world - vec3(orbitCenter(a), 0.0);
+  float best = 0.0;
+  for (int i = 0; i < 2; i++) {
+    float dir = i == 0 ? 1.0 : -1.0;
+    float b = a + dir * 1.0471975512;
+    vec2 delta = orbitCenter(b) - orbitCenter(a);
+    float len = max(length(delta), 0.001);
+    vec3 axis = vec3(delta / len, 0.0);
+    float proj = dot(local, axis);
+    if (proj < 0.15) continue;
+    float lat = length(local - axis * proj);
+    float halfL = len * 0.5;
+    float join = neckJoin(len);
+    float along = clamp((proj - join) / max(halfL - join, 0.001), 0.0, 1.0);
+    float taper = 1.0 - along;
+    float rho = sqrt(1.44 + max(0.0, 2.9584 - 1.44) * taper * taper);
+    float sphereR = proj < 2.5 ? sqrt(max(0.0, 6.25 - proj * proj)) : 0.0;
+    float limit = max(rho, sphereR * 0.92);
+    float g = pow(clamp(1.0 - lat / max(limit, 0.001), 0.0, 1.0), 1.35);
+    g *= mix(0.95, 0.84, along);
+    best = max(best, g);
+  }
+  return best;
+}
+vec3 stretchLobe(vec3 p, float a) {
+  vec3 q = p;
+  for (int i = 0; i < 2; i++) {
+    float dir = i == 0 ? 1.0 : -1.0;
+    float b = a + dir * 1.0471975512;
+    vec2 delta = orbitCenter(b) - orbitCenter(a);
+    float len = max(length(delta), 0.001);
+    vec3 axis = vec3(delta / len, 0.0);
+    float proj = dot(q, axis);
+    if (proj <= 0.05) continue;
+    vec3 lateral = q - axis * proj;
+    float lat = length(lateral);
+    float rad = length(vec2(proj, lat));
+    float face = proj / max(rad, 0.0001);
+    float outer = rad / 2.5;
+    float pull = smoothstep(0.0, 0.62, face) * smoothstep(0.28, 0.86, outer);
+    if (pull <= 0.0) continue;
+    float halfL = len * 0.5;
+    float join = neckJoin(len);
+    float waist = sqrt(max(0.81, 6.25 - join * halfL));
+    float newProj = proj + (halfL * 0.98 - proj) * pull;
+    float skin = sqrt(max(0.0, 6.25 - min(proj, 2.5) * min(proj, 2.5)));
+    float fill = skin > 0.001 ? min(1.2, lat / skin) : 0.0;
+    float neckSkin = waist + (max(skin, waist) - waist) * (1.0 - pull);
+    float newLat = neckSkin * fill;
+    float s = lat > 0.0001 ? newLat / lat : 0.0;
+    q = axis * newProj + lateral * s;
+  }
+  return q;
+}
+
 vec3 formation(int s, float t) {
   vec3 seed = position;
 
@@ -511,31 +604,30 @@ vec3 formation(int s, float t) {
   }
   if (s == 4) {
     // Industries: six clouds travel a sideways oval. The orbs turn
-    // inside each cloud. A focused mark yaws only while zoomed.
+    // inside each cloud. Neighbouring clouds share a hyperboloid neck.
     // Centre (4.2, 0.2), radii 5.8 and 4.3. Keep in step with formations.ts.
     float k = min(floor(aRand * 6.0), 5.0);
     float match = uFocus < 0.0 ? 0.0 : (1.0 - step(0.5, abs(k - uFocus)));
-    float onTrail = step(0.34, seed.z) * (1.0 - step(0.1, fract(seed.x * 17.13)));
-    // A zoom draws only the one cloud. The oval dusting stays in the wide
-    // field, and the other five clouds are not computed.
-    if (uZoomOn > 0.5 && uFocus >= 0.0 && (match < 0.5 || onTrail > 0.5)) {
+    float neck = onNeck(seed);
+    // A zoom draws only the one cloud. Necks stay out so the dolly
+    // still frames a single mark.
+    if (uZoomOn > 0.5 && uFocus >= 0.0 && (match < 0.5 || neck > 0.5)) {
       return vec3(0.0, -40.0, 0.0);
     }
     float a = k / 6.0 * TAU - 1.5707963 + t * 0.18;
     float extra = fract(aRand * 6.0);
     vec3 local = seed.z < 0.34 ? glyph(k, seed, extra) * 0.62 : halo(seed);
-    float spin = seed.z < 0.34 ? uIconSpin * match : t * 0.62;
-    local = yaw(local, spin);
-    float along = 0.32 + fract(seed.y * 13.1) * 0.36;
-    float trailA = a + along * (TAU / 6.0);
-    float jitter = (fract(seed.x * 7.7) - 0.5) * 0.55;
-    vec3 orb = vec3(cos(a) * 5.8 + 4.2 + local.x, sin(a) * 4.3 + 0.2 + local.y, local.z);
-    vec3 path = vec3(
-      cos(trailA) * (5.8 + jitter) + 4.2,
-      sin(trailA) * (4.3 + jitter * 0.35) + 0.2,
-      (seed.z - 0.5) * 0.35
-    );
-    return mix(orb, path, onTrail);
+    if (neck > 0.5) {
+      local = industryNeck(a, neckDir(seed), seed);
+    } else if (seed.z >= 0.34) {
+      float rad = length(local);
+      float spin = rad < 2.5 * 0.46 ? t * 0.62 : 0.0;
+      local = yaw(local, spin);
+      if (uZoomOn < 0.5) local = stretchLobe(local, a);
+    } else {
+      local = yaw(local, uIconSpin * match);
+    }
+    return vec3(cos(a) * 5.8 + 4.2 + local.x, sin(a) * 4.3 + 0.2 + local.y, local.z);
   }
   if (s == 5) {
     // Response: the filled disc, pitched so the middle sinks. vSheet is the
@@ -728,14 +820,18 @@ void main() {
     if (nearIndustries > 0.0) {
       float k = floor(aRand * 6.0);
       float match = 1.0 - step(0.5, abs(k - uFocus));
-      // The oval dusting is not part of a cloud, so a highlight does not
-      // pull it forward or light it as a line off the orb.
-      float onTrail = step(0.34, position.z) * (1.0 - step(0.1, fract(position.x * 17.13)));
+      float neck = onNeck(position);
       float dim = mix(0.32, 0.08, uZoom);
       float lift = mix(1.85, 2.1, uZoom);
-      if (onTrail < 0.5) {
+      if (neck < 0.5) {
         vAlpha *= mix(dim, lift, match);
         pos.z += match * 1.5 * nearIndustries;
+      } else {
+        // A neck belongs to both lobes, so either name lights the whole bridge.
+        float neighbor = mod(k + neckDir(position) + 6.0, 6.0);
+        float linked = max(match, 1.0 - step(0.5, abs(neighbor - uFocus)));
+        vAlpha *= mix(dim, 1.35, linked);
+        pos.z += linked * 0.4 * nearIndustries * (1.0 - uZoom);
       }
     }
   }
@@ -815,10 +911,12 @@ void main() {
     float rad = length(vec3(pos.x - ctr.x, pos.y - ctr.y, pos.z));
     float haloReach = mix(2.5, 0.9, uMobile);
     core = pow(clamp(1.0 - rad / haloReach, 0.0, 1.0), mix(1.35, 2.4, uMobile));
-    // Points on the oval are outside every cloud, so the halo falloff
-    // would hide them. Keep that dusting at the ordinary point weight.
-    float onTrail = step(0.34, position.z) * (1.0 - step(0.1, fract(position.x * 17.13)));
-    onHalo *= 1.0 - onTrail;
+    // Where the lobe faces a neighbour, drop the round rim so the
+    // centreline of the neck is what reads, not a ball with a tube on it.
+    float medial = medialCore(pos, ca);
+    float joint = smoothstep(1.05, 2.2, rad) * smoothstep(0.2, 0.65, medial);
+    core *= 1.0 - 0.72 * joint;
+    core = max(core, medial);
   }
   vAlpha *= mix(1.0, mix(1.7, 2.6, uMobile), onGlyph);
   vAlpha *= mix(1.0, mix(0.16, 1.85, core) * mix(1.0, 0.2, uMobile), onHalo);
@@ -830,8 +928,7 @@ void main() {
   if (nearIndustries > 0.0 && uFocus >= 0.0 && uZoomOn > 0.5) {
     float k = floor(aRand * 6.0);
     float match = 1.0 - step(0.5, abs(k - uFocus));
-    float onTrail = step(0.34, position.z) * (1.0 - step(0.1, fract(position.x * 17.13)));
-    hide = max(1.0 - match, onTrail);
+    hide = max(1.0 - match, onNeck(position));
   }
 
   // Driven by the contact form: the field tightens as the form completes.

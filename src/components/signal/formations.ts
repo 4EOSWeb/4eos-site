@@ -37,7 +37,7 @@ export const PHASE_CAPTION: Record<Phase, string> = {
     "Three coverage rings. The lit ring holds the devices that tier covers.",
   security: "A perimeter closed around the environment.",
   industries:
-    "Six industry marks — scales, umbrella, cross, crane, gear, and rising bars — each in its own cloud, set to the right of the names.",
+    "Six industry marks — scales, umbrella, cross, crane, gear, and rising bars — joined by particle necks into one ring, set to the right of the names.",
   response: "The disc is whole. A sphere sits in the middle, and the sheet sags there.",
   strategy: "An unstructured field of drifting, unmonitored endpoints.",
 };
@@ -83,8 +83,11 @@ export const CLUSTER_RY = 4.3;
 export const CLUSTER_ORBIT = 0.18;
 /** Radians per second. The orbs turn inside each cloud. */
 export const HALO_ORBIT = 0.62;
-/** Share of each cloud's halo that sits on the oval between the clouds. */
-export const TRAIL_SHARE = 0.1;
+/**
+ * Share of each cloud's halo that is redrawn as the neck to a neighbour.
+ * The rest of the halo stays in the lobe. Keep in step with the GLSL.
+ */
+export const NECK_SHARE = 0.34;
 
 export function clusterCenter(k: number, t = 0): [number, number] {
   const a = (k / 6) * TAU - Math.PI / 2 + t * CLUSTER_ORBIT;
@@ -637,6 +640,99 @@ function industryHalo(seed: Vec3): Vec3 {
   return [Math.cos(az) * sinP * R, cosP * R, Math.sin(az) * sinP * R];
 }
 
+function onIndustryNeck(seed: Vec3) {
+  return seed[2] >= ICON_CUT && fract(seed[0] * 17.13) < NECK_SHARE;
+}
+
+/** +1 toward the next mark, -1 toward the previous. */
+function neckDirection(seed: Vec3) {
+  return fract(seed[1] * 13.1) >= 0.5 ? 1 : -1;
+}
+
+function neighborAxis(a: number, dir: number): { axis: Vec3; len: number } {
+  const b = a + dir * (TAU / 6);
+  const ax = (Math.cos(b) - Math.cos(a)) * CLUSTER_RX;
+  const ay = (Math.sin(b) - Math.sin(a)) * CLUSTER_RY;
+  const len = Math.hypot(ax, ay) || 1;
+  return { axis: [ax / len, ay / len, 0], len };
+}
+
+/**
+ * Where the lobe hands off to the neck. Inside the cloud, short of the
+ * waist, so the two volumes overlap instead of meeting at a skin.
+ */
+function neckJoin(len: number) {
+  return Math.min(SPHERE_OUTER * 0.42, len * 0.26);
+}
+
+/**
+ * Hyperboloid neck from inside this lobe to the waist. The root is
+ * buried in the cloud and the waist is the narrow part of the ring.
+ * Twin of industryNeck() in shader.ts.
+ */
+function industryNeck(a: number, dir: number, seed: Vec3): Vec3 {
+  const { axis, len } = neighborAxis(a, dir);
+  const half = len * 0.5;
+  const join = neckJoin(len);
+  const rhoJoin = 1.72;
+  const waist2 = 1.44;
+  const along = Math.pow(fract(seed[2] * 9.17), 1.15);
+  const fill = Math.pow(fract(seed[0] * 7.7), 0.72);
+  const taper = 1 - along;
+  const rho = Math.sqrt(waist2 + Math.max(0, rhoJoin * rhoJoin - waist2) * taper * taper);
+  const dist = join + (half - join + 0.08) * along;
+  const end: Vec3 = [axis[0] * len, axis[1] * len, 0];
+  return tube([0, 0, 0], end, dist / len, fract(seed[1] * 11.3) * TAU, rho * fill);
+}
+
+/** Pull the lobe's outer shell toward each neighbour so the waist grows out of the cloud. */
+function stretchLobe(local: Vec3, a: number): Vec3 {
+  let p: Vec3 = local;
+  for (const dir of [1, -1]) {
+    const { axis, len } = neighborAxis(a, dir);
+    const half = len * 0.5;
+    const proj = p[0] * axis[0] + p[1] * axis[1] + p[2] * axis[2];
+    if (proj <= 0.05) continue;
+    const lx = p[0] - axis[0] * proj;
+    const ly = p[1] - axis[1] * proj;
+    const lz = p[2] - axis[2] * proj;
+    const lateral = Math.hypot(lx, ly, lz);
+    const rad = Math.hypot(proj, lateral);
+    const face = proj / Math.max(rad, 1e-4);
+    const outer = rad / SPHERE_OUTER;
+    const pull = smoothstep(0.0, 0.62, face) * smoothstep(0.28, 0.86, outer);
+    if (pull <= 0) continue;
+    const join = neckJoin(len);
+    const waist = Math.sqrt(Math.max(0.81, SPHERE_OUTER * SPHERE_OUTER - join * half));
+    const newProj = proj + (half * 0.98 - proj) * pull;
+    const skin = Math.sqrt(Math.max(0, SPHERE_OUTER * SPHERE_OUTER - Math.min(proj, SPHERE_OUTER) ** 2));
+    const fill = skin > 1e-3 ? Math.min(1.2, lateral / skin) : 0;
+    const neckSkin = waist + (Math.max(skin, waist) - waist) * (1 - pull);
+    const newLat = neckSkin * fill;
+    const s = lateral > 1e-4 ? newLat / lateral : 0;
+    p = [
+      axis[0] * newProj + lx * s,
+      axis[1] * newProj + ly * s,
+      lz * s,
+    ];
+  }
+  return p;
+}
+
+function smoothstep(edge0: number, edge1: number, x: number) {
+  const t = Math.min(1, Math.max(0, (x - edge0) / Math.max(edge1 - edge0, 1e-4)));
+  return t * t * (3 - 2 * t);
+}
+
+/** Axial brightness of a neck sample. Null when the point stays in its lobe. */
+export function industryNeckGlow(seed: Vec3) {
+  if (!onIndustryNeck(seed)) return null;
+  const fill = Math.pow(fract(seed[0] * 7.7), 0.72);
+  const along = Math.pow(fract(seed[2] * 9.17), 1.15);
+  const axial = Math.pow(Math.max(0, 1 - fill), 1.35);
+  return axial * (0.78 + (0.5 - 0.78) * along);
+}
+
 export type Vec3 = [number, number, number];
 
 /** Deterministic PRNG so the poster and the live field agree. */
@@ -737,28 +833,24 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
     }
     case 4: {
       // Industries: six marks, each in a cloud. The clouds travel a
-      // sideways oval, and the orbs turn inside each cloud. A thin share
-      // of the halo sits on the oval between the clouds.
+      // sideways oval and turn inside themselves. Neighbouring clouds
+      // share a hyperboloid of particles, so the ring is one body.
       const k = Math.min(5, Math.floor(rand * 6));
       const a = (k / 6) * TAU - Math.PI / 2 + t * CLUSTER_ORBIT;
-      const onTrail = seed[2] >= ICON_CUT && fract(seed[0] * 17.13) < TRAIL_SHARE;
-      if (onTrail) {
-        const along = 0.32 + fract(seed[1] * 13.1) * 0.36;
-        const trailA = a + along * (TAU / 6);
-        const jitter = (fract(seed[0] * 7.7) - 0.5) * 0.55;
-        return [
-          CLUSTER_CX + Math.cos(trailA) * (CLUSTER_RX + jitter),
-          CLUSTER_CY + Math.sin(trailA) * (CLUSTER_RY + jitter * 0.35),
-          (seed[2] - 0.5) * 0.35,
-        ];
-      }
       const extra = fract(rand * 6);
       const mark = industryGlyph(k, seed, extra);
+      const neck = onIndustryNeck(seed);
       let local: Vec3 =
         seed[2] < ICON_CUT
           ? [mark[0] * MARK_SCALE, mark[1] * MARK_SCALE, mark[2] * MARK_SCALE]
-          : industryHalo(seed);
-      if (seed[2] >= ICON_CUT) local = yawAboutY(local, t * HALO_ORBIT);
+          : neck
+            ? industryNeck(a, neckDirection(seed), seed)
+            : industryHalo(seed);
+      if (seed[2] >= ICON_CUT && !neck) {
+        const rad = Math.hypot(local[0], local[1], local[2]);
+        if (rad < SPHERE_OUTER * 0.46) local = yawAboutY(local, t * HALO_ORBIT);
+        local = stretchLobe(local, a);
+      }
       return [
         CLUSTER_CX + Math.cos(a) * CLUSTER_RX + local[0],
         CLUSTER_CY + Math.sin(a) * CLUSTER_RY + local[1],

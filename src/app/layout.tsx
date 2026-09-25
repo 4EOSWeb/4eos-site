@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Instrument_Sans, Geist_Mono } from "next/font/google";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { organizationSchema } from "@/lib/schema";
 import { site, addressLine } from "@/lib/site";
 import { ChapterRail } from "@/components/layout/ChapterRail";
 import { GlassGlow } from "@/components/layout/GlassGlow";
@@ -55,26 +57,6 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-const orgSchema = {
-  "@context": "https://schema.org",
-  "@type": "ProfessionalService",
-  name: site.name,
-  description: site.description,
-  url: site.url,
-  telephone: site.phone,
-  email: site.helpdesk,
-  foundingDate: String(site.founded),
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: site.address.street,
-    addressLocality: site.address.city,
-    addressRegion: site.address.region,
-    postalCode: site.address.postal,
-    addressCountry: site.address.country,
-  },
-  areaServed: "Indiana",
-};
-
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -82,11 +64,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${archivo.variable} ${instrument.variable} ${geistMono.variable}`}
     >
       <body>
-        <script
-          type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
-        />
+        <JsonLd data={organizationSchema()} />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:bg-gold focus:px-4 focus:py-2 focus:text-ink focus:micro"

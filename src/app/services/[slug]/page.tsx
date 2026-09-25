@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 import { MidwestLogo } from "@/components/brand/MidwestLogo";
 import { InnerPage } from "@/components/layout/InnerPage";
 import { PracticeBody } from "@/components/layout/PracticeBody";
+import { FaqList } from "@/components/seo/FaqList";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { services } from "@/lib/content";
+import { breadcrumbSchema, faqSchema, graphSchema, serviceSchema } from "@/lib/schema";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -33,12 +36,26 @@ export default async function ServicePage({ params }: Props) {
       backHref="/services"
       backLabel="Services"
     >
+      <JsonLd
+        data={graphSchema([
+          serviceSchema(service),
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Services", path: "/services" },
+            { name: service.title, path: `/services/${service.slug}` },
+          ]),
+          faqSchema(service.faqs),
+        ])}
+      />
       <PracticeBody
         title={service.title}
         points={service.points}
         how={service.how}
         related={service.related}
       />
+      <div className="mt-16">
+        <FaqList items={service.faqs} />
+      </div>
     </InnerPage>
   );
 }

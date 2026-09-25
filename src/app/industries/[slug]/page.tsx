@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { InnerPage } from "@/components/layout/InnerPage";
+import { FaqList } from "@/components/seo/FaqList";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { industries } from "@/lib/content";
+import { breadcrumbSchema, faqSchema, graphSchema, industryPageSchema } from "@/lib/schema";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -68,6 +71,20 @@ export default async function IndustryPage({ params }: Props) {
       <Link href="/contact" className="bar-btn bar-btn-line mt-10 inline-flex">
         Request an assessment <span aria-hidden>→</span>
       </Link>
+      <JsonLd
+        data={graphSchema([
+          industryPageSchema(industry),
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Industries", path: "/industries" },
+            { name: industry.title, path: `/industries/${industry.slug}` },
+          ]),
+          faqSchema(industry.faqs),
+        ])}
+      />
+      <div className="mt-16">
+        <FaqList items={industry.faqs} />
+      </div>
     </InnerPage>
   );
 }

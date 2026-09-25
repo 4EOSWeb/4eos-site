@@ -29,6 +29,16 @@ export const services = [
       { href: "/services/cybersecurity", label: "Cybersecurity" },
       { href: "/secureai", label: "SecureAI" },
     ],
+    faqs: [
+      {
+        q: "What does CompleteCare include?",
+        a: "Proactive management, continuous monitoring, and live U.S.-based support. It runs from the help desk through fully managed infrastructure, with executive-level IT strategy.",
+      },
+      {
+        q: "How does CompleteCare handle problems?",
+        a: "Continuous monitoring, not a wait for tickets. Problems are prevented rather than waited for. Eyes On Site covers the work that needs someone in the room, and support is remote-first for faster resolution.",
+      },
+    ],
   },
   {
     slug: "cybersecurity",
@@ -49,6 +59,16 @@ export const services = [
     related: [
       { href: "/secureai", label: "SecureAI" },
       { href: "/services/completecare", label: "CompleteCare" },
+    ],
+    faqs: [
+      {
+        q: "What cybersecurity structure does 4EOS follow?",
+        a: "The NIST Cybersecurity Framework, for a structured, layered defense, and to keep you audit-ready.",
+      },
+      {
+        q: "What does cybersecurity support cover?",
+        a: "Early threat detection and real-time monitoring, HIPAA, PCI, and SEC compliance support, and security awareness training for the people who click.",
+      },
     ],
   },
   {
@@ -71,6 +91,16 @@ export const services = [
       { href: "/services/completecare", label: "CompleteCare" },
       { href: "/services/datacenter", label: "Data Center" },
     ],
+    faqs: [
+      {
+        q: "Which cloud platforms does 4EOS manage?",
+        a: "Microsoft 365 and Azure, managed as one environment, including hybrid and on-premise infrastructure.",
+      },
+      {
+        q: "How does a cloud migration work?",
+        a: "Migration is planned before anything is moved. Planning and execution cover Microsoft 365, Azure, and hybrid environments, including work that still belongs on-premise.",
+      },
+    ],
   },
   {
     slug: "voip",
@@ -92,6 +122,16 @@ export const services = [
       { href: "/services/completecare", label: "CompleteCare" },
     ],
     family: "Midwest VoIP",
+    faqs: [
+      {
+        q: "What does business VoIP from 4EOS include?",
+        a: "Business-class VoIP from Midwest VoIP, with full installation, porting, and ongoing support. That covers PBX install, call routing, queues, ring groups, number porting, and mobile app setup.",
+      },
+      {
+        q: "Is training included?",
+        a: "End-user training is included so the team actually uses it.",
+      },
+    ],
   },
   {
     slug: "datacenter",
@@ -114,6 +154,16 @@ export const services = [
       { href: "/services/cybersecurity", label: "Cybersecurity" },
     ],
     family: "SafeHouse DataCenter",
+    faqs: [
+      {
+        q: "Where is the data center?",
+        a: "SafeHouse DataCenter in Fort Wayne. It offers co-location, disaster recovery, and remote backup.",
+      },
+      {
+        q: "What space can a company take?",
+        a: "Full or partial rack space, or 4EOS-administered hosted systems, including co-location for mission-critical equipment.",
+      },
+    ],
   },
   {
     slug: "hardware",
@@ -133,6 +183,16 @@ export const services = [
     ],
     related: [
       { href: "/services/completecare", label: "CompleteCare" },
+    ],
+    faqs: [
+      {
+        q: "What hardware does 4EOS procure?",
+        a: "Enterprise-grade hardware through Dell, Microsoft, and Cisco partnerships. 4EOS is the largest Dell reseller in Northeast Indiana.",
+      },
+      {
+        q: "How is hardware sized?",
+        a: "Specs are right-sized to the work, not the catalog, and procurement is handled end to end.",
+      },
     ],
   },
 ] as const;
@@ -188,6 +248,16 @@ export const industries = [
       { href: "/services/cybersecurity", label: "Cybersecurity" },
       { href: "/services/completecare", label: "CompleteCare" },
     ],
+    faqs: [
+      {
+        q: "What does 4EOS do for a law firm?",
+        a: "Secure document management, reliable systems during trial prep, and protection for privileged client data.",
+      },
+      {
+        q: "Why does that matter in a practice?",
+        a: "A firm runs on documents and on who is allowed to see them. Privilege has to hold in ordinary work and through trial prep.",
+      },
+    ],
   },
   {
     slug: "insurance",
@@ -203,6 +273,16 @@ export const industries = [
     related: [
       { href: "/services/cybersecurity", label: "Cybersecurity" },
       { href: "/services/completecare", label: "CompleteCare" },
+    ],
+    faqs: [
+      {
+        q: "What does 4EOS do for an insurance agency?",
+        a: "Client data protection, PCI-aligned payment handling, and agency management systems that stay available.",
+      },
+      {
+        q: "Why does the agency system matter?",
+        a: "The agency management system is how the producers work. It has to stay available, and the payments that move through it have to be handled in line with PCI.",
+      },
     ],
   },
   {
@@ -220,6 +300,16 @@ export const industries = [
       { href: "/services/cybersecurity", label: "Cybersecurity" },
       { href: "/secureai", label: "SecureAI" },
     ],
+    faqs: [
+      {
+        q: "What does 4EOS do for a healthcare organization?",
+        a: "HIPAA compliance support, EHR uptime, and safeguards for patient data across every device and connection.",
+      },
+      {
+        q: "What do those safeguards cover?",
+        a: "The day runs on the record. EHR uptime and HIPAA safeguards cover every device and connection that can reach patient data.",
+      },
+    ],
   },
   {
     slug: "construction",
@@ -235,6 +325,16 @@ export const industries = [
     related: [
       { href: "/services/completecare", label: "CompleteCare" },
       { href: "/services/cloud", label: "Cloud" },
+    ],
+    faqs: [
+      {
+        q: "What does 4EOS do for a construction firm?",
+        a: "Job site connectivity, and secure access for field teams that need it from anywhere.",
+      },
+      {
+        q: "How does that hold up on a job?",
+        a: "The workplace is the job site. Field teams need a connection and secure access that hold while the deadline does not move.",
+      },
     ],
   },
   {
@@ -252,6 +352,16 @@ export const industries = [
       { href: "/services/completecare", label: "CompleteCare" },
       { href: "/services/cybersecurity", label: "Cybersecurity" },
     ],
+    faqs: [
+      {
+        q: "What does 4EOS do for a manufacturer?",
+        a: "Production systems stay running, and the IT and OT divide is bridged safely.",
+      },
+      {
+        q: "Why is that split treated carefully?",
+        a: "The line measures an outage in lost production. Office IT and the plant floor stay separated, and they meet only where that meeting is safe.",
+      },
+    ],
   },
   {
     slug: "private-equity",
@@ -267,6 +377,16 @@ export const industries = [
     related: [
       { href: "/services/cybersecurity", label: "Cybersecurity" },
       { href: "/services/completecare", label: "CompleteCare" },
+    ],
+    faqs: [
+      {
+        q: "What does 4EOS do for private equity?",
+        a: "Technology due diligence for deals, rapid portfolio onboarding, and consistent security across holdings.",
+      },
+      {
+        q: "Why does a portfolio need that?",
+        a: "Each company in a portfolio arrives with its own stack. Diligence reads that before the close, and the security posture is made consistent once the company is a holding.",
+      },
     ],
   },
 ] as const;

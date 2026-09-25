@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { InnerPage } from "@/components/layout/InnerPage";
+import { FaqList } from "@/components/seo/FaqList";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { faqs } from "@/lib/content";
+import { faqSchema, graphSchema } from "@/lib/schema";
 
 export const metadata: Metadata = {
   title: "FAQ",
@@ -15,21 +18,8 @@ export default function FAQPage() {
       title="Straight answers."
       lede="From choosing a provider to what VoIP should include."
     >
-      <dl>
-        {faqs.map((f, i) => (
-          <div key={f.q} className="border-t border-hairline py-8 last:border-b">
-            <dt className="flex gap-[3vw]">
-              <span className="micro text-fg-faint">
-                {String(i + 1).padStart(2, "0")}
-              </span>
-              <span className="display text-[clamp(1.4rem,2.6vw,2.2rem)]">
-                {f.q}
-              </span>
-            </dt>
-            <dd className="lede mt-4 pl-[calc(2rem+3vw)]">{f.a}</dd>
-          </div>
-        ))}
-      </dl>
+      <JsonLd data={graphSchema([faqSchema(faqs)])} />
+      <FaqList items={faqs} />
     </InnerPage>
   );
 }

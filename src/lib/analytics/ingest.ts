@@ -75,7 +75,7 @@ export async function recordSignal(input: {
   const parsed = parseAgent(input.userAgent);
   const screen = cleanScreen(input.body.screen);
   const connection = cleanConnection(input.body.connection);
-  const place = placeFromAddress(input.address ?? null);
+  const place = await placeFromAddress(input.address ?? null);
 
   const existing = sessionId
     ? (db.prepare("SELECT id, last_seen, trail, page_count FROM sessions WHERE id = ? AND kind = 'visitor'").get(sessionId) as
@@ -89,8 +89,8 @@ export async function recordSignal(input: {
       `INSERT INTO sessions (
         id, visitor_id, started_at, last_seen, entry_path, exit_path, trail,
         source_class, source_label, referrer_host, utm_source, utm_medium, utm_campaign, utm_term, utm_content,
-        device, browser, os, screen, connection, country, region, city, lat, lon, page_count, engagement_ms, max_scroll, lead, kind
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0, 'visitor')`,
+        device, browser, os, screen, connection, country, region, city, lat, lon, isp, page_count, engagement_ms, max_scroll, lead, kind
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0, 'visitor')`,
     ).run(
       sessionId,
       visitorId,
@@ -117,6 +117,7 @@ export async function recordSignal(input: {
       place?.city || null,
       place?.lat ?? null,
       place?.lon ?? null,
+      place?.isp || null,
     );
     db.prepare(
       `INSERT INTO visitors (id, first_seen, last_seen) VALUES (?, ?, ?)

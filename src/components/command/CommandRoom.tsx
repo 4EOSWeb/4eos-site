@@ -26,6 +26,7 @@ type Report = {
   places: {
     cities: { label: string; count: number; lat: number | null; lon: number | null }[];
     states: Pair[];
+    networks: Pair[];
   };
   leadSources: Pair[];
   pages: { path: string; views: number; entries: number; exits: number; avgEngagementMs: number; avgScroll: number }[];
@@ -196,6 +197,8 @@ export function CommandRoom() {
           ) : (
             <p className="command-empty">City names appear on visits after this update. Private and local addresses stay blank.</p>
           )}
+          <h3>Networks</h3>
+          {report.places.networks.length ? <Bars rows={report.places.networks} /> : <p className="command-empty">Network names appear when IPinfo answers.</p>}
           <h3>Live</h3>
           <ul className="command-feed">
             {(live?.here ?? []).slice(0, 6).map((row, index) => (

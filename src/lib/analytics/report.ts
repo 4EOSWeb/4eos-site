@@ -121,6 +121,7 @@ export function buildReport(key: RangeKey) {
         sessions.filter((s) => s.country === "US" && s.region),
         (s) => s.region || "",
       ),
+      networks: count(sessions.filter((s) => s.isp), (s) => s.isp || ""),
     },
     acquisition: acquisition(sessions),
     leadSources: leadSources(sessions),

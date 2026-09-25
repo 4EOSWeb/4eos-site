@@ -47,6 +47,7 @@ export default function PrivacyPage() {
               "This site does not set advertising cookies. A first-party cookie stores a random visitor id so we can tell a new visit from a return visit. It is not tied to your name, email, or phone.",
               "Pages you open, roughly how long a page stays in view, scroll depth, and clicks on a phone number, an email address, or a contact link are stored in a database on our server. A contact or support form is counted as a request. The name, email, company, phone, and message you type are not copied into that database.",
               "Those facts are kept for about 400 days, then deleted. The host may also keep ordinary server logs, such as an IP address and browser type, to run and protect the site. The analytics database does not keep the IP address.",
+              "When the IPinfo key is set, that address is sent to IPinfo to learn the city, state, and network name. We store those three facts and drop the address. We do not store a person's name from that lookup.",
               "If a company-lookup key is turned on later, we may store an organization name and its location from the network the visit came from. We do not store a person's name from that lookup.",
             ],
           },

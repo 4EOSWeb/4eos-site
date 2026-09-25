@@ -33,13 +33,13 @@ export function currentSpot(): Spot {
   if (path === "/") {
     let best: HTMLElement | null = null;
     let bestDist = Number.POSITIVE_INFINITY;
-    document.querySelectorAll<HTMLElement>("[data-phase]").forEach((el) => {
+    for (const el of document.querySelectorAll<HTMLElement>("[data-phase]")) {
       const dist = Math.abs(el.getBoundingClientRect().top);
       if (dist < bestDist) {
         bestDist = dist;
         best = el;
       }
-    });
+    }
     const id = best?.id ?? "";
     const chapter = id.replace(/^chapter-/, "");
     if (best && chapter && CHAPTERS[chapter] && bestDist < window.innerHeight * 0.5) {

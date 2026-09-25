@@ -606,35 +606,10 @@ html.signal-live .signal-poster {
     filter: none;
   }
 
-  /* The ink marker paints a hard plate over the field and softens the glyphs.
-     Full-strength type plus a 1px ink edge stays readable on the bright core. */
-  .story .lede {
-    color: var(--color-fg);
-  }
-
-  .story .field-copy {
-    padding: 0;
-    border-radius: 0;
-    background-color: transparent;
-    box-decoration-break: slice;
-    -webkit-box-decoration-break: slice;
-    text-shadow:
-      0 0 1px #05070a,
-      1px 0 0 #05070a,
-      -1px 0 0 #05070a,
-      0 1px 0 #05070a,
-      0 -1px 0 #05070a;
-    filter: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-
-  .story .bar-btn {
-    box-shadow: none;
-    filter: none;
-    text-shadow: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
+  /* The chapter rail overlays the bottom of the viewport. Extra padding
+     keeps the action buttons above the chapter name and the ticks. */
+  :root {
+    --chapter-bottom: 8.5rem;
   }
 
   .chapter-phone-flow {

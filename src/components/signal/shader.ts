@@ -790,6 +790,9 @@ void main() {
   size *= mix(1.0, 1.25, uMobile);
   float px = size * uPixelRatio * (44.0 / max(-mv.z, 0.001));
   float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom) + onSpherePt * 2.0 + vDetect * 14.0;
+  /* The cap is in device pixels. A phone buffer is denser, so scale it
+     with the pixel ratio or the marks shrink. Desktop uMobile is 0. */
+  cap *= mix(1.0, max(uPixelRatio, 1.0) / 1.5, uMobile);
   gl_PointSize = min(px, cap) * (1.0 - hide);
   if (hide > 0.97) {
     gl_Position = vec4(3.0, 3.0, 0.0, 1.0);

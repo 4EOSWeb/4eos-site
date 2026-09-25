@@ -37,6 +37,7 @@ export function IntakeForm({
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle",
   );
+  const [ticketId, setTicketId] = useState<string | null>(null);
 
   const complete = useMemo(() => {
     const filled = REQUIRED.filter((k) => fields[k].trim().length > 0).length;
@@ -66,6 +67,8 @@ export function IntakeForm({
         body: JSON.stringify({ ...fields, intent }),
       });
       if (!res.ok) throw new Error("send failed");
+      const data = (await res.json().catch(() => null)) as { ticketId?: unknown } | null;
+      setTicketId(typeof data?.ticketId === "string" ? data.ticketId : null);
       setStatus("sent");
       setResolve(1);
     } catch {
@@ -76,7 +79,7 @@ export function IntakeForm({
   if (status === "sent") {
     return (
       <p className="lede" role="status">
-        Received. We will follow up within one business day.
+        Received.{ticketId ? ` Ticket ${ticketId}.` : ""} We will follow up within one business day.
       </p>
     );
   }

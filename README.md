@@ -28,7 +28,7 @@ npx vercel --prod
 
 Set `RESEND_API_KEY` and `INTAKE_TO` in the Vercel project so the contact and support forms actually send. Without them the route still returns 200 and logs the message.
 
-Tickets are created in ConnectWise Manage for company `4eos` on na.myconnectwise.net. Set `CONNECTWISE_PUBLIC_KEY`, `CONNECTWISE_PRIVATE_KEY`, `CONNECTWISE_CLIENT_ID`, `CONNECTWISE_TICKET_COMPANY_ID`, `CONNECTWISE_SALES_BOARD_ID`, and `CONNECTWISE_SUPPORT_BOARD_ID`. An assessment uses the sales board. A support request uses the help desk board. Until those are all set, the form only sends the email.
+Tickets are opened by a Rewst workflow, which talks to ConnectWise. Set `REWST_WEBHOOK_URL` to the Core webhook trigger URL (`https://engine.rewst.io/webhooks/custom/trigger/{TriggerID}/{OrganizationID}`). The form posts name, email, message, and `request_type` (`assessment` or `support`), plus company and phone when they were typed. The workflow sends an assessment to the sales board and a support request to the help desk board. If the trigger waits for the workflow and returns `ticket_id`, the form shows that number. Until the URL is set, the form only sends the email.
 
 ## Stack
 

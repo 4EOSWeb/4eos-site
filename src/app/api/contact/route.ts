@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { createConnectWiseTicket, connectwiseConfig } from "@/lib/connectwise";
+import { postRewstTicket, rewstWebhookUrl } from "@/lib/rewst";
 import { salesEmail } from "@/lib/content";
 import { site } from "@/lib/site";
 
@@ -54,11 +54,12 @@ export async function POST(request: Request) {
 
   const company = body.company?.trim() || undefined;
   const phone = body.phone?.trim() || undefined;
-  const connectwise = connectwiseConfig() !== null;
-  let ticketOk = !connectwise;
-  if (connectwise) {
+  const rewst = rewstWebhookUrl() !== null;
+  let ticketOk = !rewst;
+  let ticketId: string | null = null;
+  if (rewst) {
     try {
-      ticketOk = await createConnectWiseTicket({
+      const ticket = await postRewstTicket({
         intent,
         name,
         email,
@@ -66,8 +67,10 @@ export async function POST(request: Request) {
         phone,
         message,
       });
+      ticketOk = ticket.ok;
+      ticketId = ticket.ticketId;
     } catch (error) {
-      console.error("[connectwise]", error);
+      console.error("[rewst]", error);
       ticketOk = false;
     }
   }
@@ -85,16 +88,16 @@ export async function POST(request: Request) {
     if (error) console.error(error);
   }
 
-  if (!connectwise && !resend) {
+  if (!rewst && !resend) {
     console.log("[intake]", text);
     return NextResponse.json({ ok: true });
   }
-  if (connectwise && !ticketOk) {
+  if (rewst && !ticketOk) {
     return NextResponse.json({ ok: false }, { status: 502 });
   }
-  if (!connectwise && !emailOk) {
+  if (!rewst && !emailOk) {
     return NextResponse.json({ ok: false }, { status: 502 });
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, ...(ticketId ? { ticketId } : {}) });
 }

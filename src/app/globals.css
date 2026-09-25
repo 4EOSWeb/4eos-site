@@ -523,10 +523,10 @@ html.signal-live .signal-poster {
   opacity: 0;
   background: radial-gradient(
     190px circle at var(--gx, 50%) var(--gy, 50%),
-    rgba(196, 64, 10, 0.52) 0%,
-    rgba(196, 64, 10, 0.32) 32%,
-    rgba(196, 64, 10, 0.12) 60%,
-    rgba(196, 64, 10, 0) 90%
+    rgba(209, 141, 74, 0.52) 0%,
+    rgba(209, 141, 74, 0.32) 32%,
+    rgba(209, 141, 74, 0.12) 60%,
+    rgba(209, 141, 74, 0) 90%
   );
   filter: blur(22px);
   transition: opacity 160ms linear;

@@ -2,12 +2,15 @@
 
 import { useEffect } from "react";
 import { setFieldGlow } from "@/components/signal/store";
+import { detectTier } from "@/lib/env";
 
 const GLASS = ".sheet-glass, .sheet-ink-glass, .menu-glass, .site-bar";
 
 /** Puts the gold cursor light on whichever frosted surface is under the pointer. */
 export function GlassGlow() {
   useEffect(() => {
+    if (detectTier() === "mobile") return;
+
     let current: HTMLElement | null = null;
 
     const move = (event: PointerEvent) => {

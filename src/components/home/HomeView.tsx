@@ -286,11 +286,13 @@ function Response() {
 }
 
 function Strategy() {
-  // On a very short CSS viewport the open row pushes the last service
-  // under the chapter rail. Start collapsed there; a tap still opens one.
+  // A phone, and any very short viewport, starts with every service row
+  // closed so the list stays above the Scroll control. A tap still opens one.
   const [collapsed, setCollapsed] = useState(false);
   useEffect(() => {
-    const mq = window.matchMedia("(max-height: 560px)");
+    const mq = window.matchMedia(
+      "(max-height: 560px), ((pointer: coarse) and (max-width: 899px))",
+    );
     const apply = () => setCollapsed(mq.matches);
     apply();
     mq.addEventListener("change", apply);

@@ -133,7 +133,7 @@ function Points({
       );
     }
     u.uGlowScale.value = state.camera.position.z / 20;
-    u.uFieldGlow.value = signal.fieldGlow;
+    u.uFieldGlow.value = mobile ? 0 : signal.fieldGlow;
 
     if (!still) u.uTime.value = state.clock.elapsedTime;
   });
@@ -207,8 +207,10 @@ export default function SignalField({ tier }: { tier: DeviceTier }) {
     setStill(prefersReducedMotion());
   }, [tier]);
 
+  const mobile = tier === "mobile";
+
   useEffect(() => {
-    if (still) return;
+    if (still || mobile) return;
     const onMove = (event: PointerEvent) => {
       setMouse(
         (event.clientX / window.innerWidth) * 2 - 1,
@@ -217,7 +219,7 @@ export default function SignalField({ tier }: { tier: DeviceTier }) {
     };
     window.addEventListener("pointermove", onMove, { passive: true });
     return () => window.removeEventListener("pointermove", onMove);
-  }, [still]);
+  }, [still, mobile]);
 
   // Stop the render loop entirely when the tab is hidden. A paused rAF is
   // the difference between a background tab costing nothing and costing a
@@ -232,7 +234,6 @@ export default function SignalField({ tier }: { tier: DeviceTier }) {
   if (count === 0) return null;
 
   const lite = tier === "reduced";
-  const mobile = tier === "mobile";
   const frameloop = !awake ? "never" : still ? "demand" : "always";
 
   return (

@@ -3,7 +3,8 @@
 /**
  * Rendering capability detection. The Signal is expensive, so it is sized
  * to the device rather than shipped uniformly. Phones keep a live field
- * with a small point budget. Devices without WebGL get the still poster.
+ * at the same point count as a desktop. Devices without WebGL get the
+ * still poster.
  */
 
 export type DeviceTier = "full" | "reduced" | "mobile" | "none";
@@ -36,8 +37,8 @@ export function detectTier(): DeviceTier {
 
   const coarse = window.matchMedia("(pointer: coarse)").matches;
   const narrow = window.innerWidth < 900;
-  // Phones get a live field with far fewer points. A fine pointer, including
-  // a narrowed desktop window, never takes this path.
+  // Phones take the mobile path: phone framing, no cursor light. A fine
+  // pointer, including a narrowed desktop window, never takes this path.
   if (coarse && narrow) return "mobile";
 
   const cores = navigator.hardwareConcurrency ?? 4;
@@ -51,11 +52,11 @@ export function detectTier(): DeviceTier {
   return "full";
 }
 
-/** Point budget per tier. Desktop stays 60k, laptops 24k. Phones draw 8k. */
+/** Point budget per tier. Desktop and phones draw 60k. Laptops draw 24k. */
 export const POINT_BUDGET: Record<DeviceTier, number> = {
   full: 60_000,
   reduced: 24_000,
-  mobile: 12_000,
+  mobile: 60_000,
   none: 0,
 };
 

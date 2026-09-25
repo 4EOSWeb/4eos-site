@@ -788,7 +788,6 @@ void main() {
   size *= mix(1.0, 1.25, uMobile);
   float px = size * uPixelRatio * (44.0 / max(-mv.z, 0.001));
   float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom) + onSpherePt * 2.0 + vDetect * 14.0;
-  cap = mix(cap, min(cap, 8.0), uMobile);
   gl_PointSize = min(px, cap) * (1.0 - hide);
   if (hide > 0.97) {
     gl_Position = vec4(3.0, 3.0, 0.0, 1.0);

@@ -32,7 +32,7 @@ const points = [
 export default function SecureAIPage() {
   return (
     <InnerPage
-      phase="security"
+      phase="unmanaged"
       kicker="SecureAI"
       title="Give the whole team AI. Without the risk."
       lede="Sixty-plus models, including GPT-4 and Claude, on one secure platform. No individual subscriptions. No per-user fees stacking up month after month."

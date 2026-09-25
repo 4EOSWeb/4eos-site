@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function ServicesPage() {
   return (
-    <Page phase="ownership">
+    <Page phase="unmanaged">
       <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
         <BackLink href="/" label="Home" />
         <p className="micro mt-6 text-fg-muted">

@@ -24,16 +24,13 @@ export default async function IndustryPage({ params }: Props) {
   const { slug } = await params;
   const industry = industries.find((i) => i.slug === slug);
   if (!industry) notFound();
-  const index = industries.findIndex((i) => i.slug === slug);
 
   return (
     <InnerPage
-      phase="industries"
+      phase="discovery"
       kicker="Industry"
       title={industry.statement}
       lede={industry.lede}
-      focus={index}
-      zoom
       backHref="/#chapter-industries"
       backLabel="Industries"
     >

@@ -20,7 +20,7 @@ const facts = [
 export default function AboutPage() {
   return (
     <InnerPage
-      phase="strategy"
+      phase="discovery"
       kicker="About"
       title="Fort Wayne born. Business first."
       lede={`Founded in ${site.founded} in Fort Wayne, Indiana. Managed IT, cybersecurity, cloud, and data center operations — designed so the business runs smarter, safer, and more efficiently.`}

@@ -33,7 +33,7 @@ const channels = [
 
 export default function SupportPage() {
   return (
-    <Page phase="response">
+    <Page phase="unmanaged">
       <Sheet tone="ink">
         <div className="sheet-pad sheet-y grid gap-12 md:grid-cols-12">
           <div className="md:col-span-5">

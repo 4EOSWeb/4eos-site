@@ -27,7 +27,7 @@ const claims = [
 export default function WhyPage() {
   return (
     <InnerPage
-      phase="strategy"
+      phase="discovery"
       kicker={`Fort Wayne · ${site.founded}`}
       title="A partner, not a vendor."
       lede="We do not just manage the IT. We take ownership of it. Local support is not a promise in an ad. It is how the work has been done for over two decades."

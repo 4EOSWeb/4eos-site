@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function IndustriesPage() {
   return (
-    <Page phase="industries">
+    <Page phase="discovery">
       <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
         <BackLink href="/" label="Home" />
         <p className="micro mt-6 text-fg-muted">
@@ -30,8 +30,7 @@ export default function IndustriesPage() {
             <li key={ind.slug} className="max-w-[62ch]">
               <PhaseLink
                 href={`/industries/${ind.slug}`}
-                phase="industries"
-                focus={i}
+                phase="discovery"
                 className="inline-flex w-fit items-baseline gap-4 border-b border-hairline py-3 transition-colors hover:text-gold"
               >
                 <span className="micro text-fg-faint">

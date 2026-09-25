@@ -84,6 +84,9 @@ export function buildReport(key: RangeKey) {
     }
   ).n;
 
+  const earlier = earlierSessions(from, to);
+  const returnRate = visitorIds.size ? (returning / visitorIds.size) * 100 : 0;
+
   return {
     range: key,
     from,
@@ -124,7 +127,13 @@ export function buildReport(key: RangeKey) {
       networks: count(sessions.filter((s) => s.isp), (s) => s.isp || ""),
     },
     acquisition: acquisition(sessions),
-    leadSources: leadSources(sessions),
+    leadSources: leadSources(sessions).filter((row) => row.count > 0),
+    engagement: engagementScore(sessions, returnRate),
+    repeats: cityPlaces(sessions).filter((row) => row.count > 1),
+    trending: [
+      ...trendingTopics(sessions, earlier, "industry"),
+      ...trendingTopics(sessions, earlier, "service"),
+    ],
     pages: pagesReport(sessions),
     services: topicReport(sessions, "service"),
     industries: topicReport(sessions, "industry"),
@@ -145,7 +154,7 @@ export function buildLive() {
   const since = Date.now() - 5 * 60_000;
   const active = db
     .prepare(
-      `SELECT city, region, country, lat, lon, device, source_label, exit_path FROM sessions
+      `SELECT city, region, country, lat, lon, device, source_label, exit_path, engagement_ms, max_scroll, page_count, started_at, last_seen FROM sessions
        WHERE kind = 'visitor' AND last_seen >= ? ORDER BY last_seen DESC LIMIT 40`,
     )
     .all(since) as {
@@ -157,6 +166,11 @@ export function buildLive() {
     device: string | null;
     source_label: string;
     exit_path: string;
+    engagement_ms: number;
+    max_scroll: number;
+    page_count: number;
+    started_at: number;
+    last_seen: number;
   }[];
   const feed = db
     .prepare(
@@ -181,14 +195,72 @@ export function buildLive() {
     })),
     here: active.map((row) => ({
       path: row.exit_path,
+      page: pageName(row.exit_path),
       source: row.source_label,
       device: row.device,
       where: [row.city, row.region].filter(Boolean).join(", ") || null,
       region: row.region,
       lat: row.lat,
       lon: row.lon,
+      engagementMs: row.engagement_ms,
+      scroll: row.max_scroll,
+      interest:
+        row.max_scroll >= 70 || row.engagement_ms >= 60_000 || row.page_count >= 3
+          ? "Highly engaged"
+          : row.engagement_ms >= 15_000
+            ? "Engaged"
+            : "Just arrived",
     })),
   };
+}
+
+function earlierSessions(from: number, to: number) {
+  const span = to - from;
+  return analyticsDb()
+    .prepare(`SELECT * FROM sessions WHERE kind = 'visitor' AND started_at >= ? AND started_at < ?`)
+    .all(from - span, from) as SessionRow[];
+}
+
+function engagementScore(sessions: SessionRow[], returnRate: number) {
+  if (!sessions.length) return { score: 0, label: "No visits yet" };
+  const avgMs = sessions.reduce((sum, row) => sum + Math.max(0, row.last_seen - row.started_at), 0) / sessions.length;
+  const avgPages = sessions.reduce((sum, row) => sum + row.page_count, 0) / sessions.length;
+  const avgScroll = sessions.reduce((sum, row) => sum + row.max_scroll, 0) / sessions.length;
+  const contact = sessions.filter((row) => row.lead).length / sessions.length;
+  const score = Math.round(
+    Math.min(100, (avgMs / 180_000) * 100) * 0.25 +
+      Math.min(100, (avgPages / 4) * 100) * 0.2 +
+      Math.min(100, avgScroll) * 0.2 +
+      Math.min(100, returnRate) * 0.15 +
+      Math.min(100, contact * 500) * 0.2,
+  );
+  return { score, label: score >= 70 ? "High interest" : score >= 40 ? "Interested" : "Early" };
+}
+
+function trendingTopics(current: SessionRow[], prior: SessionRow[], kind: "industry" | "service") {
+  const now = topicCounts(current, kind);
+  const before = topicCounts(prior, kind);
+  return [...new Set([...now.keys(), ...before.keys()])]
+    .map((label) => {
+      const views = now.get(label) ?? 0;
+      const previous = before.get(label) ?? 0;
+      return { label, views, change: previous ? round1(((views - previous) / previous) * 100) : null };
+    })
+    .filter((row) => row.views > 0)
+    .sort((a, b) => (b.change ?? 0) - (a.change ?? 0))
+    .slice(0, 6);
+}
+
+function topicCounts(sessions: SessionRow[], kind: "industry" | "service") {
+  const map = new Map<string, number>();
+  for (const session of sessions) {
+    for (const path of session.trail.split("|")) {
+      const topic = contentOf(path);
+      if (!topic || topic.kind !== kind || topic.label === "Services" || topic.label === "Industries") continue;
+      map.set(topic.label, (map.get(topic.label) ?? 0) + 1);
+    }
+  }
+  return map;
 }
 
 function score(sessions: SessionRow[]) {

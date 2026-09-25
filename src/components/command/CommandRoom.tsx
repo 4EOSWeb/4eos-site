@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { UsMap } from "./UsMap";
 
 type RangeKey = "day" | "week" | "month" | "quarter" | "year";
+type Mode = "executive" | "advanced";
 type Pair = { label: string; count: number };
 type Topic = { label: string; views: number; avgEngagementMs: number; conversion: number; returnRate: number };
 type Report = {
@@ -11,10 +12,8 @@ type Report = {
     visitors: number;
     unique: number;
     returning: number;
-    new: number;
     avgSessionMs: number;
     pagesPerSession: number;
-    bounceRate: number;
     engagementRate: number;
     activeNow: number;
     leads: number;
@@ -22,9 +21,8 @@ type Report = {
     visitorsChange: number | null;
     leadsChange: number | null;
   };
-  trend: { t: number; visitors: number; leads: number; engaged: number }[];
   places: {
-    cities: { label: string; count: number; lat: number | null; lon: number | null }[];
+    cities: { label: string; count: number }[];
     states: Pair[];
     networks: Pair[];
   };
@@ -33,41 +31,41 @@ type Report = {
   services: Topic[];
   industries: Topic[];
   journeys: { place: string; steps: string[] }[];
-  support: {
-    visits: number;
-    unique: number;
-    repeat: number;
-    tickets: number;
-    avgEngagementMs: number;
-    sources: Pair[];
-    actions: Pair[];
-  };
-  leads: { assessment: number; support: number; phone: number; email: number; cta: number; total: number; conversion: number };
+  support: { visits: number; unique: number; repeat: number; tickets: number; avgEngagementMs: number; sources: Pair[]; actions: Pair[] };
+  leads: { total: number };
   funnels: { name: string; steps: { label: string; count: number }[] }[];
   ai: {
     referrals: Pair[];
     crawlers: { label: string; count: number; firstSeen: number; lastSeen: number }[];
-    crawlerTrend: { t: number; count: number }[];
     pages: { path: string | null; count: number }[];
   };
-  companies: { org_name: string; location: string | null; first_seen: number; last_seen: number; visits: number; pages: string }[];
+  companies: { org_name: string; location: string | null; last_seen: number; visits: number }[];
   companyLookup: boolean;
   devices: Pair[];
   browsers: Pair[];
   systems: Pair[];
   screens: Pair[];
   score: { topIndustry: string | null; topService: string | null; bestSource: string | null };
+  engagement: { score: number; label: string };
+  repeats: { label: string; count: number }[];
+  trending: { label: string; views: number; change: number | null }[];
 };
-type Live = {
-  active: number;
-  feed: { at: number; path: string | null; name: string; detail: string | null }[];
-  here: { path: string; source: string; device: string | null; where: string | null; region: string | null }[];
+type LiveHere = {
+  path: string;
+  page: string;
+  where: string | null;
+  region: string | null;
+  engagementMs: number;
+  scroll: number;
+  interest: string;
 };
+type Live = { active: number; feed: { at: number; path: string | null; name: string; detail: string | null }[]; here: LiveHere[] };
 
 const RANGES: RangeKey[] = ["day", "week", "month", "quarter", "year"];
 
 export function CommandRoom() {
   const [range, setRange] = useState<RangeKey>("month");
+  const [mode, setMode] = useState<Mode>("executive");
   const [report, setReport] = useState<Report | null>(null);
   const [live, setLive] = useState<Live | null>(null);
 
@@ -112,17 +110,24 @@ export function CommandRoom() {
 
   if (!report) return <p className="command-kicker">Reading the record…</p>;
 
-  const topPage = report.pages[0]?.path ?? "—";
   const o = report.overview;
+  const leads = report.leads.total;
+  const aiHits = report.ai.referrals.reduce((sum, row) => sum + row.count, 0) + report.ai.crawlers.reduce((sum, row) => sum + row.count, 0);
 
   return (
     <div className="command">
       <header className="command-top">
         <div>
           <p className="command-kicker">4EOS analytics</p>
-          <h1>Executive summary</h1>
+          <h1>{mode === "executive" ? "Executive summary" : "Advanced detail"}</h1>
         </div>
         <div className="command-ranges">
+          <button type="button" className={mode === "executive" ? "is-on" : ""} onClick={() => setMode("executive")}>
+            Executive
+          </button>
+          <button type="button" className={mode === "advanced" ? "is-on" : ""} onClick={() => setMode("advanced")}>
+            Advanced
+          </button>
           {RANGES.map((item) => (
             <button key={item} type="button" className={item === range ? "is-on" : ""} onClick={() => setRange(item)}>
               {item}
@@ -134,221 +139,240 @@ export function CommandRoom() {
         </div>
       </header>
 
-      <section className="command-hero">
-        <article className="command-impact">
-          <p className="command-kicker">Business impact</p>
-          <strong>{o.visitors}</strong>
-          <span>visitors {delta(o.visitorsChange)}</span>
-          <strong>{report.leads.total}</strong>
-          <span>leads {delta(o.leadsChange)}</span>
-          <em>{o.conversion}% conversion</em>
-          <ul>
-            <li>Top industry <b>{report.score.topIndustry ?? "—"}</b></li>
-            <li>Top service <b>{report.score.topService ?? "—"}</b></li>
-            <li>Top source <b>{report.score.bestSource ?? "—"}</b></li>
-            <li>Opportunities <b>{report.leads.total}</b></li>
-          </ul>
-        </article>
-        <article className="command-panel command-summary">
-          <h2>This {range}</h2>
-          <dl>
-            <div><dt>Visitors</dt><dd>{o.visitors} <small>{delta(o.visitorsChange)}</small></dd></div>
-            <div><dt>Leads</dt><dd>{report.leads.total} <small>{delta(o.leadsChange)}</small></dd></div>
-            <div><dt>Top industry</dt><dd>{report.score.topIndustry ?? "—"}</dd></div>
-            <div><dt>Top service</dt><dd>{report.score.topService ?? "—"}</dd></div>
-            <div><dt>Top source</dt><dd>{report.score.bestSource ?? "—"}</dd></div>
-            <div><dt>Support usage</dt><dd>{report.support.visits} visits</dd></div>
-            <div><dt>Most viewed page</dt><dd>{topPage}</dd></div>
-            <div><dt>Active now</dt><dd>{live?.active ?? o.activeNow}</dd></div>
-          </dl>
-        </article>
-        <article className="command-panel">
-          <h2>Support portal</h2>
-          <dl>
-            <div><dt>Visitors</dt><dd>{report.support.visits}</dd></div>
-            <div><dt>Unique</dt><dd>{report.support.unique}</dd></div>
-            <div><dt>Avg time</dt><dd>{clock(report.support.avgEngagementMs)}</dd></div>
-            <div><dt>Tickets</dt><dd>{report.support.tickets}</dd></div>
-            <div><dt>Returning</dt><dd>{report.support.repeat}</dd></div>
-          </dl>
-          <h3>Entry sources</h3>
-          <Bars rows={report.support.sources} />
-          <h3>Most used actions</h3>
-          {report.support.actions.length ? <Bars rows={report.support.actions} /> : <p className="command-empty">No support clicks in this range.</p>}
-        </article>
-      </section>
-
-      <section className="command-split">
-        <Panel title="Traffic and engagement">
-          <Trend points={report.trend} />
-        </Panel>
-        <Panel title="Lead sources">
-          <Bars rows={report.leadSources} />
-        </Panel>
-      </section>
-
-      <section className="command-split">
-        <Panel title="United States">
-          <UsMap states={report.places.states} liveRegions={(live?.here ?? []).map((row) => row.region).filter((row): row is string => Boolean(row))} />
-        </Panel>
-        <Panel title="Cities">
-          {report.places.cities.length ? (
-            <Bars rows={report.places.cities.map((city) => ({ label: city.label, count: city.count }))} />
-          ) : (
-            <p className="command-empty">City names appear on visits after this update. Private and local addresses stay blank.</p>
-          )}
-          <h3>Networks</h3>
-          {report.places.networks.length ? <Bars rows={report.places.networks} /> : <p className="command-empty">Network names appear when IPinfo answers.</p>}
-          <h3>Live</h3>
-          <ul className="command-feed">
-            {(live?.here ?? []).slice(0, 6).map((row, index) => (
-              <li key={index}>
-                <strong>{row.where || "Active visitor"}</strong>
-                <em>{row.path}</em>
-              </li>
-            ))}
-            {!live?.here.length ? <li>Nobody active in the last five minutes.</li> : null}
-          </ul>
-        </Panel>
-      </section>
-
-      <section className="command-split">
-        <Panel title="Industries">
-          <Heat rows={report.industries} />
-        </Panel>
-        <Panel title="Services">
-          <Heat rows={report.services} />
-        </Panel>
-      </section>
-
-      <section className="command-split">
-        <Panel title="Recent journeys">
-          <div className="command-journeys">
-            {report.journeys.map((journey, index) => (
-              <article key={index}>
-                <h3>{journey.place}</h3>
-                <ol>
-                  {journey.steps.map((step, stepIndex) => (
-                    <li key={stepIndex}>{step}</li>
+      {mode === "executive" ? (
+        <>
+          <section className="command-hero">
+            <article className="command-impact">
+              <p className="command-kicker">Business impact</p>
+              <strong>{o.visitors}</strong>
+              <span>visitors {delta(o.visitorsChange)}</span>
+              {leads > 0 ? (
+                <>
+                  <strong>{leads}</strong>
+                  <span>leads {delta(o.leadsChange)}</span>
+                  <em>{o.conversion}% conversion</em>
+                </>
+              ) : (
+                <p className="command-quiet">Lead tracking is on. No leads in this period.</p>
+              )}
+              <ul>
+                <li>Engagement <b>{report.engagement.score}/100</b> {report.engagement.label}</li>
+                <li>Top industry <b>{report.score.topIndustry ?? "—"}</b></li>
+                <li>Top service <b>{report.score.topService ?? "—"}</b></li>
+                <li>Support <b>{report.support.visits ? `${report.support.visits} visits` : "No visits yet"}</b></li>
+                <li>Active now <b>{live?.active ?? o.activeNow}</b></li>
+              </ul>
+            </article>
+            <article className="command-panel command-summary">
+              <h2>This {range}</h2>
+              <dl>
+                <div><dt>Visitors</dt><dd>{o.visitors} <small>{delta(o.visitorsChange)}</small></dd></div>
+                <div><dt>Returning</dt><dd>{o.returning}</dd></div>
+                <div><dt>Session</dt><dd>{clock(o.avgSessionMs)}</dd></div>
+                <div><dt>Top industry</dt><dd>{report.score.topIndustry ?? "—"}</dd></div>
+                <div><dt>Top service</dt><dd>{report.score.topService ?? "—"}</dd></div>
+                <div><dt>Top source</dt><dd>{report.score.bestSource ?? "—"}</dd></div>
+                <div><dt>Most viewed</dt><dd>{pageLabel(report.pages[0]?.path)}</dd></div>
+              </dl>
+            </article>
+            <article className="command-panel">
+              <h2>Live activity</h2>
+              {(live?.here ?? []).length ? (
+                <ul className="command-live">
+                  {live!.here.slice(0, 5).map((row, index) => (
+                    <li key={index}>
+                      <strong>{row.where || "Visitor"}</strong>
+                      <span>Viewing {row.page}</span>
+                      <span>Time on site {clock(row.engagementMs)}</span>
+                      <span>{row.scroll}% scroll</span>
+                      <em>{row.interest}</em>
+                    </li>
                   ))}
-                </ol>
-              </article>
-            ))}
-          </div>
-          {!report.journeys.length ? <p className="command-empty">A journey appears after someone opens a second page.</p> : null}
-        </Panel>
-        <Panel title="Funnels">
-          {report.funnels.map((funnel) => (
-            <Funnel key={funnel.name} name={funnel.name} steps={funnel.steps} />
-          ))}
-        </Panel>
-      </section>
+                </ul>
+              ) : (
+                <p className="command-quiet">Nobody is on the site in the last five minutes.</p>
+              )}
+            </article>
+          </section>
 
-      <Panel title="AI activity">
-        <Bars rows={report.ai.referrals} />
-        <Trend points={report.ai.crawlerTrend.map((point) => ({ ...point, visitors: point.count, engaged: 0, leads: 0 }))} single />
-        <table>
-          <thead>
-            <tr>
-              <th>Crawler</th>
-              <th>Hits</th>
-              <th>First seen</th>
-              <th>Last seen</th>
-            </tr>
-          </thead>
-          <tbody>
-            {report.ai.crawlers.map((row) => (
-              <tr key={row.label}>
-                <td>{row.label}</td>
-                <td>{row.count}</td>
-                <td>{new Date(row.firstSeen).toLocaleString()}</td>
-                <td>{new Date(row.lastSeen).toLocaleString()}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {!report.ai.crawlers.length ? <p className="command-empty">No known AI crawlers in this range.</p> : null}
-        <h3>Pages they requested</h3>
-        <Bars rows={report.ai.pages.map((row) => ({ label: row.path || "/", count: row.count }))} />
-      </Panel>
+          <Panel title="Recent journeys">
+            {report.journeys.length ? (
+              <div className="command-journeys">
+                {report.journeys.map((journey, index) => (
+                  <article key={index}>
+                    <h3>{journey.place}</h3>
+                    <ol>
+                      {journey.steps.map((step, stepIndex) => (
+                        <li key={stepIndex}>{step}</li>
+                      ))}
+                    </ol>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="command-quiet">Journey tracking is on. A path appears after a second page.</p>
+            )}
+          </Panel>
 
-      <Panel title="Live activity">
-        <ul className="command-feed">
-          {(live?.feed ?? []).map((row, index) => (
-            <li key={`${row.at}-${index}`}>
-              <span>{new Date(row.at).toLocaleTimeString()}</span>
-              <strong>{row.path}</strong>
-              <em>{row.detail || row.name}</em>
-            </li>
-          ))}
-          {!live?.feed.length ? <li>No activity yet.</li> : null}
-        </ul>
-      </Panel>
+          <section className="command-split">
+            <Panel title="United States">
+              {report.places.states.length ? (
+                <UsMap states={report.places.states} liveRegions={(live?.here ?? []).map((row) => row.region).filter((row): row is string => Boolean(row))} />
+              ) : (
+                <p className="command-quiet">Location tracking is on. No state has been recorded in this period.</p>
+              )}
+            </Panel>
+            <Panel title="Repeat visitors">
+              {report.repeats.length ? (
+                <Bars rows={report.repeats.map((row) => ({ label: row.label, count: row.count }))} />
+              ) : (
+                <p className="command-quiet">No city has a second visit in this period.</p>
+              )}
+            </Panel>
+          </section>
 
-      {report.companyLookup ? (
-        <Panel title="Organizations">
-          {report.companies.length ? (
+          <section className="command-split">
+            <Panel title="Industries">
+              <Ranks rows={report.industries} empty="No industry page has been opened in this period." />
+            </Panel>
+            <Panel title="Services">
+              <Ranks rows={report.services} empty="No service page has been opened in this period." />
+            </Panel>
+          </section>
+
+          {report.trending.some((row) => row.change != null) ? (
+            <Panel title="Trending">
+              <ul className="command-trend-list">
+                {report.trending.filter((row) => row.change != null).map((row) => (
+                  <li key={row.label}>
+                    <span>{row.change! > 0 ? "↑" : row.change! < 0 ? "↓" : "·"} {row.label}</span>
+                    <b>{row.change! > 0 ? "+" : ""}{row.change}%</b>
+                  </li>
+                ))}
+              </ul>
+            </Panel>
+          ) : null}
+
+          {report.support.visits > 0 ? (
+            <Panel title="Support">
+              <dl>
+                <div><dt>Visits</dt><dd>{report.support.visits}</dd></div>
+                <div><dt>Unique</dt><dd>{report.support.unique}</dd></div>
+                <div><dt>Time</dt><dd>{clock(report.support.avgEngagementMs)}</dd></div>
+                <div><dt>Tickets</dt><dd>{report.support.tickets}</dd></div>
+                <div><dt>Returning</dt><dd>{report.support.repeat}</dd></div>
+              </dl>
+              {report.support.sources.length ? <Bars rows={report.support.sources} /> : null}
+            </Panel>
+          ) : (
+            <p className="command-quiet">Support tracking is on. No support visits in this period.</p>
+          )}
+
+          {leads > 0 ? (
+            <Panel title="Lead sources">
+              <Bars rows={report.leadSources} />
+            </Panel>
+          ) : null}
+
+          {aiHits > 0 ? (
+            <Panel title="AI activity">
+              <Bars rows={report.ai.referrals.filter((row) => row.count > 0)} />
+            </Panel>
+          ) : (
+            <p className="command-quiet">AI tracking is on. No AI referrals in this period.</p>
+          )}
+        </>
+      ) : (
+        <>
+          <section className="command-split">
+            <Panel title="Browsers"><Bars rows={report.browsers} /></Panel>
+            <Panel title="Systems"><Bars rows={report.systems} /></Panel>
+            <Panel title="Screens"><Bars rows={report.screens} /></Panel>
+            <Panel title="Devices"><Bars rows={report.devices} /></Panel>
+          </section>
+          <Panel title="Networks">
+            {report.places.networks.length ? <Bars rows={report.places.networks} /> : <p className="command-quiet">No network name recorded in this period.</p>}
+          </Panel>
+          <Panel title="Crawlers and AI">
+            {report.ai.crawlers.length ? (
+              <table>
+                <thead><tr><th>Crawler</th><th>Hits</th><th>First</th><th>Last</th></tr></thead>
+                <tbody>
+                  {report.ai.crawlers.map((row) => (
+                    <tr key={row.label}>
+                      <td>{row.label}</td>
+                      <td>{row.count}</td>
+                      <td>{new Date(row.firstSeen).toLocaleString()}</td>
+                      <td>{new Date(row.lastSeen).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="command-quiet">No known AI crawler in this period.</p>
+            )}
+            <Bars rows={report.ai.pages.map((row) => ({ label: row.path || "/", count: row.count }))} />
+          </Panel>
+          <Panel title="Event log">
+            <ul className="command-feed">
+              {(live?.feed ?? []).map((row, index) => (
+                <li key={`${row.at}-${index}`}>
+                  <span>{new Date(row.at).toLocaleTimeString()}</span>
+                  <strong>{row.path}</strong>
+                  <em>{row.detail || row.name}</em>
+                </li>
+              ))}
+            </ul>
+          </Panel>
+          <Panel title="Pages">
             <table>
-              <thead>
-                <tr>
-                  <th>Organization</th>
-                  <th>Visits</th>
-                  <th>Location</th>
-                  <th>Latest</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Page</th><th>Views</th><th>Entry</th><th>Exit</th><th>Time</th><th>Scroll</th></tr></thead>
               <tbody>
-                {report.companies.map((row) => (
-                  <tr key={row.org_name}>
-                    <td>{row.org_name}</td>
-                    <td>{row.visits}</td>
-                    <td>{row.location || "—"}</td>
-                    <td>{new Date(row.last_seen).toLocaleDateString()}</td>
+                {report.pages.map((row) => (
+                  <tr key={row.path}>
+                    <td>{row.path}</td><td>{row.views}</td><td>{row.entries}</td><td>{row.exits}</td>
+                    <td>{clock(row.avgEngagementMs)}</td><td>{row.avgScroll}%</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          ) : (
-            <p className="command-empty">The lookup key is set. No organization has been returned.</p>
-          )}
-        </Panel>
-      ) : null}
-
-      <details className="command-panel">
-        <summary>Pages, devices, and screens</summary>
-        <table>
-          <thead>
-            <tr>
-              <th>Page</th>
-              <th>Views</th>
-              <th>Entry</th>
-              <th>Exit</th>
-              <th>Time</th>
-              <th>Scroll</th>
-            </tr>
-          </thead>
-          <tbody>
-            {report.pages.map((row) => (
-              <tr key={row.path}>
-                <td>{row.path}</td>
-                <td>{row.views}</td>
-                <td>{row.entries}</td>
-                <td>{row.exits}</td>
-                <td>{clock(row.avgEngagementMs)}</td>
-                <td>{row.avgScroll}%</td>
-              </tr>
+          </Panel>
+          <Panel title="Funnels">
+            {report.funnels.map((funnel) => (
+              <Funnel key={funnel.name} name={funnel.name} steps={funnel.steps} />
             ))}
-          </tbody>
-        </table>
-        <div className="command-split">
-          <div><h3>Device</h3><Bars rows={report.devices} /></div>
-          <div><h3>Browser</h3><Bars rows={report.browsers} /></div>
-          <div><h3>System</h3><Bars rows={report.systems} /></div>
-          <div><h3>Screen</h3><Bars rows={report.screens} /></div>
-        </div>
-      </details>
+          </Panel>
+          {report.companyLookup ? (
+            <Panel title="Organizations">
+              {report.companies.length ? (
+                <table>
+                  <thead><tr><th>Organization</th><th>Visits</th><th>Location</th></tr></thead>
+                  <tbody>
+                    {report.companies.map((row) => (
+                      <tr key={row.org_name}><td>{row.org_name}</td><td>{row.visits}</td><td>{row.location || "—"}</td></tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : <p className="command-quiet">The lookup key is set. No organization has been returned.</p>}
+            </Panel>
+          ) : null}
+        </>
+      )}
     </div>
   );
+}
+
+function pageLabel(path: string | undefined) {
+  if (!path) return "—";
+  const names: Record<string, string> = {
+    "/": "Homepage",
+    "/services/completecare": "CompleteCare",
+    "/services/cybersecurity": "Cybersecurity",
+    "/secureai": "SecureAI",
+    "/support": "Support",
+    "/contact": "Contact",
+  };
+  return names[path] ?? path;
 }
 
 function delta(value: number | null) {
@@ -368,7 +392,7 @@ function Panel({ title, children }: { title: string; children: ReactNode }) {
 
 function Bars({ rows }: { rows: Pair[] }) {
   const max = Math.max(1, ...rows.map((row) => row.count));
-  if (!rows.length) return <p className="command-empty">Nothing in this range.</p>;
+  if (!rows.length) return null;
   return (
     <ul className="command-bars">
       {rows.map((row) => (
@@ -382,20 +406,18 @@ function Bars({ rows }: { rows: Pair[] }) {
   );
 }
 
-function Heat({ rows }: { rows: Topic[] }) {
-  const max = Math.max(1, ...rows.map((row) => row.views));
-  if (!rows.length) return <p className="command-empty">No views in this range.</p>;
+function Ranks({ rows, empty }: { rows: Topic[]; empty: string }) {
+  if (!rows.length) return <p className="command-quiet">{empty}</p>;
   return (
-    <ul className="command-heat">
-      {rows.map((row) => (
-        <li key={row.label} style={{ background: `rgba(245, 183, 0, ${0.12 + (row.views / max) * 0.7})` }}>
-          <strong>{row.label}</strong>
-          <span>{row.views} views</span>
-          <span>{clock(row.avgEngagementMs)}</span>
-          <span>{row.conversion}% became a lead</span>
+    <ol className="command-ranks">
+      {rows.map((row, index) => (
+        <li key={row.label}>
+          <strong>#{index + 1} {row.label}</strong>
+          <span>{row.views} {row.views === 1 ? "visitor" : "visitors"}</span>
+          <span>{clock(row.avgEngagementMs)} avg engagement</span>
         </li>
       ))}
-    </ul>
+    </ol>
   );
 }
 
@@ -414,30 +436,6 @@ function Funnel({ name, steps }: { name: string; steps: { label: string; count: 
         ))}
       </ol>
     </div>
-  );
-}
-
-function Trend({
-  points,
-  single,
-}: {
-  points: { visitors: number; engaged: number }[];
-  single?: boolean;
-}) {
-  if (!points.length) return null;
-  const max = Math.max(1, ...points.map((point) => Math.max(point.visitors, point.engaged)));
-  const w = 640;
-  const h = 180;
-  const step = points.length > 1 ? w / (points.length - 1) : w;
-  const line = (pick: (point: { visitors: number; engaged: number }) => number) =>
-    points.map((point, index) => `${index * step},${h - (pick(point) / max) * (h - 16)}`).join(" ");
-  return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="command-trend" role="img" aria-label="Trend">
-      <polyline points={line((point) => point.visitors)} fill="none" stroke="currentColor" strokeWidth="2.5" />
-      {single ? null : (
-        <polyline points={line((point) => point.engaged)} fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="2" />
-      )}
-    </svg>
   );
 }
 

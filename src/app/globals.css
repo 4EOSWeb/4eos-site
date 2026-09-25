@@ -1052,6 +1052,39 @@ html.signal-live .signal-poster {
   font-size: 1.05rem;
 }
 
+.command-quiet {
+  margin: 0.4rem 0 0;
+  color: color-mix(in srgb, var(--fg) 72%, transparent);
+}
+
+.command-live,
+.command-ranks,
+.command-trend-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.command-live li,
+.command-ranks li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid color-mix(in srgb, white 10%, transparent);
+}
+
+.command-live em {
+  color: var(--color-gold);
+  font-style: normal;
+}
+
+.command-trend-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0;
+}
+
 @media (max-width: 980px) {
   .command-hero {
     grid-template-columns: 1fr;

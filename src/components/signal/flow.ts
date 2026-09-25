@@ -3,7 +3,7 @@
  * the field eases with the old exponential and the shader blends in
  * straight lines again. Settled formations are unchanged either way.
  */
-export const ORGANIC_FLOW = true;
+export const ORGANIC_FLOW = false;
 
 /**
  * Lock each formation before the spring finishes, and drop the late

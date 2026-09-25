@@ -2,7 +2,6 @@
  * ConnectWise Manage tickets for the na.myconnectwise.net site.
  * The API host is fixed. Stays off until every value below is set.
  *
- * CONNECTWISE_COMPANY_ID           company id from the Manage login box
  * CONNECTWISE_PUBLIC_KEY           API member public key
  * CONNECTWISE_PRIVATE_KEY          API member private key
  * CONNECTWISE_CLIENT_ID            client id from developer.connectwise.com
@@ -45,9 +44,10 @@ function numberVar(name: string) {
 
 /** API for the North America cloud login at na.myconnectwise.net. */
 const MANAGE_URL = "https://api-na.myconnectwise.net";
+/** Company id from the Manage login box. */
+const MANAGE_COMPANY_ID = "4eos";
 
 export function connectwiseConfig(): Config | null {
-  const companyId = required("CONNECTWISE_COMPANY_ID");
   const publicKey = required("CONNECTWISE_PUBLIC_KEY");
   const privateKey = required("CONNECTWISE_PRIVATE_KEY");
   const clientId = required("CONNECTWISE_CLIENT_ID");
@@ -55,7 +55,6 @@ export function connectwiseConfig(): Config | null {
   const salesBoardId = numberVar("CONNECTWISE_SALES_BOARD_ID");
   const supportBoardId = numberVar("CONNECTWISE_SUPPORT_BOARD_ID");
   if (
-    !companyId ||
     !publicKey ||
     !privateKey ||
     !clientId ||
@@ -67,7 +66,7 @@ export function connectwiseConfig(): Config | null {
   }
   return {
     url: MANAGE_URL,
-    companyId,
+    companyId: MANAGE_COMPANY_ID,
     publicKey,
     privateKey,
     clientId,

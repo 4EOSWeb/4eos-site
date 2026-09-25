@@ -619,9 +619,14 @@ void main() {
   // motion is a straight pull onto a known point.
   float travel = 0.0;
   if (uFlow > 0.5 && uSettle > 0.5) {
-    travel = clamp(raw, 0.0, 1.0);
+    // Same commit either way. fract() only grows while the phase rises, so
+    // measuring it raw made the way back wait until the slow end of the spring.
+    float tgt = clamp(uPhaseTarget, 0.0, 6.0);
+    bool back = tgt + 0.0001 < ph && raw >= 0.0001;
+    travel = clamp(back ? 1.0 - raw : raw, 0.0, 1.0);
     float u = clamp(travel / 0.5, 0.0, 1.0);
-    m = u < 0.55 ? (u / 0.55) * 0.9 : min(1.0, 0.9 + (u - 0.55) / 0.45 * 0.1);
+    float committed = u < 0.55 ? (u / 0.55) * 0.9 : min(1.0, 0.9 + (u - 0.55) / 0.45 * 0.1);
+    m = back ? 1.0 - committed : committed;
   } else if (uFlow > 0.5) {
     float tgt = clamp(uPhaseTarget, 0.0, 6.0);
     float T = round(tgt);

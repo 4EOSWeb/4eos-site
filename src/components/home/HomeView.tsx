@@ -51,19 +51,21 @@ export function HomeView() {
       <SignalBackdrop phase="unmanaged" />
       <Nav />
       <PageFade>
-        <main id="main" tabIndex={-1} className="story relative z-10 outline-none">
-          <Hero />
-          <Discovery />
-          <Ownership />
-          <Security />
-          <Industries />
-          <Response />
-          <Strategy />
-        </main>
+        <div className="mobile-glass">
+          <main id="main" tabIndex={-1} className="story relative z-10 outline-none">
+            <Hero />
+            <Discovery />
+            <Ownership />
+            <Security />
+            <Industries />
+            <Response />
+            <Strategy />
+          </main>
+          <SnapTarget className="flex h-dvh flex-col justify-end overflow-hidden pb-24">
+            <Footer />
+          </SnapTarget>
+        </div>
       </PageFade>
-      <SnapTarget className="flex h-dvh flex-col justify-end overflow-hidden pb-24">
-        <Footer />
-      </SnapTarget>
     </>
   );
 }

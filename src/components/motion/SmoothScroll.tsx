@@ -58,6 +58,8 @@ export function SmoothScroll() {
       smoothWheel: true,
       virtualScroll(data) {
         if (lenis.isStopped) return true;
+        // A phone is one continuous page. Desktop still snaps one chapter.
+        if (window.matchMedia("(pointer: coarse) and (max-width: 899px)").matches) return true;
         // Inner pages have no chapter list. Leave their scroll alone.
         if (snapTargetCount() < 2) return true;
         const { deltaX, deltaY } = data;

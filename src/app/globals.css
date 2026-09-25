@@ -234,6 +234,11 @@ body {
   --logo-h: var(--logo-pair-h);
 }
 
+/* Phones turn this into one frosted page. Desktop children stay where they are. */
+.mobile-glass {
+  display: contents;
+}
+
 /* The top bar. A light frost so the field stays visible through it. */
 .site-bar {
   background-color: rgba(5, 7, 10, 0.72);
@@ -609,18 +614,52 @@ html.signal-live .signal-poster {
   /* The chapter rail overlays the bottom of the viewport. Extra padding
      keeps the action buttons above the chapter name and the ticks. */
   :root {
-    --chapter-bottom: 8.5rem;
+    --chapter-top: 1.5rem;
+    --hero-top: 1.75rem;
+    --chapter-bottom: 1.75rem;
+  }
+
+  /* One frosted page. Desktop keeps display:contents, so this is phones only. */
+  .mobile-glass {
+    display: block;
+    position: relative;
+    z-index: 10;
+    margin: 0.75rem;
+    margin-top: calc(var(--nav-h) + 0.75rem);
+    border-radius: var(--radius-sheet);
+    overflow: hidden;
+    background-color: rgba(5, 7, 10, 0.42);
+    -webkit-backdrop-filter: blur(14px) saturate(1.08);
+    backdrop-filter: blur(14px) saturate(1.08);
+  }
+
+  .mobile-glass > main {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .mobile-glass [data-snap] {
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+
+  .mobile-glass .sheet {
+    margin-inline: 0;
+    border-radius: 0;
+    background: transparent;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
   }
 
   .chapter-phone-flow {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+    display: block;
+    height: auto;
   }
 
   .chapter-phone-actions {
-    align-self: flex-start;
-    margin-top: auto;
+    margin-top: 1.5rem;
   }
 
   .strategy-phone-list .accordion-panel {

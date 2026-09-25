@@ -169,7 +169,7 @@ export function phoneStrategyGesture(
 /** A tall strategy chapter must not be yanked back to its top. Every other
  *  phone screen, including the six services, keeps the magnet. */
 export function syncPhoneSnapHold() {
-  if (tallStrategy()) stopSnap();
+  if (isPhoneLayout()) stopSnap();
   else startSnap();
 }
 

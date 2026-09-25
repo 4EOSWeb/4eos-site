@@ -37,11 +37,13 @@ export function Page({
       <SignalBackdrop phase={phase} scene={scene ?? undefined} />
       <Nav tone={tone} />
       <PageFade>
-        <main id="main" tabIndex={-1} className="relative z-10 pt-[var(--nav-h)] pb-24 outline-none">
-          {children}
-        </main>
+        <div className="mobile-glass">
+          <main id="main" tabIndex={-1} className="relative z-10 pt-[var(--nav-h)] pb-24 outline-none">
+            {children}
+          </main>
+          <Footer />
+        </div>
       </PageFade>
-      <Footer />
     </>
   );
 }

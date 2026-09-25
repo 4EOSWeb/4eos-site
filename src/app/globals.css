@@ -459,23 +459,32 @@ html.signal-live .signal-poster {
 }
 
 .scroll-cue {
-  gap: 0.15rem;
-  min-width: 5.5rem;
-  padding: 0.85rem 1.15rem 0.7rem;
-  border: 1px solid rgba(245, 183, 0, 0.55);
-  border-radius: 1.25rem;
-  background: rgba(5, 7, 10, 0.55);
+  gap: 0;
+  padding: 0.4rem;
+  border: 0;
+  background: none;
   color: var(--color-gold);
-  font-size: 1.05rem;
-  letter-spacing: -0.02em;
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
+  animation: scroll-cue-in 0.7s var(--ease-out-quint) both;
 }
 
 .scroll-cue-chevron {
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 3.25rem;
+  height: 1.45rem;
+  margin-top: -0.72rem;
   animation: scroll-cue-down 1.5s ease-in-out infinite;
+}
+
+.scroll-cue-chevron:first-child {
+  margin-top: 0;
+}
+
+@keyframes scroll-cue-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scroll-cue-down {
@@ -491,6 +500,7 @@ html.signal-live .signal-poster {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .scroll-cue,
   .scroll-cue-chevron {
     animation: none;
   }

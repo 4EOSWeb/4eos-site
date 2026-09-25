@@ -79,7 +79,7 @@ export function ChapterRail() {
       timer = window.setTimeout(() => setIdle(true), IDLE_MS);
     };
     arm();
-    const names = ["pointerdown", "pointermove", "wheel", "keydown", "touchstart"] as const;
+    const names = ["pointerdown", "wheel", "keydown", "touchstart", "scroll"] as const;
     for (const name of names) window.addEventListener(name, arm, { passive: true });
     return () => {
       window.clearTimeout(timer);
@@ -157,17 +157,24 @@ export function ChapterRail() {
           aria-label="Scroll down"
           className="scroll-cue pointer-events-auto mb-1 flex shrink-0 flex-col items-center"
         >
-          <svg viewBox="0 0 24 24" aria-hidden="true" className="scroll-cue-chevron">
-            <path
-              d="M5 8.5 12 15.5 19 8.5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <span>Scroll</span>
+          {[0, 1, 2].map((i) => (
+            <svg
+              key={i}
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+              className="scroll-cue-chevron"
+              style={{ animationDelay: `${i * 0.15}s` }}
+            >
+              <path
+                d="M5 8.5 12 15.5 19 8.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          ))}
         </button>
       ) : null}
     </div>

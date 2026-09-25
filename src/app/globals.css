@@ -726,6 +726,15 @@ html.signal-live .signal-poster {
   .mobile-glass > main > section:first-of-type {
     padding-bottom: 0.25rem;
   }
+
+  /* The industry note only appears on hover. On a phone it is an empty slot. */
+  #chapter-industries .industry-note {
+    display: none;
+  }
+
+  #chapter-industries > section {
+    padding-bottom: 0.5rem;
+  }
 }
 
 

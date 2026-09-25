@@ -264,7 +264,7 @@ function Industries() {
             ))}
           </ol>
           </div>
-          <p className="lede mt-8 max-w-[42ch] min-h-[4.5em] shrink-0" aria-live="polite">
+          <p className="industry-note lede mt-8 max-w-[42ch] min-h-[4.5em] shrink-0" aria-live="polite">
             {note ? <span className="field-copy">{note}</span> : null}
           </p>
       </section>

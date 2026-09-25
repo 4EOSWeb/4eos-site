@@ -20,6 +20,9 @@ type SignalStore = {
   focus: number;
   /** Seconds since focus last changed. Devices ease down from this. */
   focusAge: number;
+  /** Yaw of the focused industry mark. Advances only while zoomed, so a click
+   *  does not have to catch up to the time the page has been open. */
+  iconSpin: number;
   /** Strategy-row picture, 0..5. -1 means the chapter formation is showing. */
   scene: number;
   /** Which row to draw while sceneMix eases back to the chapter. */
@@ -51,6 +54,7 @@ export const signal: SignalStore = {
   resolve: 0,
   focus: -1,
   focusAge: 0,
+  iconSpin: 0,
   scene: -1,
   sceneShown: 0,
   sceneMix: 0,
@@ -157,6 +161,7 @@ export function setFocus(cluster: number | null) {
   if (next !== signal.focus) {
     signal.focus = next;
     signal.focusAge = 0;
+    signal.iconSpin = 0;
     focusListeners.forEach((fn) => fn());
   }
   signal.invalidate?.();

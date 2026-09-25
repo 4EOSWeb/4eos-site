@@ -25,6 +25,7 @@ uniform float uFocus;
 uniform float uFocusAge;
 uniform float uZoom;
 uniform float uZoomOn;
+uniform float uIconSpin;
 uniform float uLite;
 uniform float uMobile;
 uniform float uScene;
@@ -519,7 +520,7 @@ vec3 formation(int s, float t) {
     float a = k / 6.0 * TAU - 1.5707963 + t * 0.18;
     float extra = fract(aRand * 6.0);
     vec3 local = seed.z < 0.34 ? glyph(k, seed, extra) * 0.62 : halo(seed);
-    float spin = seed.z < 0.34 ? t * 0.35 * uZoom * match : t * 0.62;
+    float spin = seed.z < 0.34 ? uIconSpin * match : t * 0.62;
     local = yaw(local, spin);
     float along = 0.32 + fract(seed.y * 13.1) * 0.36;
     float trailA = a + along * (TAU / 6.0);

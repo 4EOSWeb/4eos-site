@@ -68,6 +68,7 @@ function Points({
       uFocusAge: { value: 0 },
       uZoom: { value: 0 },
       uZoomOn: { value: 0 },
+      uIconSpin: { value: 0 },
       uScene: { value: 0 },
       uSceneMix: { value: 0 },
       uLite: { value: lite ? 1 : 0 },
@@ -113,6 +114,7 @@ function Points({
       signal.sceneMix = sceneTarget;
     }
     signal.focusAge = still ? 8 : Math.min(8, signal.focusAge + delta);
+    if (!still && signal.zoomR > 0) signal.iconSpin += 0.35 * signal.zoomR * delta;
 
     u.uFocus.value = signal.focus;
     u.uFocusAge.value = signal.focusAge;
@@ -120,6 +122,7 @@ function Points({
     u.uSceneMix.value = signal.sceneMix;
     u.uZoom.value = signal.zoomR;
     u.uZoomOn.value = signal.zoom > 0.02 ? 1 : 0;
+    u.uIconSpin.value = signal.iconSpin;
 
     // Cursor NDC → world XY on the field plane, through the camera that is
     // actually looking. The old frustum map (NDC * 14.5, 8.1) only held at z=20.

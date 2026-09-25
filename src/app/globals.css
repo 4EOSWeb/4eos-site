@@ -239,6 +239,19 @@ body {
   display: contents;
 }
 
+/* Ownership and industries lists. Desktop generates no box, so the
+   accordion and the industry rows keep their current layout. Phones turn
+   the same element into a frosted panel. */
+.phone-list-glass {
+  display: contents;
+}
+
+/* display:contents drops the ownership wrapper's mt-10. The accordion
+   keeps that gap until the phone query turns the wrapper into a panel. */
+.phone-list-glass > ul {
+  margin-top: 2.5rem;
+}
+
 /* The top bar. A light frost so the field stays visible through it. */
 .site-bar {
   background-color: rgba(5, 7, 10, 0.72);
@@ -671,6 +684,29 @@ html.signal-live .signal-poster {
   .strategy-phone-list .body-sm {
     font-size: 13px;
     line-height: 1.35;
+  }
+
+  /* Same frost as sheet-ink-glass, without the sheet class. Nested .sheet
+     rules above strip backdrop-filter, so this panel stays its own class. */
+  .phone-list-glass {
+    display: block;
+    overflow: hidden;
+    border-radius: var(--radius-sheet);
+    padding-inline: clamp(1rem, 2.5vw, 2rem);
+    background-color: rgba(5, 7, 10, 0.42);
+    -webkit-backdrop-filter: blur(14px) saturate(1.08);
+    backdrop-filter: blur(14px) saturate(1.08);
+  }
+
+  .phone-list-glass > ul,
+  .phone-list-glass > ol {
+    margin-top: 0;
+  }
+
+  .phone-list-glass .field-copy {
+    background-color: transparent;
+    padding: 0;
+    border-radius: 0;
   }
 }
 

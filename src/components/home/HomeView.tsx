@@ -154,7 +154,7 @@ function Ownership() {
               environment needs — Base, Pro, or Premium.
             </span>
           </p>
-          <div className="mt-10">
+          <div className="phone-list-glass mt-10">
             <Accordion
               key={collapsed ? "collapsed" : "open"}
               defaultOpen={collapsed ? -1 : 0}
@@ -243,6 +243,7 @@ function Industries() {
               and neither is the environment.
             </span>
           </p>
+          <div className="phone-list-glass mt-8 max-md:mt-10">
           <ol className="mt-8 grid min-h-0 w-max flex-1 grid-rows-6 max-md:mt-10 max-md:flex max-md:w-auto max-md:flex-none max-md:flex-col">
             {industries.map((ind, i) => (
               <li key={ind.slug} className="flex w-full items-center border-b border-hairline first:border-t max-md:w-fit max-md:flex-none">
@@ -262,6 +263,7 @@ function Industries() {
               </li>
             ))}
           </ol>
+          </div>
           <p className="lede mt-8 max-w-[42ch] min-h-[4.5em] shrink-0" aria-live="polite">
             {note ? <span className="field-copy">{note}</span> : null}
           </p>

@@ -121,9 +121,15 @@ function Points({
     u.uZoomOn.value = signal.zoom > 0.02 ? 1 : 0;
     u.uIconSpin.value = signal.iconSpin;
 
-    (u.uPointer.value as THREE.Vector2).set(signal.mouseRX, signal.mouseRY);
+    const pointer = u.uPointer.value as THREE.Vector2;
+    if (mobile) {
+      const t = state.clock.elapsedTime;
+      pointer.set(Math.sin(t * 0.13) * 0.62, Math.sin(t * 0.09 + 1.4) * 0.42);
+    } else {
+      pointer.set(signal.mouseRX, signal.mouseRY);
+    }
     u.uAspect.value = state.size.width / Math.max(state.size.height, 1);
-    u.uFieldGlow.value = mobile ? 0 : signal.fieldGlow;
+    u.uFieldGlow.value = mobile ? 1 : signal.fieldGlow;
 
     if (!still) u.uTime.value = state.clock.elapsedTime;
   });

@@ -747,14 +747,15 @@ void main() {
     float ca = kk / 6.0 * 6.2831853 - 1.5707963 + uTime * 0.18;
     vec2 ctr = vec2(cos(ca) * 5.8 + 4.2, sin(ca) * 4.3 + 0.2);
     float rad = length(vec3(pos.x - ctr.x, pos.y - ctr.y, pos.z));
-    core = pow(clamp(1.0 - rad / 2.5, 0.0, 1.0), 1.35);
+    float haloReach = mix(2.5, 0.9, uMobile);
+    core = pow(clamp(1.0 - rad / haloReach, 0.0, 1.0), mix(1.35, 2.4, uMobile));
     // Points on the oval are outside every cloud, so the halo falloff
     // would hide them. Keep that dusting at the ordinary point weight.
     float onTrail = step(0.34, position.z) * (1.0 - step(0.1, fract(position.x * 17.13)));
     onHalo *= 1.0 - onTrail;
   }
-  vAlpha *= mix(1.0, 1.7, onGlyph);
-  vAlpha *= mix(1.0, mix(0.16, 1.85, core), onHalo);
+  vAlpha *= mix(1.0, mix(1.7, 2.6, uMobile), onGlyph);
+  vAlpha *= mix(1.0, mix(0.16, 1.85, core) * mix(1.0, 0.2, uMobile), onHalo);
   vAlpha *= mix(1.0, 1.7, device * sceneOff);
 
   // A zoom shows only the focused cloud. Drop the other clusters and the
@@ -787,7 +788,9 @@ void main() {
   float keptPt = step(fract(position.z * 13.7), mix(mix(0.55, 1.0, vSheet / 6.1), mix(0.5, 1.0, vSheet / 6.48), onSpokePt));
   onGridPt *= keptPt;
   float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 4.2 + onGlyph * 1.15 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 0.55;
-  size *= mix(1.0, 1.25, uMobile);
+  float phoneScale = mix(1.25, 0.48, clamp(onGlyph, 0.0, 1.0));
+  phoneScale = mix(phoneScale, 0.4, clamp(onHalo, 0.0, 1.0));
+  size *= mix(1.0, phoneScale, uMobile);
   float px = size * uPixelRatio * (44.0 / max(-mv.z, 0.001));
   float cap = mix(18.0, mix(12.0, 7.5, uLite), uZoom) + onSpherePt * 2.0 + vDetect * 14.0;
   /* The cap is in device pixels. A phone buffer is denser, so scale it

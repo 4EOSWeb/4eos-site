@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { SignalBackdrop } from "@/components/signal/SignalBackdrop";
 import { SignalChapter } from "@/components/signal/SignalChapter";
@@ -19,6 +19,7 @@ import { Nav } from "@/components/layout/Nav";
 import { PageFade } from "@/components/layout/PageFade";
 import { GoldReveal } from "@/components/motion/GoldReveal";
 import { SnapTarget } from "@/components/motion/SnapTarget";
+import { registerSnapEl } from "@/lib/snap";
 import { Accordion } from "@/components/ui/Accordion";
 import { PhaseLink } from "@/components/ui/PhaseLink";
 import { industries, services, tiers } from "@/lib/content";
@@ -311,44 +312,79 @@ function Strategy() {
 
   useEffect(() => () => setScene(null, true), []);
 
+  const list = (
+    <Accordion
+      key={collapsed ? "collapsed" : "open"}
+      compact
+      defaultOpen={collapsed ? -1 : 0}
+      items={services.map((s, i) => ({
+        id: s.slug,
+        index: String(i + 1).padStart(2, "0"),
+        title: s.title,
+        statement: s.statement,
+        children: (
+          <>
+            <p className="body-sm">{s.lede}</p>
+            <Link href={`/services/${s.slug}`} className="bar-btn bar-btn-line mt-6 inline-flex">
+              Read <span aria-hidden>→</span>
+            </Link>
+          </>
+        ),
+      }))}
+    />
+  );
+
   return (
-    <SignalChapter phase="strategy" id="chapter-strategy">
-      <section className={CHAPTER}>
-        <h2 className="display chapter-display max-w-[16ch]">
-          A partner, <span className="text-gold">not a vendor.</span>
-        </h2>
-        <p className="lede mt-[clamp(0.85rem,2.4vh,1.5rem)] max-w-[42ch]">
-          <span className="field-copy">
-            Founded in Fort Wayne in {site.founded}. Largest Dell reseller in
-            Northeast Indiana. One family of companies: 4EOS, Midwest VoIP,
-            SafeHouse DataCenter. One number to call.
-          </span>
-        </p>
-        <Link href="/why-4eos" className="bar-btn bar-btn-line mt-[clamp(0.75rem,2.2vh,2rem)] inline-flex">
-          Why 4EOS <span aria-hidden>→</span>
-        </Link>
-        <div className="sheet-ink-glass relative mt-[clamp(0.75rem,2.2vh,2rem)] overflow-hidden rounded-[var(--radius-sheet)] px-[clamp(1rem,2.5vw,2rem)]">
-          <Accordion
-            key={collapsed ? "collapsed" : "open"}
-            compact
-            defaultOpen={collapsed ? -1 : 0}
-            items={services.map((s, i) => ({
-              id: s.slug,
-              index: String(i + 1).padStart(2, "0"),
-              title: s.title,
-              statement: s.statement,
-              children: (
-                <>
-                  <p className="body-sm">{s.lede}</p>
-                  <Link href={`/services/${s.slug}`} className="bar-btn bar-btn-line mt-6 inline-flex">
-                    Read <span aria-hidden>→</span>
-                  </Link>
-                </>
-              ),
-            }))}
-          />
+    <>
+      <SignalChapter phase="strategy" id="chapter-strategy">
+        <section className={CHAPTER}>
+          <h2 className="display chapter-display max-w-[16ch]">
+            A partner, <span className="text-gold">not a vendor.</span>
+          </h2>
+          <p className="lede mt-[clamp(0.85rem,2.4vh,1.5rem)] max-w-[42ch]">
+            <span className="field-copy">
+              Founded in Fort Wayne in {site.founded}. Largest Dell reseller in
+              Northeast Indiana. One family of companies: 4EOS, Midwest VoIP,
+              SafeHouse DataCenter. One number to call.
+            </span>
+          </p>
+          <Link href="/why-4eos" className="bar-btn bar-btn-line mt-[clamp(0.75rem,2.2vh,2rem)] inline-flex">
+            Why 4EOS <span aria-hidden>→</span>
+          </Link>
+          {collapsed ? null : (
+            <div className="sheet-ink-glass relative mt-[clamp(0.75rem,2.2vh,2rem)] overflow-hidden rounded-[var(--radius-sheet)] px-[clamp(1rem,2.5vw,2rem)]">
+              {list}
+            </div>
+          )}
+        </section>
+      </SignalChapter>
+      {collapsed ? <StrategyServices>{list}</StrategyServices> : null}
+    </>
+  );
+}
+
+function StrategyServices({ children }: { children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    return registerSnapEl(el);
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      id="chapter-strategy-services"
+      data-snap
+      data-phase={PHASE_INDEX.strategy}
+      className="h-dvh overflow-hidden"
+    >
+      <section className={`${CHAPTER} strategy-phone-list`}>
+        <div className="sheet-ink-glass relative overflow-hidden rounded-[var(--radius-sheet)] px-[clamp(1rem,2.5vw,2rem)]">
+          {children}
         </div>
       </section>
-    </SignalChapter>
+    </div>
   );
 }

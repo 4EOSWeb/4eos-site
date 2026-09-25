@@ -623,12 +623,15 @@ html.signal-live .signal-poster {
     margin-top: auto;
   }
 
-  /* A long service list is taller than the screen. It scrolls with the page
-     instead of clipping under the chapter rail. */
-  #chapter-strategy {
-    height: auto;
-    min-height: 100dvh;
-    overflow: visible;
+  .strategy-phone-list .accordion-panel {
+    gap: 0.35rem;
+    padding-bottom: 0.4rem;
+  }
+
+  .strategy-phone-list .lede,
+  .strategy-phone-list .body-sm {
+    font-size: 13px;
+    line-height: 1.35;
   }
 }
 

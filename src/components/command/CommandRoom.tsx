@@ -164,7 +164,7 @@ export function CommandRoom() {
               </ul>
             </article>
             <article className="command-panel command-summary">
-              <h2>This {range}</h2>
+              <h2>{range === "day" ? "Today" : `This ${range}`}</h2>
               <dl>
                 <div><dt>Visitors</dt><dd>{o.visitors} <small>{delta(o.visitorsChange)}</small></dd></div>
                 <div><dt>Returning</dt><dd>{o.returning}</dd></div>

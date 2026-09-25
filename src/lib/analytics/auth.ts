@@ -3,16 +3,27 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 const COOKIE = "eos_command";
 const HOURS = 12;
 
+function envValue(name: string) {
+  let value = process.env[name]?.replace(/^\uFEFF/, "").trim() || "";
+  if (
+    (value.startsWith('"') && value.endsWith('"')) ||
+    (value.startsWith("'") && value.endsWith("'"))
+  ) {
+    value = value.slice(1, -1).trim();
+  }
+  return value;
+}
+
 function secret() {
-  return process.env.ANALYTICS_PASSWORD?.trim() || "";
+  return envValue("ANALYTICS_PASSWORD");
 }
 
 export function analyticsConfigured() {
-  return Boolean(process.env.ANALYTICS_USER?.trim() && secret());
+  return Boolean(envValue("ANALYTICS_USER") && secret());
 }
 
 export function credentialsMatch(user: string, password: string) {
-  const expectedUser = process.env.ANALYTICS_USER?.trim() ?? "";
+  const expectedUser = envValue("ANALYTICS_USER");
   const expectedPass = secret();
   if (!expectedUser || !expectedPass) return false;
   const userOk = safeEqual(user, expectedUser);

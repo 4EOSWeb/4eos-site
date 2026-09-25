@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  serverExternalPackages: ["node:sqlite"],
+  serverExternalPackages: ["node:sqlite", "geoip-lite"],
   // Dev-only. Next already allows localhost. These patterns allow every
   // other host: any IPv4 address, and any hostname that contains a dot.
   // Restart `next dev` after changing this.

@@ -85,6 +85,14 @@ export function analyticsDb() {
   if (!done) {
     db.prepare("INSERT INTO schema_migrations (id, applied_at) VALUES (?, ?)").run("001", Date.now());
   }
+  const columns = db.prepare("PRAGMA table_info(sessions)").all() as { name: string }[];
+  const names = new Set(columns.map((column) => column.name));
+  if (!names.has("lat")) db.exec("ALTER TABLE sessions ADD COLUMN lat REAL");
+  if (!names.has("lon")) db.exec("ALTER TABLE sessions ADD COLUMN lon REAL");
+  const placed = db.prepare("SELECT id FROM schema_migrations WHERE id = ?").get("002") as { id: string } | undefined;
+  if (!placed) {
+    db.prepare("INSERT INTO schema_migrations (id, applied_at) VALUES (?, ?)").run("002", Date.now());
+  }
   maintain(db);
   return db;
 }

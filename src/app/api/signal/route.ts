@@ -39,6 +39,7 @@ export async function POST(request: Request) {
       },
       userAgent: request.headers.get("user-agent"),
       cookieHeader: request.headers.get("cookie"),
+      address: request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip"),
     });
     const response = NextResponse.json({ ok: true });
     if (!result.ignored) {

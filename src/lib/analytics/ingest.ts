@@ -4,6 +4,7 @@ import { classifyAgent } from "./bots";
 import { classifySource } from "./classify";
 import { lookupOrganization } from "./enrich";
 import { cleanPath, isIgnoredPath } from "./paths";
+import { placeFromAddress } from "./geo";
 import { cleanConnection, cleanScreen, parseAgent } from "./ua";
 
 const SESSION_MS = 30 * 60 * 1000;
@@ -38,6 +39,7 @@ export async function recordSignal(input: {
   body: SignalBody;
   userAgent: string | null;
   cookieHeader: string | null;
+  address?: string | null;
   now?: number;
 }) {
   const path = cleanPath(input.body.path);
@@ -73,6 +75,7 @@ export async function recordSignal(input: {
   const parsed = parseAgent(input.userAgent);
   const screen = cleanScreen(input.body.screen);
   const connection = cleanConnection(input.body.connection);
+  const place = placeFromAddress(input.address ?? null);
 
   const existing = sessionId
     ? (db.prepare("SELECT id, last_seen, trail, page_count FROM sessions WHERE id = ? AND kind = 'visitor'").get(sessionId) as
@@ -86,8 +89,8 @@ export async function recordSignal(input: {
       `INSERT INTO sessions (
         id, visitor_id, started_at, last_seen, entry_path, exit_path, trail,
         source_class, source_label, referrer_host, utm_source, utm_medium, utm_campaign, utm_term, utm_content,
-        device, browser, os, screen, connection, page_count, engagement_ms, max_scroll, lead, kind
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0, 'visitor')`,
+        device, browser, os, screen, connection, country, region, city, lat, lon, page_count, engagement_ms, max_scroll, lead, kind
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0, 0, 0, 'visitor')`,
     ).run(
       sessionId,
       visitorId,
@@ -109,6 +112,11 @@ export async function recordSignal(input: {
       parsed.os,
       screen,
       connection,
+      place?.country || null,
+      place?.region || null,
+      place?.city || null,
+      place?.lat ?? null,
+      place?.lon ?? null,
     );
     db.prepare(
       `INSERT INTO visitors (id, first_seen, last_seen) VALUES (?, ?, ?)

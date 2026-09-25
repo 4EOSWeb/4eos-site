@@ -3,22 +3,23 @@
 import { useState } from "react";
 
 export function LoginForm() {
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<"refused" | "unconfigured" | null>(null);
   const [pending, setPending] = useState(false);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPending(true);
-    setError(false);
+    setError(null);
     const data = new FormData(event.currentTarget);
     const res = await fetch("/api/command/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ user: data.get("user"), password: data.get("password") }),
     });
+    const body = (await res.json().catch(() => null)) as { reason?: string } | null;
     setPending(false);
     if (!res.ok) {
-      setError(true);
+      setError(body?.reason === "unconfigured" ? "unconfigured" : "refused");
       return;
     }
     window.location.href = "/command";
@@ -36,7 +37,12 @@ export function LoginForm() {
         Password
         <input name="password" type="password" autoComplete="current-password" required />
       </label>
-      {error ? <p className="command-empty">That sign-in was refused.</p> : null}
+      {error === "unconfigured" ? (
+        <p className="command-empty">The server has no ANALYTICS_USER or ANALYTICS_PASSWORD. Add both to .env and restart next start.</p>
+      ) : null}
+      {error === "refused" ? (
+        <p className="command-empty">That sign-in was refused. The username must match ANALYTICS_USER exactly.</p>
+      ) : null}
       <button type="submit" disabled={pending}>
         {pending ? "Checking…" : "Enter"}
       </button>

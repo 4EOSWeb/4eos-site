@@ -963,6 +963,101 @@ html.signal-live .signal-poster {
   border: 1px solid color-mix(in srgb, white 16%, transparent);
 }
 
+.command-hero {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.9fr) 1.2fr 1fr;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.command-impact {
+  background: rgba(245, 183, 0, 0.12);
+  border: 1px solid rgba(245, 183, 0, 0.45);
+  border-radius: var(--radius-sheet, 1.25rem);
+  padding: 1.2rem 1.3rem;
+}
+
+.command-impact strong {
+  display: block;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.command-impact em {
+  display: block;
+  margin: 0.6rem 0 0.8rem;
+  font-style: normal;
+}
+
+.command-impact ul,
+.command-summary dl,
+.command-panel dl {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.command-impact li,
+.command-summary dl div,
+.command-panel dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 0;
+  border-top: 1px solid color-mix(in srgb, white 12%, transparent);
+}
+
+.command-summary dd,
+.command-panel dd {
+  margin: 0;
+  text-align: right;
+}
+
+.command-journeys {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.command-journeys ol {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+}
+
+.command-journeys li {
+  position: relative;
+  padding: 0.25rem 0 0.25rem 1rem;
+}
+
+.command-journeys li::before {
+  content: "";
+  position: absolute;
+  left: 0.2rem;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-gold);
+}
+
+.command-funnel i {
+  display: block;
+  height: 1.4rem;
+  background: rgba(245, 183, 0, 0.75);
+  border-radius: 0.2rem;
+}
+
+.command details summary {
+  cursor: pointer;
+  font-size: 1.05rem;
+}
+
+@media (max-width: 980px) {
+  .command-hero {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

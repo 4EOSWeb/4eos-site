@@ -35,6 +35,8 @@ type SessionRow = {
   country: string | null;
   region: string | null;
   city: string | null;
+  lat: number | null;
+  lon: number | null;
   isp: string | null;
   page_count: number;
   engagement_ms: number;
@@ -71,6 +73,10 @@ export function buildReport(key: RangeKey) {
   const duration = sessions.reduce((sum, s) => sum + Math.max(0, s.last_seen - s.started_at), 0);
   const pages = sessions.reduce((sum, s) => sum + s.page_count, 0);
   const leads = sessions.filter((s) => s.lead === 1).length;
+  const span = to - from;
+  const prior = db
+    .prepare(`SELECT COUNT(*) AS n, SUM(lead) AS leads FROM sessions WHERE kind = 'visitor' AND started_at >= ? AND started_at < ?`)
+    .get(from - span, from) as { n: number; leads: number | null };
 
   const activeNow = (
     db.prepare("SELECT COUNT(*) AS n FROM sessions WHERE kind = 'visitor' AND last_seen >= ?").get(to - 5 * 60_000) as {
@@ -94,6 +100,8 @@ export function buildReport(key: RangeKey) {
       activeNow,
       leads,
       conversion: sessions.length ? round1((leads / sessions.length) * 100) : 0,
+      visitorsChange: change(sessions.length, prior.n),
+      leadsChange: change(leads, prior.leads ?? 0),
     },
     trend: trend(sessions, key, from, to),
     peaks: peaks(sessions),
@@ -108,10 +116,14 @@ export function buildReport(key: RangeKey) {
     places: {
       countries: count(sessions.filter((s) => s.country), (s) => s.country || ""),
       regions: count(sessions.filter((s) => s.region), (s) => [s.region, s.country].filter(Boolean).join(", ")),
-      cities: count(sessions.filter((s) => s.city), (s) => [s.city, s.region].filter(Boolean).join(", ")),
-      isps: count(sessions.filter((s) => s.isp), (s) => s.isp || ""),
+      cities: cityPlaces(sessions),
+      states: count(
+        sessions.filter((s) => s.country === "US" && s.region),
+        (s) => s.region || "",
+      ),
     },
     acquisition: acquisition(sessions),
+    leadSources: leadSources(sessions),
     pages: pagesReport(sessions),
     services: topicReport(sessions, "service"),
     industries: topicReport(sessions, "industry"),
@@ -132,13 +144,15 @@ export function buildLive() {
   const since = Date.now() - 5 * 60_000;
   const active = db
     .prepare(
-      `SELECT city, region, country, device, source_label, exit_path FROM sessions
+      `SELECT city, region, country, lat, lon, device, source_label, exit_path FROM sessions
        WHERE kind = 'visitor' AND last_seen >= ? ORDER BY last_seen DESC LIMIT 40`,
     )
     .all(since) as {
     city: string | null;
     region: string | null;
     country: string | null;
+    lat: number | null;
+    lon: number | null;
     device: string | null;
     source_label: string;
     exit_path: string;
@@ -169,6 +183,9 @@ export function buildLive() {
       source: row.source_label,
       device: row.device,
       where: [row.city, row.region].filter(Boolean).join(", ") || null,
+      region: row.region,
+      lat: row.lat,
+      lon: row.lon,
     })),
   };
 }
@@ -186,15 +203,16 @@ function score(sessions: SessionRow[]) {
 }
 
 function trend(sessions: SessionRow[], key: RangeKey, from: number, to: number) {
-  const buckets = new Map<number, { t: number; visitors: number; leads: number }>();
+  const buckets = new Map<number, { t: number; visitors: number; leads: number; engaged: number }>();
   const step = key === "day" ? 3_600_000 : key === "year" ? 30 * 86_400_000 : key === "quarter" ? 7 * 86_400_000 : 86_400_000;
-  for (let t = from; t < to; t += step) buckets.set(t, { t, visitors: 0, leads: 0 });
+  for (let t = from; t < to; t += step) buckets.set(t, { t, visitors: 0, leads: 0, engaged: 0 });
   for (const session of sessions) {
     const slot = from + Math.floor((session.started_at - from) / step) * step;
     const bucket = buckets.get(slot);
     if (!bucket) continue;
     bucket.visitors += 1;
     if (session.lead) bucket.leads += 1;
+    if (session.engagement_ms >= 10_000 || session.page_count >= 2 || session.lead === 1) bucket.engaged += 1;
   }
   return [...buckets.values()];
 }
@@ -306,17 +324,72 @@ function topicReport(sessions: SessionRow[], kind: "service" | "industry") {
 }
 
 function journeys(sessions: SessionRow[]) {
-  const map = new Map<string, number>();
+  return [...sessions]
+    .filter((session) => session.trail.split("|").filter(Boolean).length >= 2)
+    .sort((a, b) => b.started_at - a.started_at)
+    .slice(0, 6)
+    .map((session) => ({
+      place: session.city && session.region ? `${session.city}, ${session.region}` : session.region || "Visitor",
+      steps: session.trail.split("|").filter(Boolean).map(pageName),
+    }));
+}
+
+const LEAD_NAMES = ["Google", "Direct", "LinkedIn", "ChatGPT", "Copilot", "Perplexity", "Gemini", "Claude"];
+
+function leadSources(sessions: SessionRow[]) {
+  const map = new Map<string, number>(LEAD_NAMES.map((label) => [label, 0]));
   for (const session of sessions) {
-    const trail = session.trail.split("|").filter(Boolean);
-    if (trail.length < 2) continue;
-    const key = trail.join(" → ");
-    map.set(key, (map.get(key) ?? 0) + 1);
+    if (!session.lead) continue;
+    const label = LEAD_NAMES.includes(session.source_label) ? session.source_label : session.source_label;
+    map.set(label, (map.get(label) ?? 0) + 1);
   }
   return [...map.entries()]
-    .map(([path, count]) => ({ path, count }))
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 8);
+    .map(([label, count]) => ({ label, count }))
+    .sort((a, b) => b.count - a.count || LEAD_NAMES.indexOf(a.label) - LEAD_NAMES.indexOf(b.label));
+}
+
+function cityPlaces(sessions: SessionRow[]) {
+  const map = new Map<string, { label: string; count: number; lat: number | null; lon: number | null }>();
+  for (const session of sessions) {
+    if (!session.city) continue;
+    const label = [session.city, session.region].filter(Boolean).join(", ");
+    const row = map.get(label) ?? { label, count: 0, lat: session.lat, lon: session.lon };
+    row.count += 1;
+    if (row.lat == null) row.lat = session.lat;
+    if (row.lon == null) row.lon = session.lon;
+    map.set(label, row);
+  }
+  return [...map.values()].sort((a, b) => b.count - a.count).slice(0, 12);
+}
+
+export function pageName(path: string) {
+  const names: Record<string, string> = {
+    "/": "Homepage",
+    "/services": "Services",
+    "/services/completecare": "CompleteCare",
+    "/services/cybersecurity": "Cybersecurity",
+    "/services/cloud": "Cloud",
+    "/services/voip": "VoIP",
+    "/services/datacenter": "Datacenter",
+    "/services/hardware": "Hardware",
+    "/secureai": "SecureAI",
+    "/industries": "Industries",
+    "/industries/legal": "Legal",
+    "/industries/insurance": "Insurance",
+    "/industries/healthcare": "Healthcare",
+    "/industries/construction": "Construction",
+    "/industries/manufacturing": "Manufacturing",
+    "/industries/private-equity": "Private Equity",
+    "/support": "Support",
+    "/contact": "Contact",
+    "/about": "About",
+    "/why-4eos": "Why 4EOS",
+    "/faq": "FAQ",
+    "/blog": "Journal",
+  };
+  if (names[path]) return names[path];
+  const tail = path.split("/").filter(Boolean).pop() ?? path;
+  return tail.replace(/-/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
 function supportReport(sessions: SessionRow[], from: number, to: number) {
@@ -345,10 +418,16 @@ function supportReport(sessions: SessionRow[], from: number, to: number) {
        GROUP BY detail ORDER BY n DESC`,
     )
     .all(from, to) as { detail: string | null; n: number }[];
+  const tickets = db
+    .prepare(
+      `SELECT COUNT(*) AS n FROM events WHERE kind = 'visitor' AND name = 'form_submit' AND detail = 'support' AND at >= ? AND at < ?`,
+    )
+    .get(from, to) as { n: number };
   return {
     visits: hits.length,
     unique: visitors.size,
     repeat,
+    tickets: tickets.n,
     avgEngagementMs: hits.length ? Math.round(time / hits.length) : 0,
     sources: [...sources.entries()].map(([label, count]) => ({ label, count })).sort((a, b) => b.count - a.count),
     actions: actions.map((row) => ({ label: row.detail || "click", count: row.n })),
@@ -429,10 +508,13 @@ function aiReport(from: number, to: number) {
     .all(from, to) as { label: string; n: number }[];
   const crawlers = db
     .prepare(
-      `SELECT detail AS label, COUNT(*) AS n FROM events
+      `SELECT detail AS label, COUNT(*) AS n, MIN(at) AS first_seen, MAX(at) AS last_seen FROM events
        WHERE kind = 'crawler' AND at >= ? AND at < ? GROUP BY detail ORDER BY n DESC`,
     )
-    .all(from, to) as { label: string | null; n: number }[];
+    .all(from, to) as { label: string | null; n: number; first_seen: number; last_seen: number }[];
+  const crawlerEvents = db
+    .prepare(`SELECT at FROM events WHERE kind = 'crawler' AND at >= ? AND at < ?`)
+    .all(from, to) as { at: number }[];
   const pages = db
     .prepare(
       `SELECT path, COUNT(*) AS n FROM events
@@ -441,9 +523,22 @@ function aiReport(from: number, to: number) {
     .all(from, to) as { path: string | null; n: number }[];
   const industry = pages.filter((row) => row.path?.startsWith("/industries/"));
   const service = pages.filter((row) => row.path?.startsWith("/services/") || row.path === "/secureai");
+  const named = ["ChatGPT", "Copilot", "Perplexity", "Gemini", "Claude"];
+  const referralMap = new Map(referrals.map((row) => [row.label, row.n]));
+  const step = Math.max(3_600_000, Math.round((to - from) / 12));
+  const crawlerTrend = [];
+  for (let t = from; t < to; t += step) {
+    crawlerTrend.push({ t, count: crawlerEvents.filter((row) => row.at >= t && row.at < t + step).length });
+  }
   return {
-    referrals: referrals.map((row) => ({ label: row.label, count: row.n })),
-    crawlers: crawlers.map((row) => ({ label: row.label || "Crawler", count: row.n })),
+    referrals: named.map((label) => ({ label, count: referralMap.get(label) ?? 0 })),
+    crawlers: crawlers.map((row) => ({
+      label: row.label || "Crawler",
+      count: row.n,
+      firstSeen: row.first_seen,
+      lastSeen: row.last_seen,
+    })),
+    crawlerTrend,
     pages: pages.map((row) => ({ path: row.path, count: row.n })),
     industry: industry.map((row) => ({ path: row.path, count: row.n })),
     service: service.map((row) => ({ path: row.path, count: row.n })),
@@ -487,6 +582,11 @@ function monthCards() {
     });
   }
   return cards;
+}
+
+function change(current: number, prior: number) {
+  if (!prior) return null;
+  return round1(((current - prior) / prior) * 100);
 }
 
 function round1(n: number) {

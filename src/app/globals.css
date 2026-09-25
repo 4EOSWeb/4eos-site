@@ -708,6 +708,17 @@ html.signal-live .signal-poster {
     padding: 0;
     border-radius: 0;
   }
+
+  /* Inner pages use this gap to show the field. On a phone the whole
+     page is one glass sheet, so the gap is just empty space. */
+  .breath {
+    height: 0;
+    min-height: 0;
+  }
+
+  .mobile-glass > main > section:first-of-type {
+    padding-bottom: 0.25rem;
+  }
 }
 
 

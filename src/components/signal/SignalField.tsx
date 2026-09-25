@@ -202,12 +202,12 @@ function CameraRig({
     const pulling = signal.zoom > 0.02 || signal.zoomR > 0.03;
     let turnTarget = 0;
     if (pulling && cubeLatch >= 0) turnTarget = 1;
-    else if (onCube && signal.focus >= 0 && signal.focus < 6) turnTarget = 0.86;
+    else if (onCube && signal.focus >= 0 && signal.focus < 6) turnTarget = 0.72;
     if (!pulling && signal.focus < 0 && cubeTurn < 0.02) cubeLatch = -1;
 
     if (still) cubeTurn = turnTarget;
     else {
-      const rate = signal.zoom > 0.5 && turnTarget > cubeTurn ? 2.6 : 1.15;
+      const rate = signal.zoom > 0.5 && turnTarget > cubeTurn ? 3.4 : 1.15;
       cubeTurn += (turnTarget - cubeTurn) * (1 - Math.exp(-rate * dt));
       if (Math.abs(turnTarget - cubeTurn) < 0.001) cubeTurn = turnTarget;
     }
@@ -216,9 +216,11 @@ function CameraRig({
 
     // The face has to be square before the camera goes through it.
     // On the way out the camera retreats first, and the tumble resumes after.
-    const locked = still || cubeTurn > 0.94;
+    // The face is square before the camera moves. The dolly is slow enough
+    // to read as a passage through that face.
+    const locked = still || cubeTurn > 0.985;
     const zoomGoal = !mobile && signal.zoom > 0.5 && locked ? 1 : 0;
-    const zoomStep = still ? 1 : 1 - Math.pow(0.18, dt);
+    const zoomStep = still ? 1 : 1 - Math.pow(0.42, dt);
     signal.zoomR += (zoomGoal - signal.zoomR) * zoomStep;
     if (Math.abs(zoomGoal - signal.zoomR) < 0.0005) signal.zoomR = zoomGoal;
 

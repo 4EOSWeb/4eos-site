@@ -488,7 +488,7 @@ vec3 cubeLocal(float k, vec3 seed, float extra, float t) {
   vec3 p = n * 3.15;
   if (seed.z < 0.3) {
     vec3 g = glyph(k, seed, extra);
-    p = n * (3.15 + 0.14) + tu * g.x * 1.72 + tv * g.y * 1.72 + n * g.z * 0.34;
+    p = n * (3.15 + 0.14) + tu * g.x * 1.85 + tv * g.y * 1.85 + n * g.z * 0.34;
   } else if (seed.z < 0.78) {
     float drift = sin(t * 0.32 + seed.x * 11.0) * 0.045;
     float su = rimCoord(seed.x) + drift;
@@ -557,11 +557,11 @@ vec3 formation(int s, float t) {
   }
   if (s == 4) {
     // Industries: one cube, six faces. Rotation arrives as uCube.
-    // Centre (4.55, 0.05), half-edge 3.15. Keep in step with cube.ts.
+    // Centre (5.85, 0.05), half-edge 3.15. Keep in step with cube.ts.
     float k = min(floor(aRand * 6.0), 5.0);
     float extra = fract(aRand * 6.0);
     vec3 local = cubeLocal(k, seed, extra, t);
-    return uCube * local + vec3(4.55, 0.05, 0.0);
+    return uCube * local + vec3(5.85, 0.05, 0.0);
   }
   if (s == 5) {
     // Response: the filled disc, pitched so the middle sinks. vSheet is the
@@ -841,9 +841,11 @@ void main() {
     else fn = vec3(0.0, -1.0, 0.0);
     facing = clamp((uCube * fn).z, 0.0, 1.0);
     core = mix(0.16, 1.0, facing * facing);
+    // Marks are the accent. The panel stays blue so the symbol reads first.
+    vGold = max(vGold, onGlyph * facing * 0.92);
     if (uFocus >= 0.0) {
       float match = 1.0 - step(0.5, abs(kk - uFocus));
-      vGold = max(vGold, onGlyph * match * 0.4 * facing);
+      vGold = max(vGold, onGlyph * match * facing);
     }
     // Approach the chosen face, then quiet the field once the camera
     // has passed through it so the industry page can be read.
@@ -854,9 +856,9 @@ void main() {
       vAlpha *= mix(1.0, 0.22, smoothstep(0.8, 1.0, uZoom));
     }
   }
-  vAlpha *= mix(1.0, mix(1.35, 2.5, facing), onGlyph);
-  vAlpha *= mix(1.0, mix(0.34, 1.05, core), onHalo);
-  vAlpha *= mix(1.0, 1.35, onEdge * facing);
+  vAlpha *= mix(1.0, mix(1.7, 2.9, facing), onGlyph);
+  vAlpha *= mix(1.0, mix(0.5, 1.28, core), onHalo);
+  vAlpha *= mix(1.0, 1.65, onEdge * facing);
   vAlpha *= mix(1.0, 1.7, device * sceneOff);
 
   float hide = 0.0;
@@ -880,7 +882,7 @@ void main() {
   float onSpokePt = onGridPt * step(0.5, fract(aRand * 3.1));
   float keptPt = step(fract(position.z * 13.7), mix(mix(0.55, 1.0, vSheet / 6.1), mix(0.5, 1.0, vSheet / 6.48), onSpokePt));
   onGridPt *= keptPt;
-  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 4.2 + onGlyph * 1.15 + onHalo * core * 0.7 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 0.55;
+  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 4.2 + onGlyph * 1.65 + onHalo * core * 1.2 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 0.55;
   float phoneScale = mix(1.25, 0.48, clamp(onGlyph, 0.0, 1.0));
   phoneScale = mix(phoneScale, 0.4, clamp(onHalo, 0.0, 1.0));
   size *= mix(1.0, phoneScale, uMobile);

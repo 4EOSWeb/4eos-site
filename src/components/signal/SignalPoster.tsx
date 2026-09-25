@@ -79,8 +79,9 @@ export function SignalPoster({
       const glyph = s.seed[2] < 0.3;
       const facing = posterFacing(k);
       const glow = glyph ? 1 : 0.18 + 0.82 * facing * facing;
-      o = glyph ? 0.85 : Math.round((0.06 + glow * 0.72) * 100) / 100;
-      r = Math.round(r * (glyph ? 0.7 : 0.55 + glow * 0.9) * 10) / 10;
+      if (glyph) gold = true;
+      o = glyph ? 0.92 : Math.round((0.06 + glow * 0.72) * 100) / 100;
+      r = Math.round(r * (glyph ? 0.85 : 0.55 + glow * 0.9) * 10) / 10;
     }
     dots.push(
       `<circle cx="${px}" cy="${py}" r="${r}" fill="${gold ? "#F5B700" : "#4F86B4"}" opacity="${o}"/>`,

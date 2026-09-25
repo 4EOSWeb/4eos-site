@@ -10,7 +10,7 @@ type Quat = [number, number, number, number];
 /** Half-edge. Large enough to dominate the right side of the chapter. */
 export const CUBE_H = 3.15;
 /** Sits right of the names. The left face stays clear of the type. */
-export const CUBE_CX = 4.55;
+export const CUBE_CX = 5.85;
 export const CUBE_CY = 0.05;
 
 /** seed.z below this draws the industry mark. */
@@ -20,7 +20,7 @@ export const CUBE_SHELL = 0.78;
 /** seed.z below this draws the edge flow. The rest is the interior. */
 export const CUBE_EDGE = 0.93;
 /** Mark size on a face. Large enough to read across the chapter. */
-const ICON_SCALE = 1.72;
+const ICON_SCALE = 1.85;
 
 const TAU = Math.PI * 2;
 

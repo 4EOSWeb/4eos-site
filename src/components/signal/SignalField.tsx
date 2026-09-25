@@ -123,9 +123,10 @@ function Points({
     signal.mouseRX = signal.mouseX;
     signal.mouseRY = signal.mouseY;
 
-    u.uPhase.value = signal.rendered;
-    u.uPhaseVel.value = signal.phaseVel;
-    u.uPhaseTarget.value = signal.phase;
+    // Phones always show the unmanaged cloud. Desktop keeps the chapter.
+    u.uPhase.value = mobile ? 0 : signal.rendered;
+    u.uPhaseVel.value = mobile ? 0 : signal.phaseVel;
+    u.uPhaseTarget.value = mobile ? 0 : signal.phase;
     u.uFlow.value = ORGANIC_FLOW && !still ? 1 : 0;
     u.uSettle.value = ORGANIC_FLOW && CONFIDENT_SETTLE && !still ? 1 : 0;
     u.uIntensity.value = signal.intensity;
@@ -142,19 +143,16 @@ function Points({
     u.uFocus.value = signal.focus;
     u.uFocusAge.value = signal.focusAge;
     u.uScene.value = signal.sceneShown;
-    u.uSceneMix.value = signal.sceneMix;
-    u.uZoom.value = signal.zoomR;
-    u.uZoomOn.value = signal.zoom > 0.02 ? 1 : 0;
+    u.uSceneMix.value = mobile ? 0 : signal.sceneMix;
+    u.uZoom.value = mobile ? 0 : signal.zoomR;
+    u.uZoomOn.value = !mobile && signal.zoom > 0.02 ? 1 : 0;
     u.uIconSpin.value = signal.iconSpin;
 
     const pointer = u.uPointer.value as THREE.Vector2;
-    const onUnmanaged = Math.max(0, 1 - Math.abs(signal.rendered));
-    if (mobile && onUnmanaged > 0.02) {
+    if (mobile) {
       const t = state.clock.elapsedTime;
       pointer.set(Math.sin(t * 0.55) * 0.62, Math.sin(t * 0.37 + 1.4) * 0.42);
-      u.uFieldGlow.value = onUnmanaged;
-    } else if (mobile) {
-      u.uFieldGlow.value = 0;
+      u.uFieldGlow.value = 1;
     } else {
       pointer.set(signal.mouseRX, signal.mouseRY);
       u.uFieldGlow.value = signal.fieldGlow;
@@ -191,6 +189,7 @@ function CameraRig({
 }) {
   useFrame((state, delta) => {
     const zooming =
+      !mobile &&
       signal.focus >= 0 &&
       signal.focus < 6 &&
       signal.zoom > 0.02 &&
@@ -210,7 +209,7 @@ function CameraRig({
     signal.zoomR += (signal.zoom - signal.zoomR) * zoomStep;
     if (Math.abs(signal.zoom - signal.zoomR) < 0.0005) signal.zoomR = signal.zoom;
 
-    const z = signal.zoomR;
+    const z = mobile ? 0 : signal.zoomR;
     const fit = mobile ? MOBILE_FIT : 1;
     const restZ = mobile ? 24 : 20;
     const nearZ = mobile ? 16 : lite ? 13.5 : 9;

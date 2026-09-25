@@ -36,6 +36,7 @@ uniform float uScene;
 uniform float uSceneMix;
 uniform float uCols;
 uniform float uRows;
+uniform mat3 uCube;
 
 attribute vec2 aUV;
 attribute float aRand;
@@ -86,12 +87,6 @@ vec3 tube(vec3 a, vec3 b, float along, float ang, float rad) {
   side = sl > 1e-4 ? side / sl : vec3(1.0, 0.0, 0.0);
   vec3 bin = cross(nDir, side);
   return p + (side * cos(ang) + bin * sin(ang)) * rad;
-}
-
-vec3 yaw(vec3 p, float spin) {
-  float c = cos(spin);
-  float s = sin(spin);
-  return vec3(p.x * c + p.z * s, p.y, -p.x * s + p.z * c);
 }
 
 vec3 bowl(float cx, float rimY, float along, float ang, float fill) {
@@ -462,110 +457,65 @@ vec3 serviceAt(int s, float t) {
   return p;
 }
 
-vec3 halo(vec3 seed) {
-  float hz = (seed.z - 0.34) / 0.66;
-  float az = seed.x * TAU;
-  float cosP = hz * 2.0 - 1.0;
-  float sinP = sqrt(max(0.0, 1.0 - cosP * cosP));
-  // Biased inward so the cloud is dense in the middle and sparse at the rim.
-  float R = 2.5 * pow(seed.y, 0.72);
-  return vec3(cos(az) * sinP * R, cosP * R, sin(az) * sinP * R);
+float rimCoord(float t) {
+  float a = t * 2.0 - 1.0;
+  float s = a < 0.0 ? -1.0 : 1.0;
+  float m = abs(a);
+  return s * pow(max(m, 0.0), 0.78);
 }
 
-vec2 orbitCenter(float a) {
-  return vec2(cos(a) * 5.8 + 4.2, sin(a) * 4.3 + 0.2);
-}
-
-float throatRadius(float station) {
-  float s = clamp(station, 0.0, 1.0);
-  float c = cos(s * 1.5707963);
-  return 0.92 + (2.5 - 0.92) * pow(max(c, 0.0), 1.45);
-}
-
-// Station along a throat. Twin of stationOf() in formations.ts.
-float stationOf(float u) {
-  return pow(clamp(u, 0.0, 1.0), 0.78);
-}
-
-vec3 placeThroat(vec3 axis, float halfL, float stationU, float fillU, float az, float t) {
-  float s0 = stationOf(stationU);
-  float fade = sin(3.14159265 * clamp(s0, 0.0, 1.0));
-  float wave = sin(t * 0.7 + az * 2.0) * 0.5 * fade;
-  float dist = min(halfL * 1.01, max(0.0, s0 * halfL + wave));
-  float rho = throatRadius(clamp(dist / halfL, 0.0, 1.0));
-  float radial = pow(fillU, 0.5) * rho;
-  float ang = az + t * 0.36;
-  float c = cos(ang) * radial;
-  float z = sin(ang) * radial;
-  return vec3(axis.x * dist - axis.y * c, axis.y * dist + axis.x * c, z);
-}
-
-vec3 rotAround(vec3 axis, vec3 v, float ang) {
-  float c = cos(ang);
-  float s = sin(ang);
-  float d = dot(axis, v);
-  vec3 cr = cross(axis, v);
-  return v * c + cr * s + axis * d * (1.0 - c);
-}
-
-// The cloud itself is the bulge and the waist. Twin of pinchCloud() in formations.ts.
-vec3 pinchCloud(vec3 seed, float a, float t) {
-  float hz = (seed.z - 0.34) / 0.66;
-  float az = seed.x * 6.2831853;
-  if (hz < 0.08) {
-    float cosP = (hz / 0.08) * 2.0 - 1.0;
-    float sinP = sqrt(max(0.0, 1.0 - cosP * cosP));
-    vec3 dir = vec3(cos(az) * sinP, cosP, sin(az) * sinP);
-    float best = 0.0;
-    vec3 axis = vec3(1.0, 0.0, 0.0);
-    float halfL = 1.0;
-    for (int i = 0; i < 2; i++) {
-      float side = i == 0 ? 1.0 : -1.0;
-      float b = a + side * 1.0471975512;
-      vec2 delta = orbitCenter(b) - orbitCenter(a);
-      float len = max(length(delta), 0.001);
-      vec3 ax = vec3(delta / len, 0.0);
-      float proj = dot(dir, ax);
-      if (proj > best) {
-        best = proj;
-        axis = ax;
-        halfL = len * 0.5;
-      }
-    }
-    if (best <= 0.02) {
-      float rad = 2.5 * pow(seed.y, 0.55);
-      return rotAround(vec3(0.0, 1.0, 0.0), dir * rad, t * 0.15);
-    }
-    float stationU = fract(seed.x * 7.13 + seed.y * 3.71);
-    return placeThroat(axis, halfL, stationU, seed.y, az, t);
+// One particle in cube-local space. Twin of cubeLocal() in cube.ts.
+// One assignment path and a single return — early returns leave ANGLE
+// with an uninitialised result (X4000).
+vec3 cubeLocal(float k, vec3 seed, float extra, float t) {
+  vec3 n = vec3(0.0, 0.0, 1.0);
+  vec3 tu = vec3(1.0, 0.0, 0.0);
+  vec3 tv = vec3(0.0, 1.0, 0.0);
+  if (k < 0.5) {
+    n = vec3(0.0, 0.0, 1.0); tu = vec3(1.0, 0.0, 0.0); tv = vec3(0.0, 1.0, 0.0);
+  } else if (k < 1.5) {
+    n = vec3(1.0, 0.0, 0.0); tu = vec3(0.0, 0.0, -1.0); tv = vec3(0.0, 1.0, 0.0);
+  } else if (k < 2.5) {
+    n = vec3(0.0, 0.0, -1.0); tu = vec3(-1.0, 0.0, 0.0); tv = vec3(0.0, 1.0, 0.0);
+  } else if (k < 3.5) {
+    n = vec3(-1.0, 0.0, 0.0); tu = vec3(0.0, 0.0, 1.0); tv = vec3(0.0, 1.0, 0.0);
+  } else if (k < 4.5) {
+    n = vec3(0.0, 1.0, 0.0); tu = vec3(1.0, 0.0, 0.0); tv = vec3(0.0, 0.0, -1.0);
+  } else {
+    n = vec3(0.0, -1.0, 0.0); tu = vec3(1.0, 0.0, 0.0); tv = vec3(0.0, 0.0, 1.0);
   }
-  float side = hz < 0.54 ? 1.0 : -1.0;
-  float u = hz < 0.54 ? (hz - 0.08) / 0.46 : (hz - 0.54) / 0.46;
-  float b = a + side * 1.0471975512;
-  vec2 delta = orbitCenter(b) - orbitCenter(a);
-  float len = max(length(delta), 0.001);
-  return placeThroat(vec3(delta / len, 0.0), len * 0.5, u, seed.y, az, t);
-}
 
-// Brightness from how deep a point sits in the pinched body.
-float medialCore(vec3 world, float a) {
-  vec3 local = world - vec3(orbitCenter(a), 0.0);
-  float best = 0.0;
-  for (int i = 0; i < 2; i++) {
-    float dir = i == 0 ? 1.0 : -1.0;
-    float b = a + dir * 1.0471975512;
-    vec2 delta = orbitCenter(b) - orbitCenter(a);
-    float len = max(length(delta), 0.001);
-    vec3 axis = vec3(delta / len, 0.0);
-    float proj = dot(local, axis);
-    if (proj < 0.05) continue;
-    float lat = length(local - axis * proj);
-    float station = clamp(proj / (len * 0.5), 0.0, 1.0);
-    float rho = throatRadius(station);
-    float g = pow(clamp(1.0 - lat / max(rho, 0.001), 0.0, 1.0), 0.9);
-    best = max(best, g);
+  vec3 p = n * 3.15;
+  if (seed.z < 0.3) {
+    vec3 g = glyph(k, seed, extra);
+    p = n * (3.15 + 0.14) + tu * g.x * 1.72 + tv * g.y * 1.72 + n * g.z * 0.34;
+  } else if (seed.z < 0.78) {
+    float drift = sin(t * 0.32 + seed.x * 11.0) * 0.045;
+    float su = rimCoord(seed.x) + drift;
+    float sv = rimCoord(seed.y);
+    float depth = pow(hash21(seed.x, seed.y), 1.5) * 0.72;
+    p = n * (3.15 - depth) + tu * su * 3.15 + tv * sv * 3.15;
+  } else if (seed.z < 0.93) {
+    float which = min(floor(seed.x * 4.0), 3.0);
+    float along = fract(seed.y + t * 0.07) * 2.0 - 1.0;
+    float jitter = (hash21(seed.y, extra) - 0.5) * 0.16;
+    float su = along;
+    float sv = 0.985;
+    if (which > 0.5 && which < 1.5) sv = -0.985;
+    else if (which > 1.5 && which < 2.5) { su = 0.985; sv = along; }
+    else if (which > 2.5) { su = -0.985; sv = along; }
+    if (which < 1.5) su += jitter;
+    else sv += jitter;
+    p = n * (3.15 - (0.02 + hash21(seed.x, extra) * 0.16)) + tu * su * 3.15 + tv * sv * 3.15;
+  } else {
+    float span = 3.15 * 1.56;
+    p = vec3(
+      (seed.x - 0.5) * span + sin(t * 0.16 + seed.y * TAU) * 0.1,
+      (seed.y - 0.5) * span + cos(t * 0.13 + seed.x * TAU) * 0.1,
+      (hash21(seed.x, seed.y) - 0.5) * span
+    );
   }
-  return best;
+  return p;
 }
 
 vec3 formation(int s, float t) {
@@ -606,24 +556,12 @@ vec3 formation(int s, float t) {
     return vec3(cos(a) * r * 1.8, sin(a) * r, (seed.z - 0.5) * 0.7);
   }
   if (s == 4) {
-    // Industries: six clouds on a sideways oval. The cloud itself
-    // pinches toward each neighbour. A zoom keeps the round cloud.
-    // Centre (4.2, 0.2), radii 5.8 and 4.3. Keep in step with formations.ts.
+    // Industries: one cube, six faces. Rotation arrives as uCube.
+    // Centre (4.55, 0.05), half-edge 3.15. Keep in step with cube.ts.
     float k = min(floor(aRand * 6.0), 5.0);
-    float match = uFocus < 0.0 ? 0.0 : (1.0 - step(0.5, abs(k - uFocus)));
-    if (uZoomOn > 0.5 && uFocus >= 0.0 && match < 0.5) {
-      return vec3(0.0, -40.0, 0.0);
-    }
-    float a = k / 6.0 * TAU - 1.5707963 + t * 0.18;
     float extra = fract(aRand * 6.0);
-    vec3 local = glyph(k, seed, extra) * 0.62;
-    if (seed.z >= 0.34) {
-      local = halo(seed);
-      if (uZoomOn < 0.5) local = pinchCloud(seed, a, t);
-    } else {
-      local = yaw(local, uIconSpin * match);
-    }
-    return vec3(cos(a) * 5.8 + 4.2 + local.x, sin(a) * 4.3 + 0.2 + local.y, local.z);
+    vec3 local = cubeLocal(k, seed, extra, t);
+    return uCube * local + vec3(4.55, 0.05, 0.0);
   }
   if (s == 5) {
     // Response: the filled disc, pitched so the middle sinks. vSheet is the
@@ -679,7 +617,7 @@ float density(int s) {
   if (s == 1) return 0.85;
   if (s == 2) return 0.30;
   if (s == 3) return 0.32;
-  if (s == 4) return 0.40;
+  if (s == 4) return 0.30;
   if (s == 5) return 0.48;
   return 0.55;
 }
@@ -814,43 +752,11 @@ void main() {
       pos.z += match * 0.9 * nearOwnership * (1.0 - device);
     }
     if (nearIndustries > 0.0) {
-      float k = floor(aRand * 6.0);
+      float k = min(floor(aRand * 6.0), 5.0);
       float match = 1.0 - step(0.5, abs(k - uFocus));
-      float dim = mix(0.32, 0.08, uZoom);
-      float lift = mix(1.85, 2.1, uZoom);
-      float linked = match;
-      if (position.z >= 0.34) {
-        float hz = (position.z - 0.34) / 0.66;
-        float dirHit = 1.0;
-        float inThroat = 1.0;
-        if (hz < 0.08) {
-          float a = k / 6.0 * 6.2831853 - 1.5707963 + uTime * 0.18;
-          float cosP = (hz / 0.08) * 2.0 - 1.0;
-          float sinP = sqrt(max(0.0, 1.0 - cosP * cosP));
-          float az = position.x * 6.2831853;
-          vec3 dir = vec3(cos(az) * sinP, cosP, sin(az) * sinP);
-          float best = 0.0;
-          for (int i = 0; i < 2; i++) {
-            float side = i == 0 ? 1.0 : -1.0;
-            vec2 delta = orbitCenter(a + side * 1.0471975512) - orbitCenter(a);
-            float len = max(length(delta), 0.001);
-            float proj = dot(dir, vec3(delta / len, 0.0));
-            if (proj > best) {
-              best = proj;
-              dirHit = side;
-            }
-          }
-          inThroat = step(0.02, best);
-        } else {
-          dirHit = hz < 0.54 ? 1.0 : -1.0;
-        }
-        if (inThroat > 0.5) {
-          float neighbor = mod(k + dirHit + 6.0, 6.0);
-          linked = max(match, 1.0 - step(0.5, abs(neighbor - uFocus)));
-        }
-      }
-      vAlpha *= mix(dim, lift, linked);
-      pos.z += linked * mix(1.5, 0.45, step(0.34, position.z)) * nearIndustries;
+      // Interior dust stays put. The chosen face lifts; the cube stays one object.
+      float skin = 1.0 - step(0.93, position.z);
+      vAlpha *= mix(1.0, mix(0.46, 1.4, match), skin);
     }
   }
 
@@ -916,48 +822,44 @@ void main() {
     vAlpha *= mix(1.0, 1.45, onGrid * nearResponse);
   }
 
-  // Industry cloud glows from its own centre: hot in the middle, a faint
-  // dusting at the rim. The mark is a small bright object inside that glow.
+  // The cube is brightest on the faces turned toward the camera.
+  // Marks read first. Edges carry a little more than the panel.
   float nearIndustries = (1.0 - clamp(abs(ph - 4.0), 0.0, 1.0)) * sceneOff;
-  float onGlyph = (1.0 - step(0.34, position.z)) * nearIndustries;
-  float onHalo = step(0.34, position.z) * nearIndustries;
+  float onGlyph = (1.0 - step(0.3, position.z)) * nearIndustries;
+  float onHalo = step(0.3, position.z) * (1.0 - step(0.93, position.z)) * nearIndustries;
+  float onEdge = step(0.78, position.z) * (1.0 - step(0.93, position.z)) * nearIndustries;
   float core = 0.0;
+  float facing = 1.0;
   if (nearIndustries > 0.0) {
     float kk = min(floor(aRand * 6.0), 5.0);
-    float ca = kk / 6.0 * 6.2831853 - 1.5707963 + uTime * 0.18;
-    vec2 ctr = vec2(cos(ca) * 5.8 + 4.2, sin(ca) * 4.3 + 0.2);
-    float rad = length(vec3(pos.x - ctr.x, pos.y - ctr.y, pos.z));
-    if (uZoomOn > 0.5) {
-      core = pow(clamp(1.0 - rad / 2.5, 0.0, 1.0), 1.35);
-    } else {
-      // Same material from the bulge through the waist. The round falloff
-      // only covers the outer side, so it does not paint a ball on the throat.
-      float medial = medialCore(pos, ca);
-      float roundCore = pow(clamp(1.0 - rad / 2.5, 0.0, 1.0), 1.15);
-      vec3 local = vec3(pos.x - ctr.x, pos.y - ctr.y, pos.z);
-      float along = 0.0;
-      for (int i = 0; i < 2; i++) {
-        float dir = i == 0 ? 1.0 : -1.0;
-        vec2 delta = orbitCenter(ca + dir * 1.0471975512) - orbitCenter(ca);
-        float len = max(length(delta), 0.001);
-        along = max(along, dot(local, vec3(delta / len, 0.0)));
-      }
-      float front = smoothstep(0.15, 0.85, along);
-      core = max(roundCore * (1.0 - front), medial);
+    vec3 fn = vec3(0.0, 0.0, 1.0);
+    if (kk < 0.5) fn = vec3(0.0, 0.0, 1.0);
+    else if (kk < 1.5) fn = vec3(1.0, 0.0, 0.0);
+    else if (kk < 2.5) fn = vec3(0.0, 0.0, -1.0);
+    else if (kk < 3.5) fn = vec3(-1.0, 0.0, 0.0);
+    else if (kk < 4.5) fn = vec3(0.0, 1.0, 0.0);
+    else fn = vec3(0.0, -1.0, 0.0);
+    facing = clamp((uCube * fn).z, 0.0, 1.0);
+    core = mix(0.16, 1.0, facing * facing);
+    if (uFocus >= 0.0) {
+      float match = 1.0 - step(0.5, abs(kk - uFocus));
+      vGold = max(vGold, onGlyph * match * 0.4 * facing);
+    }
+    // Approach the chosen face, then quiet the field once the camera
+    // has passed through it so the industry page can be read.
+    if (uZoom > 0.15) {
+      float match = uFocus < 0.0 ? facing : (1.0 - step(0.5, abs(kk - uFocus)));
+      float approach = smoothstep(0.2, 0.72, uZoom);
+      vAlpha *= mix(1.0, mix(0.05, 1.0, match), approach);
+      vAlpha *= mix(1.0, 0.22, smoothstep(0.8, 1.0, uZoom));
     }
   }
-  vAlpha *= mix(1.0, mix(1.7, 2.6, uMobile), onGlyph);
-  vAlpha *= mix(1.0, mix(0.16, 1.85, core) * mix(1.0, 0.2, uMobile), onHalo);
+  vAlpha *= mix(1.0, mix(1.35, 2.5, facing), onGlyph);
+  vAlpha *= mix(1.0, mix(0.34, 1.05, core), onHalo);
+  vAlpha *= mix(1.0, 1.35, onEdge * facing);
   vAlpha *= mix(1.0, 1.7, device * sceneOff);
 
-  // A zoom shows only the focused cloud. Drop the other clusters and the
-  // oval dusting on the first frame instead of fading them in.
   float hide = 0.0;
-  if (nearIndustries > 0.0 && uFocus >= 0.0 && uZoomOn > 0.5) {
-    float k = floor(aRand * 6.0);
-    float match = 1.0 - step(0.5, abs(k - uFocus));
-    hide = 1.0 - match;
-  }
 
   // Driven by the contact form: the field tightens as the form completes.
   vAlpha *= mix(1.0, 1.7, uResolve);

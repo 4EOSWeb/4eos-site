@@ -239,8 +239,8 @@ function Industries() {
       <section className={`${CHAPTER} flex h-full flex-col`}>
           <p className="lede max-w-[44ch] shrink-0">
             <span className="field-copy">
-              Six practices. The field splits because the work is not generic,
-              and neither is the environment.
+              Six practices, one object. The work is not generic, and neither
+              is the environment.
             </span>
           </p>
           <div className="phone-list-glass mt-8 max-md:mt-10">

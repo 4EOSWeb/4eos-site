@@ -3,11 +3,16 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { buildSeeds, clusterCenter, latticeSize } from "./formations";
+import { CUBE_CX, CUBE_CY, cubeOrientation } from "./cube";
+import { buildSeeds, latticeSize } from "./formations";
 import { fragmentShader, vertexShader } from "./shader";
 import { CONFIDENT_SETTLE, FLOW_DAMPING, FLOW_STIFFNESS, ORGANIC_FLOW } from "./flow";
 import { setMouse, signal } from "./store";
 import { MOBILE_FIT, POINT_BUDGET, prefersReducedMotion, type DeviceTier } from "@/lib/env";
+
+const cubeMatrix = new THREE.Matrix3();
+let cubeTurn = 0;
+let cubeLatch = -1;
 
 const BASE_COLOR = new THREE.Color("#4f86b4");
 const ACCENT_COLOR = new THREE.Color("#f5b700");
@@ -77,6 +82,7 @@ function Points({
       uMobile: { value: mobile ? 1 : 0 },
       uCols: { value: cols },
       uRows: { value: rows },
+      uCube: { value: cubeMatrix },
       uBase: { value: BASE_COLOR },
       uAccent: { value: ACCENT_COLOR },
       uDetect: { value: DETECT_COLOR },
@@ -181,7 +187,6 @@ function Points({
 
 function CameraRig({
   still,
-  lite,
   mobile,
 }: {
   still: boolean;
@@ -189,37 +194,46 @@ function CameraRig({
   mobile: boolean;
 }) {
   useFrame((state, delta) => {
-    const zooming =
-      !mobile &&
-      signal.focus >= 0 &&
-      signal.focus < 6 &&
-      signal.zoom > 0.02 &&
-      Math.abs(signal.phase - 4) < 0.6;
-    if (zooming) {
-      const [x, y] = clusterCenter(
-        signal.focus,
-        still ? 0 : state.clock.elapsedTime,
-      );
-      signal.lookX = x;
-      signal.lookY = y;
-    }
-    // Ease both ways, the same curve. The oval itself returns as soon as
-    // the zoom is released; only the camera travels back.
     const dt = Math.min(delta, 0.05);
+    const t = still ? 0 : state.clock.elapsedTime;
+    const onCube = !mobile && signal.rendered > 3.4 && signal.rendered < 4.6;
+    if (onCube && signal.focus >= 0 && signal.focus < 6) cubeLatch = signal.focus;
+
+    const pulling = signal.zoom > 0.02 || signal.zoomR > 0.03;
+    let turnTarget = 0;
+    if (pulling && cubeLatch >= 0) turnTarget = 1;
+    else if (onCube && signal.focus >= 0 && signal.focus < 6) turnTarget = 0.86;
+    if (!pulling && signal.focus < 0 && cubeTurn < 0.02) cubeLatch = -1;
+
+    if (still) cubeTurn = turnTarget;
+    else {
+      const rate = signal.zoom > 0.5 && turnTarget > cubeTurn ? 2.6 : 1.15;
+      cubeTurn += (turnTarget - cubeTurn) * (1 - Math.exp(-rate * dt));
+      if (Math.abs(turnTarget - cubeTurn) < 0.001) cubeTurn = turnTarget;
+    }
+    const m = cubeOrientation(t, cubeLatch, cubeTurn);
+    cubeMatrix.set(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
+
+    // The face has to be square before the camera goes through it.
+    // On the way out the camera retreats first, and the tumble resumes after.
+    const locked = still || cubeTurn > 0.94;
+    const zoomGoal = !mobile && signal.zoom > 0.5 && locked ? 1 : 0;
     const zoomStep = still ? 1 : 1 - Math.pow(0.18, dt);
-    signal.zoomR += (signal.zoom - signal.zoomR) * zoomStep;
-    if (Math.abs(signal.zoom - signal.zoomR) < 0.0005) signal.zoomR = signal.zoom;
+    signal.zoomR += (zoomGoal - signal.zoomR) * zoomStep;
+    if (Math.abs(zoomGoal - signal.zoomR) < 0.0005) signal.zoomR = zoomGoal;
 
     const z = mobile ? 0 : signal.zoomR;
     const fit = mobile ? MOBILE_FIT : 1;
+    // Rest camera is the wide chapter. Zoom travels through the front face
+    // (the face sits near z = 3.15) and comes out the far side.
     const restZ = mobile ? 24 : 20;
-    const nearZ = mobile ? 16 : lite ? 13.5 : 9;
+    const throughZ = -0.85;
     state.camera.position.set(
-      signal.lookX * z * 0.55 * fit,
-      signal.lookY * z * 0.55 * fit,
-      restZ + (nearZ - restZ) * z,
+      CUBE_CX * z * fit,
+      CUBE_CY * z * fit,
+      restZ + (throughZ - restZ) * z,
     );
-    state.camera.lookAt(signal.lookX * z * fit, signal.lookY * z * fit, 0);
+    state.camera.lookAt(CUBE_CX * z * fit, CUBE_CY * z * fit, 0);
   });
   return null;
 }

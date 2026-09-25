@@ -1,7 +1,7 @@
+import { posterFacing } from "./cube";
 import {
   buildSeeds,
   formation,
-  industryBodyGlow,
   PHASE_CAPTION,
   PHASE_INDEX,
   SERVICE_CAPTION,
@@ -76,8 +76,9 @@ export function SignalPoster({
     }
     if (!showScene && phase === "industries") {
       const k = Math.min(5, Math.floor(s.rand * 6));
-      const glyph = s.seed[2] < 0.34;
-      const glow = glyph ? 1 : industryBodyGlow(x, y, z, k);
+      const glyph = s.seed[2] < 0.3;
+      const facing = posterFacing(k);
+      const glow = glyph ? 1 : 0.18 + 0.82 * facing * facing;
       o = glyph ? 0.85 : Math.round((0.06 + glow * 0.72) * 100) / 100;
       r = Math.round(r * (glyph ? 0.7 : 0.55 + glow * 0.9) * 10) / 10;
     }

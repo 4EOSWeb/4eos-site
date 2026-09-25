@@ -41,7 +41,6 @@ attribute float aGold;
 
 varying float vAlpha;
 varying float vGold;
-varying float vGlow;
 varying float vDetect;
 varying float vSheet;
 
@@ -644,8 +643,7 @@ void main() {
   float voiced = step(2.5, uScene) * (1.0 - step(3.5, uScene));
   float gear = step(4.5, uScene);
   vAlpha *= mix(1.0, 1.35, (voiced + gear) * uSceneMix);
-  vAlpha *= mix(1.0, 1.45, glow);
-  vGlow = glow;
+  vAlpha *= mix(1.0, 2.2, glow);
   vDetect = 0.0;
 
   // Hover focus: pull the matching industry cluster or ownership tier
@@ -674,9 +672,10 @@ void main() {
     }
   }
 
-  // A small minority of points carry the accent. The flashlight uses the
-  // same gold as the glass wash; its falloff is brightness, not a new hue.
+  // A small minority of points carry the accent. Glow warms the hot
+  // centre of the flashlight without turning the field orange.
   vGold = step(0.955, aGold) * 0.7;
+  vGold = max(vGold, glow * glow * 0.45);
 
   // Discovery: emphasise every few rows and columns so the lattice reads as
   // structure rather than as a finer grade of noise.
@@ -807,7 +806,6 @@ uniform vec3 uDetect;
 
 varying float vAlpha;
 varying float vGold;
-varying float vGlow;
 varying float vDetect;
 varying float vSheet;
 
@@ -818,14 +816,6 @@ void main() {
 
   float soft = smoothstep(0.25, 0.0, r2);
   vec3 c = mix(uBase, uAccent, vGold);
-  // The glass wash is sRGB #f5b700. The accent uniform arrives linear, which
-  // paints a more orange gold, so the flashlight is encoded back to that sRGB.
-  vec3 glassGold = mix(
-    uAccent * 12.92,
-    1.055 * pow(max(uAccent, vec3(0.0)), vec3(1.0 / 2.4)) - 0.055,
-    step(vec3(0.0031308), uAccent)
-  );
-  c = mix(c, glassGold, smoothstep(0.0, 0.22, vGlow));
   vec3 threat = mix(uDetect, vec3(1.0, 0.78, 0.62), smoothstep(0.18, 0.0, r2));
   c = mix(c, threat, vDetect);
   gl_FragColor = vec4(c, soft * vAlpha);

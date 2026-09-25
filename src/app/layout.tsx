@@ -4,6 +4,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationSchema } from "@/lib/schema";
 import { site, addressLine } from "@/lib/site";
 import { ChapterRail } from "@/components/layout/ChapterRail";
+import { Trail } from "@/components/layout/Trail";
 import { GlassGlow } from "@/components/layout/GlassGlow";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { SignalClient } from "@/components/signal/SignalClient";
@@ -72,6 +73,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           Skip to content
         </a>
         <SmoothScroll />
+        <Trail />
         <SignalClient />
         <GlassGlow />
         <ChapterRail />

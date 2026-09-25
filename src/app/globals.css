@@ -703,7 +703,14 @@ html.signal-live .signal-poster {
     margin-top: 0;
   }
 
-  .phone-list-glass .field-copy {
+  /* Industry rows are fit-to-text on a phone. Inside the panel the
+     hairline and the tap target run the width of the glass. */
+  .phone-list-glass > ol > li,
+  .phone-list-glass > ol > li > a {
+    width: 100%;
+  }
+
+  .field-copy {
     background-color: transparent;
     padding: 0;
     border-radius: 0;

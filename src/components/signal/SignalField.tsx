@@ -122,14 +122,18 @@ function Points({
     u.uIconSpin.value = signal.iconSpin;
 
     const pointer = u.uPointer.value as THREE.Vector2;
-    if (mobile) {
+    const onUnmanaged = Math.max(0, 1 - Math.abs(signal.rendered));
+    if (mobile && onUnmanaged > 0.02) {
       const t = state.clock.elapsedTime;
-      pointer.set(Math.sin(t * 0.13) * 0.62, Math.sin(t * 0.09 + 1.4) * 0.42);
+      pointer.set(Math.sin(t * 0.55) * 0.62, Math.sin(t * 0.37 + 1.4) * 0.42);
+      u.uFieldGlow.value = onUnmanaged;
+    } else if (mobile) {
+      u.uFieldGlow.value = 0;
     } else {
       pointer.set(signal.mouseRX, signal.mouseRY);
+      u.uFieldGlow.value = signal.fieldGlow;
     }
     u.uAspect.value = state.size.width / Math.max(state.size.height, 1);
-    u.uFieldGlow.value = mobile ? 1 : signal.fieldGlow;
 
     if (!still) u.uTime.value = state.clock.elapsedTime;
   });

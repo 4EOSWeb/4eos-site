@@ -74,11 +74,17 @@ export function snapScrollFor(el: HTMLElement) {
   return Math.max(0, Math.round(top - window.innerHeight * SNAP_TOP));
 }
 
+/** Document order. A target that mounts late must not sort after the footer. */
+function ordered() {
+  return [...pending].sort((a, b) => snapScrollFor(a) - snapScrollFor(b));
+}
+
 function nearestIndex() {
   const y = window.scrollY;
+  const list = ordered();
   let best = 0;
   let bestDist = Number.POSITIVE_INFINITY;
-  [...pending].forEach((el, i) => {
+  list.forEach((el, i) => {
     const dist = Math.abs(snapScrollFor(el) - y);
     if (dist < bestDist) {
       bestDist = dist;
@@ -89,18 +95,17 @@ function nearestIndex() {
 }
 
 function moveBy(direction: 1 | -1) {
-  const count = pending.size;
-  if (count === 0) return;
+  const list = ordered();
+  if (list.length === 0) return;
   const tall = tallStrategy();
   if (tall && insideEl(tall)) {
-    const list = [...pending];
     const index = list.indexOf(tall) + direction;
     if (index < 0 || index >= list.length) return;
     snapGoTo(index);
     return;
   }
   const index = nearestIndex() + direction;
-  if (index < 0 || index >= count) return;
+  if (index < 0 || index >= list.length) return;
   snapGoTo(index);
 }
 
@@ -161,9 +166,10 @@ export function phoneStrategyGesture(
   return "held";
 }
 
-/** Proximity snap yanks a tall phone chapter back to its top. Keep it off there. */
+/** A tall strategy chapter must not be yanked back to its top. Every other
+ *  phone screen, including the six services, keeps the magnet. */
 export function syncPhoneSnapHold() {
-  if (isPhoneLayout() && pending.size >= 2) stopSnap();
+  if (tallStrategy()) stopSnap();
   else startSnap();
 }
 
@@ -183,7 +189,7 @@ function scrollInside(el: HTMLElement, direction: 1 | -1) {
 }
 
 export function snapGoTo(index: number) {
-  const el = [...pending][index];
+  const el = ordered()[index];
   if (!el) return;
 
   const value = snapScrollFor(el);
@@ -202,7 +208,7 @@ export function snapGoTo(index: number) {
 
 /** Land on the same top magnet the rail uses. */
 export function snapToEl(el: HTMLElement) {
-  const index = [...pending].indexOf(el);
+  const index = ordered().indexOf(el);
   if (index < 0) return false;
   snapGoTo(index);
   return true;

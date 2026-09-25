@@ -11,15 +11,8 @@ export function GlassGlow() {
   useEffect(() => {
     if (detectTier() === "mobile") return;
 
-    let current: HTMLElement | null = null;
-
     const move = (event: PointerEvent) => {
       const next = (event.target as Element | null)?.closest?.(GLASS) as HTMLElement | null;
-      if (current && current !== next) {
-        current.style.removeProperty("--gx");
-        current.style.removeProperty("--gy");
-      }
-      current = next;
       setFieldGlow(!next);
       if (!next) return;
       const box = next.getBoundingClientRect();

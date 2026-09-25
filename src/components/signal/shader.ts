@@ -457,11 +457,94 @@ vec3 serviceAt(int s, float t) {
   return p;
 }
 
-float rimCoord(float t) {
-  float a = t * 2.0 - 1.0;
-  float s = a < 0.0 ? -1.0 : 1.0;
-  float m = abs(a);
-  return s * pow(max(m, 0.0), 0.78);
+float sdCapsule(vec2 p, vec2 a, vec2 b, float r) {
+  vec2 pa = p - a;
+  vec2 ba = b - a;
+  float h = clamp(dot(pa, ba) / max(dot(ba, ba), 0.0001), 0.0, 1.0);
+  return length(pa - ba * h) - r;
+}
+
+float sdBox(vec2 p, vec2 c, vec2 h) {
+  vec2 d = abs(p - c) - h;
+  return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
+}
+
+// Signed distance to the industry mark. Negative is inside the icon.
+// Keep in step with iconSDF() in cube.ts.
+float iconSDF(float k, float x, float y) {
+  vec2 p = vec2(x, y);
+  float d = 8.0;
+  if (k < 0.5) {
+    d = sdCapsule(p, vec2(0.0, -0.95), vec2(0.0, 0.5), 0.2);
+    d = min(d, sdCapsule(p, vec2(-0.28, -1.08), vec2(0.28, -1.08), 0.16));
+    d = min(d, sdCapsule(p, vec2(-0.98, 0.5), vec2(0.98, 0.5), 0.16));
+    d = min(d, sdCapsule(p, vec2(-0.66, 0.5), vec2(-0.66, 0.02), 0.1));
+    d = min(d, sdCapsule(p, vec2(0.66, 0.5), vec2(0.66, 0.02), 0.1));
+    d = min(d, length(p - vec2(-0.66, -0.16)) - 0.4);
+    d = min(d, length(p - vec2(0.66, -0.16)) - 0.4);
+  } else if (k < 1.5) {
+    float ex = x / 0.98;
+    float ey = (y - 0.12) / 0.82;
+    d = length(vec2(ex, ey)) - 1.0;
+    if (y < 0.12) d = max(d, 0.12 - y);
+    d = min(d, sdCapsule(p, vec2(0.0, 0.2), vec2(0.0, -0.92), 0.14));
+    d = min(d, sdCapsule(p, vec2(0.0, -0.92), vec2(0.36, -1.28), 0.12));
+    d = min(d, sdCapsule(p, vec2(0.36, -1.28), vec2(0.62, -0.78), 0.12));
+  } else if (k < 2.5) {
+    d = min(
+      sdCapsule(p, vec2(-1.05, 0.0), vec2(1.05, 0.0), 0.4),
+      sdCapsule(p, vec2(0.0, -1.05), vec2(0.0, 1.05), 0.4)
+    );
+  } else if (k < 3.5) {
+    d = sdCapsule(p, vec2(-0.52, -1.1), vec2(-0.52, 0.98), 0.24);
+    d = min(d, sdCapsule(p, vec2(-0.52, 0.86), vec2(1.12, 0.62), 0.2));
+    d = min(d, sdCapsule(p, vec2(-0.52, 0.86), vec2(-1.1, 0.7), 0.18));
+    d = min(d, sdCapsule(p, vec2(0.7, 0.72), vec2(0.7, -0.22), 0.1));
+    d = min(d, length(p - vec2(0.7, -0.32)) - 0.2);
+  } else if (k < 4.5) {
+    float r = length(p);
+    float tooth = cos(atan(y, x) * 8.0);
+    float outer = 0.76 + max(tooth, 0.0) * 0.4;
+    d = max(0.2 - r, r - outer);
+  } else {
+    d = sdBox(p, vec2(-0.78, -0.42), vec2(0.32, 0.38));
+    d = min(d, sdBox(p, vec2(0.0, -0.18), vec2(0.32, 0.62)));
+    d = min(d, sdBox(p, vec2(0.78, 0.06), vec2(0.32, 0.86)));
+  }
+  return d;
+}
+
+vec3 skinPoint(float k, float su, float sv, float depth, vec3 n, vec3 tu, vec3 tv) {
+  float d = 3.15 - depth;
+  float a = 3.15 - 1.02;
+  return n * d + tu * su * a + tv * sv * a;
+}
+
+vec3 edgePoint(float which, float along, float ang) {
+  float axis = mod(which, 3.0);
+  float quad = floor(which / 3.0);
+  float s1 = mod(quad, 2.0) < 0.5 ? -1.0 : 1.0;
+  float s2 = quad < 1.5 ? -1.0 : 1.0;
+  float t = along * (3.15 - 1.02);
+  float c = (3.15 - 1.02) + cos(ang) * 1.02;
+  float s = (3.15 - 1.02) + sin(ang) * 1.02;
+  vec3 p = vec3(s1 * c, s2 * s, t);
+  if (axis < 0.5) p = vec3(t, s1 * c, s2 * s);
+  else if (axis < 1.5) p = vec3(s2 * s, t, s1 * c);
+  return p;
+}
+
+vec3 cornerPoint(float which, float u, float v) {
+  float sx = mod(which, 2.0) < 0.5 ? -1.0 : 1.0;
+  float sy = mod(floor(which / 2.0), 2.0) < 0.5 ? -1.0 : 1.0;
+  float sz = which < 3.5 ? -1.0 : 1.0;
+  float phi = u * 1.5707963;
+  float th = v * 1.5707963;
+  float dx = sin(th) * cos(phi);
+  float dy = sin(th) * sin(phi);
+  float dz = cos(th);
+  float a = 3.15 - 1.02;
+  return vec3(sx * (a + 1.02 * dx), sy * (a + 1.02 * dy), sz * (a + 1.02 * dz));
 }
 
 // One particle in cube-local space. Twin of cubeLocal() in cube.ts.
@@ -486,46 +569,37 @@ vec3 cubeLocal(float k, vec3 seed, float extra, float t) {
   }
 
   vec3 p = n * 3.15;
-  if (seed.z < 0.3) {
+  if (seed.z < 0.38) {
     vec3 g = glyph(k, seed, extra);
-    // Pocket depth 0.55. Thickness (g.z * 0.18) stays under the face.
-    p = n * (3.15 - 0.55 + g.z * 0.18) + tu * g.x * 1.5 + tv * g.y * 1.5;
-  } else if (seed.z < 0.42) {
-    float ang = seed.x * TAU;
-    float depth = 0.05 + seed.y * 0.52;
-    p = n * (3.15 - depth) + tu * cos(ang) * 0.66 * 3.15 + tv * sin(ang) * 0.66 * 3.15;
-  } else if (seed.z < 0.78) {
-    float drift = sin(t * 0.32 + seed.x * 11.0) * 0.02;
-    float su = clamp(rimCoord(seed.x) + drift, -0.92, 0.92);
-    float sv = clamp(rimCoord(seed.y), -0.92, 0.92);
-    float r = length(vec2(su, sv));
-    float depth = pow(hash21(seed.x, seed.y), 1.5) * 0.22;
-    if (r < 0.66) {
-      float rad = 0.68;
-      su = su / max(r, 0.001) * rad;
-      sv = sv / max(r, 0.001) * rad;
-      depth = 0.02;
+    float su = clamp(g.x * 1.28 / (3.15 - 1.02), -0.96, 0.96);
+    float sv = clamp(g.y * 1.28 / (3.15 - 1.02), -0.96, 0.96);
+    float depth = 0.62;
+    if (seed.z >= 0.22) depth = 0.06 + ((seed.z - 0.22) / 0.16) * (0.62 - 0.06);
+    p = skinPoint(k, su, sv, depth, n, tu, tv);
+  } else if (seed.z < 0.72) {
+    float span = (3.15 - 1.02) / 1.28;
+    float x = (seed.x * 2.0 - 1.0) * span;
+    float y = (seed.y * 2.0 - 1.0) * span;
+    float sd = iconSDF(k, x, y);
+    if (sd < 0.1) {
+      float e = 0.045;
+      float dx = iconSDF(k, x + e, y) - iconSDF(k, x - e, y);
+      float dy = iconSDF(k, x, y + e) - iconSDF(k, x, y - e);
+      float gl = max(length(vec2(dx, dy)), 0.0001);
+      x += dx / gl * (0.12 - sd);
+      y += dy / gl * (0.12 - sd);
     }
-    p = n * (3.15 - depth) + tu * su * 3.15 + tv * sv * 3.15;
-  } else if (seed.z < 0.93) {
-    float which = min(floor(seed.x * 4.0), 3.0);
-    float along = clamp((fract(seed.y + t * 0.07) * 2.0 - 1.0) * 0.86, -0.86, 0.86);
-    float jitter = (hash21(seed.y, extra) - 0.5) * 0.04;
-    float su = along;
-    float sv = 0.92;
-    if (which > 0.5 && which < 1.5) sv = -0.92;
-    else if (which > 1.5 && which < 2.5) { su = 0.92; sv = along; }
-    else if (which > 2.5) { su = -0.92; sv = along; }
-    if (which < 1.5) su = clamp(su + jitter, -0.86, 0.86);
-    else sv = clamp(sv + jitter, -0.86, 0.86);
-    p = n * (3.15 - (0.04 + hash21(seed.x, extra) * 0.06)) + tu * su * 3.15 + tv * sv * 3.15;
+    float su = clamp(x / span, -1.0, 1.0);
+    float sv = clamp(y / span, -1.0, 1.0);
+    p = skinPoint(k, su, sv, pow(hash21(seed.x, seed.y), 1.6) * 0.14, n, tu, tv);
+  } else if (seed.z < 0.9) {
+    float which = min(floor(fract(extra * 12.17 + seed.x) * 12.0), 11.0);
+    float along = fract(seed.y + t * 0.04) * 2.0 - 1.0;
+    float ang = hash21(seed.x, extra) * 1.5707963;
+    p = edgePoint(which, along, ang);
   } else {
-    float span = 3.15 * 1.56;
-    p = vec3(
-      (seed.x - 0.5) * span + sin(t * 0.16 + seed.y * TAU) * 0.1,
-      (seed.y - 0.5) * span + cos(t * 0.13 + seed.x * TAU) * 0.1,
-      (hash21(seed.x, seed.y) - 0.5) * span
-    );
+    float which = min(floor(fract(extra * 8.17 + seed.y) * 8.0), 7.0);
+    p = cornerPoint(which, seed.x, hash21(seed.x, seed.y));
   }
   return p;
 }
@@ -767,8 +841,8 @@ void main() {
       float k = min(floor(aRand * 6.0), 5.0);
       float match = 1.0 - step(0.5, abs(k - uFocus));
       // Interior dust stays put. The chosen face lifts; the cube stays one object.
-      float skin = 1.0 - step(0.93, position.z);
-      vAlpha *= mix(1.0, mix(0.46, 1.4, match), skin);
+      float skin = 1.0 - step(0.72, position.z);
+      vAlpha *= mix(1.0, mix(0.55, 1.35, match), skin);
     }
   }
 
@@ -837,21 +911,24 @@ void main() {
   // The cube is brightest on the faces turned toward the camera.
   // Marks read first. Edges carry a little more than the panel.
   float nearIndustries = (1.0 - clamp(abs(ph - 4.0), 0.0, 1.0)) * sceneOff;
-  float onGlyph = (1.0 - step(0.3, position.z)) * nearIndustries;
-  float onHalo = step(0.3, position.z) * (1.0 - step(0.93, position.z)) * nearIndustries;
-  float onEdge = step(0.78, position.z) * (1.0 - step(0.93, position.z)) * nearIndustries;
+  float onGlyph = (1.0 - step(0.22, position.z)) * nearIndustries;
+  float onHalo = step(0.38, position.z) * nearIndustries;
+  float onCarve = step(0.22, position.z) * (1.0 - step(0.38, position.z)) * nearIndustries;
   float core = 0.0;
   float facing = 1.0;
   if (nearIndustries > 0.0) {
     float kk = min(floor(aRand * 6.0), 5.0);
-    vec3 fn = vec3(0.0, 0.0, 1.0);
-    if (kk < 0.5) fn = vec3(0.0, 0.0, 1.0);
-    else if (kk < 1.5) fn = vec3(1.0, 0.0, 0.0);
-    else if (kk < 2.5) fn = vec3(0.0, 0.0, -1.0);
-    else if (kk < 3.5) fn = vec3(-1.0, 0.0, 0.0);
-    else if (kk < 4.5) fn = vec3(0.0, 1.0, 0.0);
-    else fn = vec3(0.0, -1.0, 0.0);
-    facing = clamp((uCube * fn).z, 0.0, 1.0);
+    // Shade the rounded body by its real normal, so fillets and corners
+    // belong to the die instead of to a random face.
+    mat3 cubeT = mat3(
+      uCube[0][0], uCube[1][0], uCube[2][0],
+      uCube[0][1], uCube[1][1], uCube[2][1],
+      uCube[0][2], uCube[1][2], uCube[2][2]
+    );
+    vec3 local = cubeT * (pos - vec3(5.85, 0.05, 0.0));
+    float inner = 3.15 - 1.02;
+    vec3 nrm = local - clamp(local, -inner, inner);
+    facing = clamp((uCube * nrm).z / max(length(nrm), 0.001), 0.0, 1.0);
     core = mix(0.16, 1.0, facing * facing);
     // Marks are the accent. The panel stays blue so the symbol reads first.
     vGold = max(vGold, onGlyph * facing * 0.92);
@@ -862,18 +939,18 @@ void main() {
     // Approach the chosen face, then quiet the field once the camera
     // has passed through it so the industry page can be read.
     if (uZoom > 0.15) {
-      float match = uFocus < 0.0 ? facing : (1.0 - step(0.5, abs(kk - uFocus)));
+      float faceMatch = 1.0 - step(0.5, abs(kk - uFocus));
+      float bodyMatch = step(0.25, facing);
+      float onBody = step(0.72, position.z);
+      float match = uFocus < 0.0 ? facing : mix(faceMatch, bodyMatch, onBody);
       float approach = smoothstep(0.2, 0.72, uZoom);
       vAlpha *= mix(1.0, mix(0.05, 1.0, match), approach);
       vAlpha *= mix(1.0, 0.22, smoothstep(0.8, 1.0, uZoom));
     }
   }
-  float onWall = step(0.3, position.z) * (1.0 - step(0.42, position.z)) * nearIndustries;
-  float lip = onWall * (1.0 - smoothstep(0.0, 0.28, position.y));
   vAlpha *= mix(1.0, mix(1.7, 2.9, facing), onGlyph);
-  vAlpha *= mix(1.0, mix(0.5, 1.28, core), onHalo);
-  vAlpha *= mix(1.0, 1.85, lip * facing);
-  vAlpha *= mix(1.0, 1.65, onEdge * facing);
+  vAlpha *= mix(1.0, mix(0.85, 1.45, facing), onCarve);
+  vAlpha *= mix(1.0, mix(0.55, 1.2, core), onHalo);
   vAlpha *= mix(1.0, 1.7, device * sceneOff);
 
   float hide = 0.0;
@@ -897,7 +974,7 @@ void main() {
   float onSpokePt = onGridPt * step(0.5, fract(aRand * 3.1));
   float keptPt = step(fract(position.z * 13.7), mix(mix(0.55, 1.0, vSheet / 6.1), mix(0.5, 1.0, vSheet / 6.48), onSpokePt));
   onGridPt *= keptPt;
-  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 4.2 + onGlyph * 1.65 + onHalo * core * 1.2 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 0.55;
+  float size = mix(0.9, 2.0, aRand) + vGold * 0.7 + beam * 0.9 + glow * 0.85 + vDetect * 4.2 + onGlyph * 1.65 + onCarve * 0.7 + onHalo * core * 1.05 + device * sceneOff * 1.05 + (voiced + gear) * uSceneMix * 0.45 + onSpherePt * 0.8 + onGridPt * 0.55;
   float phoneScale = mix(1.25, 0.48, clamp(onGlyph, 0.0, 1.0));
   phoneScale = mix(phoneScale, 0.4, clamp(onHalo, 0.0, 1.0));
   size *= mix(1.0, phoneScale, uMobile);

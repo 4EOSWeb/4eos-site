@@ -13,18 +13,18 @@ export const CUBE_H = 3.15;
 export const CUBE_CX = 5.85;
 export const CUBE_CY = 0.05;
 
-/** seed.z below this draws the industry mark. */
-export const CUBE_ICON = 0.3;
-/** seed.z below this draws the face shell. */
-export const CUBE_SHELL = 0.78;
-/** seed.z below this draws the edge flow. The rest is the interior. */
-export const CUBE_EDGE = 0.93;
-/** Mark size. It sits inside the face pocket, clear of the rim. */
-const ICON_SCALE = 1.5;
+/** seed.z below this is the carved mark (floor and walls). */
+export const CUBE_ICON = 0.38;
+/** seed.z below this is a flat face. */
+export const CUBE_SHELL = 0.72;
+/** seed.z below this is a rounded edge. The rest is a rounded corner. */
+export const CUBE_EDGE = 0.9;
+/** Mark size in world units. The carve uses the same space. */
+const ICON_SCALE = 1.28;
 /** How far under the skin the mark sits. */
-const POCKET = 0.55;
-/** Radius of the recessed well, in face units (-1..1). */
-const WELL = 0.66;
+const POCKET = 0.62;
+/** Corner radius. The flat face ends at CUBE_H - DIE_R. */
+const DIE_R = 1.02;
 
 const TAU = Math.PI * 2;
 
@@ -37,6 +37,127 @@ function hash21(x: number, y: number) {
   return fract(n * n * 45.233);
 }
 
+function clamp(n: number, lo: number, hi: number) {
+  return Math.min(hi, Math.max(lo, n));
+}
+
+const DIE_A = CUBE_H - DIE_R;
+
+function sdCapsule(px: number, py: number, ax: number, ay: number, bx: number, by: number, r: number) {
+  const abx = bx - ax;
+  const aby = by - ay;
+  const ab2 = abx * abx + aby * aby || 1e-4;
+  const t = clamp(((px - ax) * abx + (py - ay) * aby) / ab2, 0, 1);
+  return Math.hypot(px - (ax + abx * t), py - (ay + aby * t)) - r;
+}
+
+function sdBox(px: number, py: number, cx: number, cy: number, hx: number, hy: number) {
+  const dx = Math.abs(px - cx) - hx;
+  const dy = Math.abs(py - cy) - hy;
+  return Math.hypot(Math.max(dx, 0), Math.max(dy, 0)) + Math.min(Math.max(dx, dy), 0);
+}
+
+/** Signed distance to one industry mark, in the mark's own units. Negative is inside. */
+function iconSDF(k: number, x: number, y: number) {
+  if (k <= 0) {
+    let d = sdCapsule(x, y, 0, -0.95, 0, 0.5, 0.2);
+    d = Math.min(d, sdCapsule(x, y, -0.28, -1.08, 0.28, -1.08, 0.16));
+    d = Math.min(d, sdCapsule(x, y, -0.98, 0.5, 0.98, 0.5, 0.16));
+    d = Math.min(d, sdCapsule(x, y, -0.66, 0.5, -0.66, 0.02, 0.1));
+    d = Math.min(d, sdCapsule(x, y, 0.66, 0.5, 0.66, 0.02, 0.1));
+    d = Math.min(d, Math.hypot(x + 0.66, y + 0.16) - 0.4);
+    d = Math.min(d, Math.hypot(x - 0.66, y + 0.16) - 0.4);
+    return d;
+  }
+  if (k === 1) {
+    const ex = x / 0.98;
+    const ey = (y - 0.12) / 0.82;
+    let d = Math.hypot(ex, ey) - 1;
+    if (y < 0.12) d = Math.max(d, 0.12 - y);
+    d = Math.min(d, sdCapsule(x, y, 0, 0.2, 0, -0.92, 0.14));
+    d = Math.min(d, sdCapsule(x, y, 0, -0.92, 0.36, -1.28, 0.12));
+    d = Math.min(d, sdCapsule(x, y, 0.36, -1.28, 0.62, -0.78, 0.12));
+    return d;
+  }
+  if (k === 2) {
+    return Math.min(
+      sdCapsule(x, y, -1.05, 0, 1.05, 0, 0.4),
+      sdCapsule(x, y, 0, -1.05, 0, 1.05, 0.4),
+    );
+  }
+  if (k === 3) {
+    let d = sdCapsule(x, y, -0.52, -1.1, -0.52, 0.98, 0.24);
+    d = Math.min(d, sdCapsule(x, y, -0.52, 0.86, 1.12, 0.62, 0.2));
+    d = Math.min(d, sdCapsule(x, y, -0.52, 0.86, -1.1, 0.7, 0.18));
+    d = Math.min(d, sdCapsule(x, y, 0.7, 0.72, 0.7, -0.22, 0.1));
+    d = Math.min(d, Math.hypot(x - 0.7, y + 0.32) - 0.2);
+    return d;
+  }
+  if (k === 4) {
+    const r = Math.hypot(x, y);
+    const tooth = Math.cos(Math.atan2(y, x) * 8);
+    const outer = 0.76 + Math.max(tooth, 0) * 0.4;
+    return Math.max(0.2 - r, r - outer);
+  }
+  let d = sdBox(x, y, -0.78, -0.42, 0.32, 0.38);
+  d = Math.min(d, sdBox(x, y, 0, -0.18, 0.32, 0.62));
+  d = Math.min(d, sdBox(x, y, 0.78, 0.06, 0.32, 0.86));
+  return d;
+}
+
+/** Slide a face sample out of the mark so the opening keeps the mark's outline. */
+function clearIcon(k: number, su: number, sv: number): [number, number] {
+  const span = DIE_A / ICON_SCALE;
+  let x = su * span;
+  let y = sv * span;
+  const sd = iconSDF(k, x, y);
+  if (sd < 0.1) {
+    const e = 0.045;
+    const dx = iconSDF(k, x + e, y) - iconSDF(k, x - e, y);
+    const dy = iconSDF(k, x, y + e) - iconSDF(k, x, y - e);
+    const gl = Math.hypot(dx, dy) || 1;
+    x += (dx / gl) * (0.12 - sd);
+    y += (dy / gl) * (0.12 - sd);
+  }
+  return [clamp(x / span, -1, 1), clamp(y / span, -1, 1)];
+}
+
+/** Flat face of the die. su, sv are -1..1 across the flat panel. */
+function skinPoint(k: number, su: number, sv: number, depth: number): Vec3 {
+  const [n, u, v] = faceBasis(k);
+  const d = CUBE_H - depth;
+  return [
+    n[0] * d + u[0] * su * DIE_A + v[0] * sv * DIE_A,
+    n[1] * d + u[1] * su * DIE_A + v[1] * sv * DIE_A,
+    n[2] * d + u[2] * su * DIE_A + v[2] * sv * DIE_A,
+  ];
+}
+
+function edgePoint(which: number, along: number, ang: number): Vec3 {
+  const axis = which % 3;
+  const quad = Math.floor(which / 3);
+  const s1 = quad % 2 === 0 ? -1 : 1;
+  const s2 = quad < 2 ? -1 : 1;
+  const t = along * DIE_A;
+  const c = DIE_A + Math.cos(ang) * DIE_R;
+  const s = DIE_A + Math.sin(ang) * DIE_R;
+  if (axis === 0) return [t, s1 * c, s2 * s];
+  if (axis === 1) return [s2 * s, t, s1 * c];
+  return [s1 * c, s2 * s, t];
+}
+
+function cornerPoint(which: number, u: number, v: number): Vec3 {
+  const sx = which % 2 === 0 ? -1 : 1;
+  const sy = (which & 2) === 0 ? -1 : 1;
+  const sz = which < 4 ? -1 : 1;
+  const phi = u * (Math.PI / 2);
+  const th = v * (Math.PI / 2);
+  const dx = Math.sin(th) * Math.cos(phi);
+  const dy = Math.sin(th) * Math.sin(phi);
+  const dz = Math.cos(th);
+  return [sx * (DIE_A + DIE_R * dx), sy * (DIE_A + DIE_R * dy), sz * (DIE_A + DIE_R * dz)];
+}
+
 /** Outward normal, then the face's right and up axes. */
 export function faceBasis(k: number): [Vec3, Vec3, Vec3] {
   if (k <= 0) return [[0, 0, 1], [1, 0, 0], [0, 1, 0]];
@@ -45,29 +166,6 @@ export function faceBasis(k: number): [Vec3, Vec3, Vec3] {
   if (k === 3) return [[-1, 0, 0], [0, 0, 1], [0, 1, 0]];
   if (k === 4) return [[0, 1, 0], [1, 0, 0], [0, 0, -1]];
   return [[0, -1, 0], [1, 0, 0], [0, 0, 1]];
-}
-
-function facePoint(k: number, su: number, sv: number, depth: number): Vec3 {
-  const [n, u, v] = faceBasis(k);
-  const d = CUBE_H - depth;
-  const x = su * CUBE_H;
-  const y = sv * CUBE_H;
-  return [
-    n[0] * d + u[0] * x + v[0] * y,
-    n[1] * d + u[1] * x + v[1] * y,
-    n[2] * d + u[2] * x + v[2] * y,
-  ];
-}
-
-/**
- * -1..1. Mostly even across the face, with a mild gather at the rim so the
- * silhouette is sharper than the middle without opening a hole around the mark.
- */
-function rimCoord(t: number) {
-  const a = t * 2 - 1;
-  const s = a < 0 ? -1 : 1;
-  const m = Math.abs(a);
-  return s * Math.pow(m, 0.78);
 }
 
 function axisAngle(x: number, y: number, z: number, rad: number): Quat {
@@ -103,10 +201,6 @@ function slerp(a: Quat, b: Quat, t: number): Quat {
   const w1 = Math.sin((1 - t) * theta) / s;
   const w2 = Math.sin(t * theta) / s;
   return [a[0] * w1 + bx * w2, a[1] * w1 + by * w2, a[2] * w1 + bz * w2, a[3] * w1 + bw * w2];
-}
-
-function clamp(n: number, lo: number, hi: number) {
-  return Math.min(hi, Math.max(lo, n));
 }
 
 /** Pose that turns face k straight at the camera (+Z). */
@@ -195,62 +289,25 @@ export function cubeLocal(
   t: number,
 ): Vec3 {
   if (glyph) {
-    const [n, u, v] = faceBasis(k);
-    // The mark lives in the pocket. Its own thickness stays under the skin.
-    const base = facePoint(k, 0, 0, POCKET);
-    const sink = glyph[2] * 0.18;
-    return [
-      base[0] + u[0] * glyph[0] * ICON_SCALE + v[0] * glyph[1] * ICON_SCALE + n[0] * sink,
-      base[1] + u[1] * glyph[0] * ICON_SCALE + v[1] * glyph[1] * ICON_SCALE + n[1] * sink,
-      base[2] + u[2] * glyph[0] * ICON_SCALE + v[2] * glyph[1] * ICON_SCALE + n[2] * sink,
-    ];
-  }
-
-  // The wall of the recess, from the lip down to the floor of the pocket.
-  if (seed[2] < 0.42) {
-    const ang = seed[0] * TAU;
-    return facePoint(k, Math.cos(ang) * WELL, Math.sin(ang) * WELL, 0.05 + seed[1] * 0.52);
+    const su = clamp((glyph[0] * ICON_SCALE) / DIE_A, -0.96, 0.96);
+    const sv = clamp((glyph[1] * ICON_SCALE) / DIE_A, -0.96, 0.96);
+    // Floor of the carve, then the wall that rises to the skin in the mark's shape.
+    const depth = seed[2] < 0.22 ? POCKET : 0.06 + ((seed[2] - 0.22) / 0.16) * (POCKET - 0.06);
+    return skinPoint(k, su, sv, depth);
   }
 
   if (seed[2] < CUBE_SHELL) {
-    const drift = Math.sin(t * 0.32 + seed[0] * 11) * 0.02;
-    let su = clamp(rimCoord(seed[0]) + drift, -0.92, 0.92);
-    let sv = clamp(rimCoord(seed[1]), -0.92, 0.92);
-    const r = Math.hypot(su, sv);
-    let depth = Math.pow(hash21(seed[0], seed[1]), 1.5) * 0.22;
-    if (r < WELL) {
-      const rad = WELL + 0.02;
-      su = (su / Math.max(r, 0.001)) * rad;
-      sv = (sv / Math.max(r, 0.001)) * rad;
-      depth = 0.02;
-    }
-    return facePoint(k, su, sv, depth);
+    const opened = clearIcon(k, seed[0] * 2 - 1, seed[1] * 2 - 1);
+    return skinPoint(k, opened[0], opened[1], Math.pow(hash21(seed[0], seed[1]), 1.6) * 0.14);
   }
 
   if (seed[2] < CUBE_EDGE) {
-    const which = Math.min(3, Math.floor(seed[0] * 4));
-    // Stop short of the corner so the edge does not shoot past it.
-    const along = clamp((fract(seed[1] + t * 0.07) * 2 - 1) * 0.86, -0.86, 0.86);
-    const jitter = (hash21(seed[1], extra) - 0.5) * 0.04;
-    let su = along;
-    let sv = 0.92;
-    if (which === 1) sv = -0.92;
-    else if (which === 2) {
-      su = 0.92;
-      sv = along;
-    } else if (which === 3) {
-      su = -0.92;
-      sv = along;
-    }
-    if (which < 2) su = clamp(su + jitter, -0.86, 0.86);
-    else sv = clamp(sv + jitter, -0.86, 0.86);
-    return facePoint(k, su, sv, 0.04 + hash21(seed[0], extra) * 0.06);
+    const which = Math.min(11, Math.floor(fract(extra * 12.17 + seed[0]) * 12));
+    const along = fract(seed[1] + t * 0.04) * 2 - 1;
+    const ang = hash21(seed[0], extra) * (Math.PI / 2);
+    return edgePoint(which, along, ang);
   }
 
-  const span = CUBE_H * 1.56;
-  return [
-    (seed[0] - 0.5) * span + Math.sin(t * 0.16 + seed[1] * TAU) * 0.1,
-    (seed[1] - 0.5) * span + Math.cos(t * 0.13 + seed[0] * TAU) * 0.1,
-    (hash21(seed[0], seed[1]) - 0.5) * span,
-  ];
+  const which = Math.min(7, Math.floor(fract(extra * 8.17 + seed[1]) * 8));
+  return cornerPoint(which, seed[0], hash21(seed[0], seed[1]));
 }

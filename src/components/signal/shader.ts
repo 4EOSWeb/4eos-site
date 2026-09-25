@@ -15,6 +15,9 @@ export const vertexShader = /* glsl */ `
 
 uniform float uTime;
 uniform float uPhase;
+uniform float uPhaseVel;
+uniform float uPhaseTarget;
+uniform float uFlow;
 uniform float uIntensity;
 uniform float uResolve;
 uniform float uPixelRatio;
@@ -605,10 +608,52 @@ void main() {
   float ph = clamp(uPhase, 0.0, 6.0);
   int a = int(floor(ph));
   int b = int(min(floor(ph) + 1.0, 6.0));
-  float m = smoothstep(0.0, 1.0, fract(ph));
+  float raw = fract(ph);
+  float m = smoothstep(0.0, 1.0, raw);
+
+  // Organic morph. uFlow is 0 unless ORGANIC_FLOW is on, and this block is
+  // then a no-op: the mix above is the original straight blend. While it is
+  // on, a small overshoot stays inside the two formations just crossed, the
+  // blend eases, and each point arcs off the straight line. The arc is zero
+  // at both ends, so a settled chapter matches the original formation.
+  if (uFlow > 0.5) {
+    float tgt = clamp(uPhaseTarget, 0.0, 6.0);
+    float T = round(tgt);
+    if (abs(tgt - T) < 0.025) {
+      float past = ph - T;
+      if (past > 0.0 && past < 0.16 && T >= 1.0) {
+        a = int(T) - 1;
+        b = int(T);
+        raw = 1.0 + past;
+      } else if (past < 0.0 && past > -0.16 && T <= 5.0) {
+        a = int(T);
+        b = int(min(T + 1.0, 6.0));
+        raw = past;
+      }
+    }
+    raw = clamp(raw + clamp(-uPhaseVel * 0.05, -0.07, 0.07), -0.06, 1.06);
+    float x = clamp(raw, 0.0, 1.0);
+    m = x * x * (3.0 - 2.0 * x) + (raw - x);
+  }
 
   vSheet = 0.0;
-  vec3 pos = mix(formation(a, uTime), formation(b, uTime), m);
+  vec3 fromP = formation(a, uTime);
+  vec3 toP = formation(b, uTime);
+  vec3 pos = mix(fromP, toP, m);
+  if (uFlow > 0.5) {
+    vec3 delta = toP - fromP;
+    float span = length(delta);
+    float along = clamp(m, 0.0, 1.0);
+    float envelope = sin(along * 3.14159265);
+    vec3 axis = delta / max(span, 0.0001);
+    vec3 seedDir = vec3(aRand - 0.5, fract(aGold * 3.1) - 0.5, fract(aRand * 7.13) - 0.5);
+    vec3 side = cross(axis, seedDir);
+    float sl = length(side);
+    if (sl > 1e-4) side /= sl;
+    float twist = sin(along * 6.2831853 + aRand * 6.2831853);
+    pos += side * span * 0.15 * envelope * (0.6 + 0.4 * twist);
+    pos += axis * span * 0.05 * envelope * (aRand - 0.5);
+  }
 
   // A slice of the lit ownership ring becomes devices. They start above
   // the ring and ease down. The other two rings stay plain circles.

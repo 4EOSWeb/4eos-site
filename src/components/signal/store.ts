@@ -12,6 +12,8 @@ type SignalStore = {
   phase: number;
   /** Eased value actually handed to the shader. */
   rendered: number;
+  /** Chapters per second. Used by the organic morph; zeroed on a hard cut. */
+  phaseVel: number;
   /** Overall brightness. */
   intensity: number;
   /** Contact-form completion, 0..1. */
@@ -50,6 +52,7 @@ type SignalStore = {
 export const signal: SignalStore = {
   phase: 0,
   rendered: 0,
+  phaseVel: 0,
   intensity: 1,
   resolve: 0,
   focus: -1,
@@ -121,6 +124,7 @@ export function holdPhase(next: number | Phase) {
   const value = typeof next === "number" ? next : PHASE_INDEX[next];
   heldPhase = Math.min(MAX_PHASE, Math.max(0, value));
   signal.rendered = heldPhase;
+  signal.phaseVel = 0;
   writePhase(heldPhase);
 }
 

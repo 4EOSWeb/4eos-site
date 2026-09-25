@@ -16,6 +16,7 @@ export function SignalLab() {
   useEffect(() => {
     setPhase(value);
     signal.rendered = value;
+    signal.phaseVel = 0;
   }, [value]);
 
   // Hook for the screenshot script.

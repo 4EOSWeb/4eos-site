@@ -42,6 +42,7 @@ export function HomeView() {
     const el = named ?? fallback ?? document.getElementById("chapter-unmanaged");
     const phase = Number(el?.dataset.phase ?? 0);
     signal.rendered = Number.isFinite(phase) ? phase : 0;
+    signal.phaseVel = 0;
     setPhase(signal.rendered);
   }, []);
 

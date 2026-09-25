@@ -5,6 +5,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { buildSeeds, clusterCenter, latticeSize } from "./formations";
 import { fragmentShader, vertexShader } from "./shader";
+import { FLOW_DAMPING, FLOW_STIFFNESS, ORGANIC_FLOW } from "./flow";
 import { setMouse, signal } from "./store";
 import { MOBILE_FIT, POINT_BUDGET, prefersReducedMotion, type DeviceTier } from "@/lib/env";
 
@@ -55,6 +56,9 @@ function Points({
     return {
       uTime: { value: 0 },
       uPhase: { value: signal.rendered },
+      uPhaseVel: { value: 0 },
+      uPhaseTarget: { value: signal.phase },
+      uFlow: { value: ORGANIC_FLOW ? 1 : 0 },
       uIntensity: { value: signal.intensity },
       uResolve: { value: signal.resolve },
       uPixelRatio: { value: 1 },
@@ -92,16 +96,36 @@ function Points({
     if (!u) return;
 
     // Ease toward the target so a fast scroll does not snap the field.
-    const step = still ? 1 : 1 - Math.pow(0.0015, Math.min(delta, 0.05));
-    signal.rendered += (signal.phase - signal.rendered) * step;
-    if (Math.abs(signal.phase - signal.rendered) < 0.0005) {
-      signal.rendered = signal.phase;
+    // ORGANIC_FLOW swaps that exponential for a spring. Set the flag false
+    // in ./flow.ts to put this block back to the single lerp.
+    const dt = Math.min(delta, 0.05);
+    const step = still ? 1 : 1 - Math.pow(0.0015, dt);
+    if (still || !ORGANIC_FLOW) {
+      signal.rendered += (signal.phase - signal.rendered) * step;
+      signal.phaseVel = 0;
+      if (Math.abs(signal.phase - signal.rendered) < 0.0005) {
+        signal.rendered = signal.phase;
+      }
+    } else {
+      signal.phaseVel += (signal.phase - signal.rendered) * FLOW_STIFFNESS * dt;
+      signal.phaseVel *= Math.exp(-FLOW_DAMPING * dt);
+      signal.rendered += signal.phaseVel * dt;
+      if (
+        Math.abs(signal.phase - signal.rendered) < 0.0004 &&
+        Math.abs(signal.phaseVel) < 0.002
+      ) {
+        signal.rendered = signal.phase;
+        signal.phaseVel = 0;
+      }
     }
 
     signal.mouseRX = signal.mouseX;
     signal.mouseRY = signal.mouseY;
 
     u.uPhase.value = signal.rendered;
+    u.uPhaseVel.value = signal.phaseVel;
+    u.uPhaseTarget.value = signal.phase;
+    u.uFlow.value = ORGANIC_FLOW && !still ? 1 : 0;
     u.uIntensity.value = signal.intensity;
     u.uResolve.value = signal.resolve;
     u.uPixelRatio.value = state.gl.getPixelRatio();

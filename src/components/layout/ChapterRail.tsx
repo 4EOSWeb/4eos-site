@@ -116,7 +116,7 @@ export function ChapterRail() {
   const story = targets >= 2;
   const current = story ? PHASES[active] : undefined;
 
-  if (menuOpen || (!story && !more)) return null;
+  if (pathname.startsWith("/command") || menuOpen || (!story && !more)) return null;
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[35] flex items-end justify-between gap-6 px-[var(--sheet-inset)] pb-4">

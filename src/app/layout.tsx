@@ -7,6 +7,7 @@ import { ChapterRail } from "@/components/layout/ChapterRail";
 import { Trail } from "@/components/layout/Trail";
 import { GlassGlow } from "@/components/layout/GlassGlow";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
+import { Beacon } from "@/components/analytics/Beacon";
 import { SignalClient } from "@/components/signal/SignalClient";
 import "./globals.css";
 
@@ -72,6 +73,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         >
           Skip to content
         </a>
+        <Beacon />
         <SmoothScroll />
         <Trail />
         <SignalClient />

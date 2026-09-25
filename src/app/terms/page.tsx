@@ -53,6 +53,12 @@ export default function TermsPage() {
             ],
           },
           {
+            heading: "Site measurement",
+            paragraphs: [
+              "We measure how the site is used, as described on the privacy page. That record is separate from a form you send. It does not include the words you type into a form.",
+            ],
+          },
+          {
             heading: "Law",
             paragraphs: [
               `These website terms are governed by the laws of the State of Indiana. Disputes about the website are heard in the state or federal courts located in Allen County, Indiana. Questions: ${site.helpdesk}, ${site.phone}.`,

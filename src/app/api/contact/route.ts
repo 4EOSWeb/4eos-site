@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { recordFormLead } from "@/lib/analytics/ingest";
 import { postRewstTicket, rewstWebhookUrl } from "@/lib/rewst";
 import { salesEmail } from "@/lib/content";
 import { site } from "@/lib/site";
@@ -97,6 +98,12 @@ export async function POST(request: Request) {
   }
   if (!rewst && !emailOk) {
     return NextResponse.json({ ok: false }, { status: 502 });
+  }
+
+  try {
+    recordFormLead(support ? "support" : "assessment", request.headers.get("cookie"));
+  } catch (error) {
+    console.error("[signal]", error);
   }
 
   return NextResponse.json({ ok: true, ...(ticketId ? { ticketId } : {}) });

@@ -46,6 +46,9 @@ next-env.d.ts
 
 .vercel
 
+# analytics database and backups
+/data
+
 # local debug / server logs
 .cursor/
 dev.log

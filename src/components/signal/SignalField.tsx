@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { CUBE_CX, CUBE_CY, cubeOrientation } from "./cube";
+import { CUBE_CX, CUBE_CY, cubeGoal, quatDot, quatToMat, slerpQuat, type Quat } from "./cube";
 import { buildSeeds, latticeSize } from "./formations";
 import { fragmentShader, vertexShader } from "./shader";
 import { CONFIDENT_SETTLE, FLOW_DAMPING, FLOW_STIFFNESS, ORGANIC_FLOW } from "./flow";
@@ -11,8 +11,10 @@ import { setMouse, signal } from "./store";
 import { MOBILE_FIT, POINT_BUDGET, prefersReducedMotion, type DeviceTier } from "@/lib/env";
 
 const cubeMatrix = new THREE.Matrix3();
-let cubeTurn = 0;
+const cubeQuat: Quat = [0, 0, 0, 1];
+let cubeQuatLive = false;
 let cubeLatch = -1;
+let focusGone = 0;
 
 const BASE_COLOR = new THREE.Color("#4f86b4");
 const ACCENT_COLOR = new THREE.Color("#f5b700");
@@ -197,28 +199,55 @@ function CameraRig({
     const dt = Math.min(delta, 0.05);
     const t = still ? 0 : state.clock.elapsedTime;
     const onCube = !mobile && signal.rendered > 3.4 && signal.rendered < 4.6;
-    if (onCube && signal.focus >= 0 && signal.focus < 6) cubeLatch = signal.focus;
-
+    const hovering = onCube && signal.focus >= 0 && signal.focus < 6;
     const pulling = signal.zoom > 0.02 || signal.zoomR > 0.03;
-    let turnTarget = 0;
-    if (pulling && cubeLatch >= 0) turnTarget = 1;
-    else if (onCube && signal.focus >= 0 && signal.focus < 6) turnTarget = 0.72;
-    if (!pulling && signal.focus < 0 && cubeTurn < 0.02) cubeLatch = -1;
-
-    if (still) cubeTurn = turnTarget;
-    else {
-      const rate = signal.zoom > 0.5 && turnTarget > cubeTurn ? 3.4 : 1.15;
-      cubeTurn += (turnTarget - cubeTurn) * (1 - Math.exp(-rate * dt));
-      if (Math.abs(turnTarget - cubeTurn) < 0.001) cubeTurn = turnTarget;
+    if (hovering) {
+      cubeLatch = signal.focus;
+      focusGone = 0;
+    } else if (!pulling) {
+      focusGone += dt;
+    } else {
+      focusGone = 0;
     }
-    const m = cubeOrientation(t, cubeLatch, cubeTurn);
+    // Keep the last face across the gap between names, and while the
+    // camera is still on its way in or out.
+    const holdFace = cubeLatch >= 0 && (hovering || pulling || focusGone < 0.2);
+    const face = holdFace ? cubeLatch : -1;
+    const goal = cubeGoal(t, face);
+    if (!cubeQuatLive) {
+      const spin = cubeGoal(t, -1);
+      cubeQuat[0] = spin[0];
+      cubeQuat[1] = spin[1];
+      cubeQuat[2] = spin[2];
+      cubeQuat[3] = spin[3];
+      cubeQuatLive = true;
+    }
+    if (still) {
+      cubeQuat[0] = goal[0];
+      cubeQuat[1] = goal[1];
+      cubeQuat[2] = goal[2];
+      cubeQuat[3] = goal[3];
+    } else if (face < 0 && quatDot(cubeQuat, goal) > 0.995) {
+      cubeQuat[0] = goal[0];
+      cubeQuat[1] = goal[1];
+      cubeQuat[2] = goal[2];
+      cubeQuat[3] = goal[3];
+    } else {
+      const rate = face < 0 ? 1.8 : 2.3;
+      const next = slerpQuat(cubeQuat, goal, 1 - Math.exp(-rate * dt));
+      const arrived = face >= 0 && quatDot(next, goal) > 0.9995;
+      cubeQuat[0] = arrived ? goal[0] : next[0];
+      cubeQuat[1] = arrived ? goal[1] : next[1];
+      cubeQuat[2] = arrived ? goal[2] : next[2];
+      cubeQuat[3] = arrived ? goal[3] : next[3];
+    }
+    if (!holdFace) cubeLatch = face;
+    const m = quatToMat(cubeQuat);
     cubeMatrix.set(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
 
-    // The face has to be square before the camera goes through it.
-    // On the way out the camera retreats first, and the tumble resumes after.
-    // The face is square before the camera moves. The dolly is slow enough
-    // to read as a passage through that face.
-    const locked = still || cubeTurn > 0.985;
+    // The face is square before the camera moves. On the way out the
+    // camera retreats first, and the tumble resumes after.
+    const locked = still || (face >= 0 && quatDot(cubeQuat, goal) > 0.999);
     const zoomGoal = !mobile && signal.zoom > 0.5 && locked ? 1 : 0;
     const zoomStep = still ? 1 : 1 - Math.pow(0.42, dt);
     signal.zoomR += (zoomGoal - signal.zoomR) * zoomStep;

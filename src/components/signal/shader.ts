@@ -488,25 +488,37 @@ vec3 cubeLocal(float k, vec3 seed, float extra, float t) {
   vec3 p = n * 3.15;
   if (seed.z < 0.3) {
     vec3 g = glyph(k, seed, extra);
-    p = n * (3.15 + 0.14) + tu * g.x * 1.85 + tv * g.y * 1.85 + n * g.z * 0.34;
+    // Pocket depth 0.55. Thickness (g.z * 0.18) stays under the face.
+    p = n * (3.15 - 0.55 + g.z * 0.18) + tu * g.x * 1.5 + tv * g.y * 1.5;
+  } else if (seed.z < 0.42) {
+    float ang = seed.x * TAU;
+    float depth = 0.05 + seed.y * 0.52;
+    p = n * (3.15 - depth) + tu * cos(ang) * 0.66 * 3.15 + tv * sin(ang) * 0.66 * 3.15;
   } else if (seed.z < 0.78) {
-    float drift = sin(t * 0.32 + seed.x * 11.0) * 0.045;
-    float su = rimCoord(seed.x) + drift;
-    float sv = rimCoord(seed.y);
-    float depth = pow(hash21(seed.x, seed.y), 1.5) * 0.72;
+    float drift = sin(t * 0.32 + seed.x * 11.0) * 0.02;
+    float su = clamp(rimCoord(seed.x) + drift, -0.92, 0.92);
+    float sv = clamp(rimCoord(seed.y), -0.92, 0.92);
+    float r = length(vec2(su, sv));
+    float depth = pow(hash21(seed.x, seed.y), 1.5) * 0.22;
+    if (r < 0.66) {
+      float rad = 0.68;
+      su = su / max(r, 0.001) * rad;
+      sv = sv / max(r, 0.001) * rad;
+      depth = 0.02;
+    }
     p = n * (3.15 - depth) + tu * su * 3.15 + tv * sv * 3.15;
   } else if (seed.z < 0.93) {
     float which = min(floor(seed.x * 4.0), 3.0);
-    float along = fract(seed.y + t * 0.07) * 2.0 - 1.0;
-    float jitter = (hash21(seed.y, extra) - 0.5) * 0.16;
+    float along = clamp((fract(seed.y + t * 0.07) * 2.0 - 1.0) * 0.86, -0.86, 0.86);
+    float jitter = (hash21(seed.y, extra) - 0.5) * 0.04;
     float su = along;
-    float sv = 0.985;
-    if (which > 0.5 && which < 1.5) sv = -0.985;
-    else if (which > 1.5 && which < 2.5) { su = 0.985; sv = along; }
-    else if (which > 2.5) { su = -0.985; sv = along; }
-    if (which < 1.5) su += jitter;
-    else sv += jitter;
-    p = n * (3.15 - (0.02 + hash21(seed.x, extra) * 0.16)) + tu * su * 3.15 + tv * sv * 3.15;
+    float sv = 0.92;
+    if (which > 0.5 && which < 1.5) sv = -0.92;
+    else if (which > 1.5 && which < 2.5) { su = 0.92; sv = along; }
+    else if (which > 2.5) { su = -0.92; sv = along; }
+    if (which < 1.5) su = clamp(su + jitter, -0.86, 0.86);
+    else sv = clamp(sv + jitter, -0.86, 0.86);
+    p = n * (3.15 - (0.04 + hash21(seed.x, extra) * 0.06)) + tu * su * 3.15 + tv * sv * 3.15;
   } else {
     float span = 3.15 * 1.56;
     p = vec3(
@@ -856,8 +868,11 @@ void main() {
       vAlpha *= mix(1.0, 0.22, smoothstep(0.8, 1.0, uZoom));
     }
   }
+  float onWall = step(0.3, position.z) * (1.0 - step(0.42, position.z)) * nearIndustries;
+  float lip = onWall * (1.0 - smoothstep(0.0, 0.28, position.y));
   vAlpha *= mix(1.0, mix(1.7, 2.9, facing), onGlyph);
   vAlpha *= mix(1.0, mix(0.5, 1.28, core), onHalo);
+  vAlpha *= mix(1.0, 1.85, lip * facing);
   vAlpha *= mix(1.0, 1.65, onEdge * facing);
   vAlpha *= mix(1.0, 1.7, device * sceneOff);
 

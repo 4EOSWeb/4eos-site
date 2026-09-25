@@ -5,7 +5,7 @@
  */
 
 export type Vec3 = [number, number, number];
-type Quat = [number, number, number, number];
+export type Quat = [number, number, number, number];
 
 /** Half-edge. Large enough to dominate the right side of the chapter. */
 export const CUBE_H = 3.15;
@@ -19,8 +19,12 @@ export const CUBE_ICON = 0.3;
 export const CUBE_SHELL = 0.78;
 /** seed.z below this draws the edge flow. The rest is the interior. */
 export const CUBE_EDGE = 0.93;
-/** Mark size on a face. Large enough to read across the chapter. */
-const ICON_SCALE = 1.85;
+/** Mark size. It sits inside the face pocket, clear of the rim. */
+const ICON_SCALE = 1.5;
+/** How far under the skin the mark sits. */
+const POCKET = 0.55;
+/** Radius of the recessed well, in face units (-1..1). */
+const WELL = 0.66;
 
 const TAU = Math.PI * 2;
 
@@ -101,6 +105,10 @@ function slerp(a: Quat, b: Quat, t: number): Quat {
   return [a[0] * w1 + bx * w2, a[1] * w1 + by * w2, a[2] * w1 + bz * w2, a[3] * w1 + bw * w2];
 }
 
+function clamp(n: number, lo: number, hi: number) {
+  return Math.min(hi, Math.max(lo, n));
+}
+
 /** Pose that turns face k straight at the camera (+Z). */
 function faceQuat(k: number): Quat {
   if (k <= 0) return [0, 0, 0, 1];
@@ -116,14 +124,22 @@ function tumbleQuat(t: number): Quat {
   return axisAngle(0.16, 1, 0.22, t * 0.18 + 1.05);
 }
 
-/**
- * Row-major 3x3. `turn` 0 is the tumble, 1 locks `face` perpendicular
- * to the camera. Hover sits between the two.
- */
-export function cubeOrientation(t: number, face: number, turn: number): number[] {
-  const spin = tumbleQuat(t);
-  const aimed = face >= 0 && face < 6 ? faceQuat(face) : spin;
-  const q = slerp(spin, aimed, Math.min(1, Math.max(0, turn)));
+/** Tumble, or the quaternion that parks face `k` square to the camera. */
+export function cubeGoal(t: number, face: number): Quat {
+  if (face >= 0 && face < 6) return faceQuat(face);
+  return tumbleQuat(t);
+}
+
+export function slerpQuat(a: Quat, b: Quat, t: number): Quat {
+  return slerp(a, b, t);
+}
+
+/** Absolute dot. 1 means the two poses are the same. */
+export function quatDot(a: Quat, b: Quat) {
+  return Math.abs(a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3]);
+}
+
+export function quatToMat(q: Quat): number[] {
   const [x, y, z, w] = q;
   const xx = x * x;
   const yy = y * y;
@@ -155,6 +171,11 @@ export function mulMatPoint(m: number[], p: Vec3): Vec3 {
   ];
 }
 
+/** Still of the free tumble. The live field eases toward a face on its own. */
+export function cubeOrientation(t: number, face: number, turn: number): number[] {
+  return quatToMat(slerp(tumbleQuat(t), face >= 0 && face < 6 ? faceQuat(face) : tumbleQuat(t), Math.min(1, Math.max(0, turn))));
+}
+
 /** How squarely this face points at the camera in the still poster. */
 export function posterFacing(k: number) {
   const m = cubeOrientation(0, -1, 0);
@@ -175,36 +196,55 @@ export function cubeLocal(
 ): Vec3 {
   if (glyph) {
     const [n, u, v] = faceBasis(k);
-    const base = facePoint(k, 0, 0, -0.14);
+    // The mark lives in the pocket. Its own thickness stays under the skin.
+    const base = facePoint(k, 0, 0, POCKET);
+    const sink = glyph[2] * 0.18;
     return [
-      base[0] + u[0] * glyph[0] * ICON_SCALE + v[0] * glyph[1] * ICON_SCALE + n[0] * glyph[2] * 0.34,
-      base[1] + u[1] * glyph[0] * ICON_SCALE + v[1] * glyph[1] * ICON_SCALE + n[1] * glyph[2] * 0.34,
-      base[2] + u[2] * glyph[0] * ICON_SCALE + v[2] * glyph[1] * ICON_SCALE + n[2] * glyph[2] * 0.34,
+      base[0] + u[0] * glyph[0] * ICON_SCALE + v[0] * glyph[1] * ICON_SCALE + n[0] * sink,
+      base[1] + u[1] * glyph[0] * ICON_SCALE + v[1] * glyph[1] * ICON_SCALE + n[1] * sink,
+      base[2] + u[2] * glyph[0] * ICON_SCALE + v[2] * glyph[1] * ICON_SCALE + n[2] * sink,
     ];
   }
 
+  // The wall of the recess, from the lip down to the floor of the pocket.
+  if (seed[2] < 0.42) {
+    const ang = seed[0] * TAU;
+    return facePoint(k, Math.cos(ang) * WELL, Math.sin(ang) * WELL, 0.05 + seed[1] * 0.52);
+  }
+
   if (seed[2] < CUBE_SHELL) {
-    const drift = Math.sin(t * 0.32 + seed[0] * 11) * 0.045;
-    return facePoint(k, rimCoord(seed[0]) + drift, rimCoord(seed[1]), Math.pow(hash21(seed[0], seed[1]), 1.5) * 0.72);
+    const drift = Math.sin(t * 0.32 + seed[0] * 11) * 0.02;
+    let su = clamp(rimCoord(seed[0]) + drift, -0.92, 0.92);
+    let sv = clamp(rimCoord(seed[1]), -0.92, 0.92);
+    const r = Math.hypot(su, sv);
+    let depth = Math.pow(hash21(seed[0], seed[1]), 1.5) * 0.22;
+    if (r < WELL) {
+      const rad = WELL + 0.02;
+      su = (su / Math.max(r, 0.001)) * rad;
+      sv = (sv / Math.max(r, 0.001)) * rad;
+      depth = 0.02;
+    }
+    return facePoint(k, su, sv, depth);
   }
 
   if (seed[2] < CUBE_EDGE) {
     const which = Math.min(3, Math.floor(seed[0] * 4));
-    const along = fract(seed[1] + t * 0.07) * 2 - 1;
-    const jitter = (hash21(seed[1], extra) - 0.5) * 0.16;
+    // Stop short of the corner so the edge does not shoot past it.
+    const along = clamp((fract(seed[1] + t * 0.07) * 2 - 1) * 0.86, -0.86, 0.86);
+    const jitter = (hash21(seed[1], extra) - 0.5) * 0.04;
     let su = along;
-    let sv = 0.985;
-    if (which === 1) sv = -0.985;
+    let sv = 0.92;
+    if (which === 1) sv = -0.92;
     else if (which === 2) {
-      su = 0.985;
+      su = 0.92;
       sv = along;
     } else if (which === 3) {
-      su = -0.985;
+      su = -0.92;
       sv = along;
     }
-    if (which < 2) su += jitter;
-    else sv += jitter;
-    return facePoint(k, su, sv, 0.02 + hash21(seed[0], extra) * 0.16);
+    if (which < 2) su = clamp(su + jitter, -0.86, 0.86);
+    else sv = clamp(sv + jitter, -0.86, 0.86);
+    return facePoint(k, su, sv, 0.04 + hash21(seed[0], extra) * 0.06);
   }
 
   const span = CUBE_H * 1.56;

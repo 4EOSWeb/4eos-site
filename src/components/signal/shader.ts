@@ -18,6 +18,7 @@ uniform float uPhase;
 uniform float uPhaseVel;
 uniform float uPhaseTarget;
 uniform float uFlow;
+uniform float uSettle;
 uniform float uIntensity;
 uniform float uResolve;
 uniform float uPixelRatio;
@@ -612,11 +613,16 @@ void main() {
   float m = smoothstep(0.0, 1.0, raw);
 
   // Organic morph. uFlow is 0 unless ORGANIC_FLOW is on, and this block is
-  // then a no-op: the mix above is the original straight blend. While it is
-  // on, a small overshoot stays inside the two formations just crossed, the
-  // blend eases, and each point arcs off the straight line. The arc is zero
-  // at both ends, so a settled chapter matches the original formation.
-  if (uFlow > 0.5) {
+  // then a no-op: the mix above is the original straight blend.
+  // uSettle locks the destination partway through the spring, with no
+  // overshoot and no lag. The arc dies before that lock, so the last
+  // motion is a straight pull onto a known point.
+  float travel = 0.0;
+  if (uFlow > 0.5 && uSettle > 0.5) {
+    travel = clamp(raw, 0.0, 1.0);
+    float u = clamp(travel / 0.5, 0.0, 1.0);
+    m = u < 0.55 ? (u / 0.55) * 0.9 : min(1.0, 0.9 + (u - 0.55) / 0.45 * 0.1);
+  } else if (uFlow > 0.5) {
     float tgt = clamp(uPhaseTarget, 0.0, 6.0);
     float T = round(tgt);
     if (abs(tgt - T) < 0.025) {
@@ -645,6 +651,11 @@ void main() {
     float span = length(delta);
     float along = clamp(m, 0.0, 1.0);
     float envelope = sin(along * 3.14159265);
+    if (uSettle > 0.5) {
+      // Gone once the points are most of the way home, so the finish
+      // does not wobble into place.
+      envelope *= 1.0 - smoothstep(0.1, 0.26, travel);
+    }
     vec3 axis = delta / max(span, 0.0001);
     vec3 seedDir = vec3(aRand - 0.5, fract(aGold * 3.1) - 0.5, fract(aRand * 7.13) - 0.5);
     vec3 side = cross(axis, seedDir);
@@ -653,6 +664,11 @@ void main() {
     float twist = sin(along * 6.2831853 + aRand * 6.2831853);
     pos += side * span * 0.15 * envelope * (0.6 + 0.4 * twist);
     pos += axis * span * 0.05 * envelope * (aRand - 0.5);
+  }
+
+  // Chapter lights follow the same lock as the points.
+  if (uFlow > 0.5 && uSettle > 0.5) {
+    ph = mix(float(a), float(b), m);
   }
 
   // A slice of the lit ownership ring becomes devices. They start above

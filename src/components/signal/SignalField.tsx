@@ -5,7 +5,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { buildSeeds, clusterCenter, latticeSize } from "./formations";
 import { fragmentShader, vertexShader } from "./shader";
-import { FLOW_DAMPING, FLOW_STIFFNESS, ORGANIC_FLOW } from "./flow";
+import { CONFIDENT_SETTLE, FLOW_DAMPING, FLOW_STIFFNESS, ORGANIC_FLOW } from "./flow";
 import { setMouse, signal } from "./store";
 import { MOBILE_FIT, POINT_BUDGET, prefersReducedMotion, type DeviceTier } from "@/lib/env";
 
@@ -59,6 +59,7 @@ function Points({
       uPhaseVel: { value: 0 },
       uPhaseTarget: { value: signal.phase },
       uFlow: { value: ORGANIC_FLOW ? 1 : 0 },
+      uSettle: { value: ORGANIC_FLOW && CONFIDENT_SETTLE ? 1 : 0 },
       uIntensity: { value: signal.intensity },
       uResolve: { value: signal.resolve },
       uPixelRatio: { value: 1 },
@@ -126,6 +127,7 @@ function Points({
     u.uPhaseVel.value = signal.phaseVel;
     u.uPhaseTarget.value = signal.phase;
     u.uFlow.value = ORGANIC_FLOW && !still ? 1 : 0;
+    u.uSettle.value = ORGANIC_FLOW && CONFIDENT_SETTLE && !still ? 1 : 0;
     u.uIntensity.value = signal.intensity;
     u.uResolve.value = signal.resolve;
     u.uPixelRatio.value = state.gl.getPixelRatio();

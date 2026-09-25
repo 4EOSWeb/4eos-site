@@ -472,43 +472,82 @@ vec3 halo(vec3 seed) {
   return vec3(cos(az) * sinP * R, cosP * R, sin(az) * sinP * R);
 }
 
-// Neck membership. Twin of onIndustryNeck() in formations.ts.
-float onNeck(vec3 seed) {
-  return step(0.34, seed.z) * (1.0 - step(0.34, fract(seed.x * 17.13)));
-}
-
-float neckDir(vec3 seed) {
-  return step(0.5, fract(seed.y * 13.1)) * 2.0 - 1.0;
-}
-
 vec2 orbitCenter(float a) {
   return vec2(cos(a) * 5.8 + 4.2, sin(a) * 4.3 + 0.2);
 }
 
-float neckJoin(float len) {
-  return min(2.5 * 0.42, len * 0.26);
+float throatRadius(float station) {
+  float s = clamp(station, 0.0, 1.0);
+  float c = cos(s * 1.5707963);
+  return 0.92 + (2.5 - 0.92) * pow(max(c, 0.0), 1.45);
 }
 
-// Hyperboloid from inside the lobe to the waist. Twin of industryNeck().
-vec3 industryNeck(float a, float dir, vec3 seed) {
-  float b = a + dir * 1.0471975512;
+// Station along a throat. Twin of stationOf() in formations.ts.
+float stationOf(float u) {
+  return pow(clamp(u, 0.0, 1.0), 0.78);
+}
+
+vec3 placeThroat(vec3 axis, float halfL, float stationU, float fillU, float az, float t) {
+  float s0 = stationOf(stationU);
+  float fade = sin(3.14159265 * clamp(s0, 0.0, 1.0));
+  float wave = sin(t * 0.7 + az * 2.0) * 0.5 * fade;
+  float dist = min(halfL * 1.01, max(0.0, s0 * halfL + wave));
+  float rho = throatRadius(clamp(dist / halfL, 0.0, 1.0));
+  float radial = pow(fillU, 0.5) * rho;
+  float ang = az + t * 0.36;
+  float c = cos(ang) * radial;
+  float z = sin(ang) * radial;
+  return vec3(axis.x * dist - axis.y * c, axis.y * dist + axis.x * c, z);
+}
+
+vec3 rotAround(vec3 axis, vec3 v, float ang) {
+  float c = cos(ang);
+  float s = sin(ang);
+  float d = dot(axis, v);
+  vec3 cr = cross(axis, v);
+  return v * c + cr * s + axis * d * (1.0 - c);
+}
+
+// The cloud itself is the bulge and the waist. Twin of pinchCloud() in formations.ts.
+vec3 pinchCloud(vec3 seed, float a, float t) {
+  float hz = (seed.z - 0.34) / 0.66;
+  float az = seed.x * 6.2831853;
+  if (hz < 0.08) {
+    float cosP = (hz / 0.08) * 2.0 - 1.0;
+    float sinP = sqrt(max(0.0, 1.0 - cosP * cosP));
+    vec3 dir = vec3(cos(az) * sinP, cosP, sin(az) * sinP);
+    float best = 0.0;
+    vec3 axis = vec3(1.0, 0.0, 0.0);
+    float halfL = 1.0;
+    for (int i = 0; i < 2; i++) {
+      float side = i == 0 ? 1.0 : -1.0;
+      float b = a + side * 1.0471975512;
+      vec2 delta = orbitCenter(b) - orbitCenter(a);
+      float len = max(length(delta), 0.001);
+      vec3 ax = vec3(delta / len, 0.0);
+      float proj = dot(dir, ax);
+      if (proj > best) {
+        best = proj;
+        axis = ax;
+        halfL = len * 0.5;
+      }
+    }
+    if (best <= 0.02) {
+      float rad = 2.5 * pow(seed.y, 0.55);
+      return rotAround(vec3(0.0, 1.0, 0.0), dir * rad, t * 0.15);
+    }
+    float stationU = fract(seed.x * 7.13 + seed.y * 3.71);
+    return placeThroat(axis, halfL, stationU, seed.y, az, t);
+  }
+  float side = hz < 0.54 ? 1.0 : -1.0;
+  float u = hz < 0.54 ? (hz - 0.08) / 0.46 : (hz - 0.54) / 0.46;
+  float b = a + side * 1.0471975512;
   vec2 delta = orbitCenter(b) - orbitCenter(a);
   float len = max(length(delta), 0.001);
-  vec3 axis = vec3(delta / len, 0.0);
-  float halfL = len * 0.5;
-  float join = neckJoin(len);
-  float rhoJoin = 1.72;
-  float waist2 = 1.44;
-  float along = pow(fract(seed.z * 9.17), 1.15);
-  float fill = pow(fract(seed.x * 7.7), 0.72);
-  float taper = 1.0 - along;
-  float rho = sqrt(waist2 + max(0.0, rhoJoin * rhoJoin - waist2) * taper * taper);
-  float dist = join + (halfL - join + 0.08) * along;
-  return tube(vec3(0.0), axis * len, dist / len, fract(seed.y * 11.3) * TAU, rho * fill);
+  return placeThroat(vec3(delta / len, 0.0), len * 0.5, u, seed.y, az, t);
 }
 
-// Brightness from the ring's centreline, so a waist lights like a lobe.
-// Twin of the neck profile in industryNeck().
+// Brightness from how deep a point sits in the pinched body.
 float medialCore(vec3 world, float a) {
   vec3 local = world - vec3(orbitCenter(a), 0.0);
   float best = 0.0;
@@ -519,50 +558,14 @@ float medialCore(vec3 world, float a) {
     float len = max(length(delta), 0.001);
     vec3 axis = vec3(delta / len, 0.0);
     float proj = dot(local, axis);
-    if (proj < 0.15) continue;
+    if (proj < 0.05) continue;
     float lat = length(local - axis * proj);
-    float halfL = len * 0.5;
-    float join = neckJoin(len);
-    float along = clamp((proj - join) / max(halfL - join, 0.001), 0.0, 1.0);
-    float taper = 1.0 - along;
-    float rho = sqrt(1.44 + max(0.0, 2.9584 - 1.44) * taper * taper);
-    float sphereR = proj < 2.5 ? sqrt(max(0.0, 6.25 - proj * proj)) : 0.0;
-    float limit = max(rho, sphereR * 0.92);
-    float g = pow(clamp(1.0 - lat / max(limit, 0.001), 0.0, 1.0), 1.35);
-    g *= mix(0.95, 0.84, along);
+    float station = clamp(proj / (len * 0.5), 0.0, 1.0);
+    float rho = throatRadius(station);
+    float g = pow(clamp(1.0 - lat / max(rho, 0.001), 0.0, 1.0), 0.9);
     best = max(best, g);
   }
   return best;
-}
-vec3 stretchLobe(vec3 p, float a) {
-  vec3 q = p;
-  for (int i = 0; i < 2; i++) {
-    float dir = i == 0 ? 1.0 : -1.0;
-    float b = a + dir * 1.0471975512;
-    vec2 delta = orbitCenter(b) - orbitCenter(a);
-    float len = max(length(delta), 0.001);
-    vec3 axis = vec3(delta / len, 0.0);
-    float proj = dot(q, axis);
-    if (proj <= 0.05) continue;
-    vec3 lateral = q - axis * proj;
-    float lat = length(lateral);
-    float rad = length(vec2(proj, lat));
-    float face = proj / max(rad, 0.0001);
-    float outer = rad / 2.5;
-    float pull = smoothstep(0.0, 0.62, face) * smoothstep(0.28, 0.86, outer);
-    if (pull <= 0.0) continue;
-    float halfL = len * 0.5;
-    float join = neckJoin(len);
-    float waist = sqrt(max(0.81, 6.25 - join * halfL));
-    float newProj = proj + (halfL * 0.98 - proj) * pull;
-    float skin = sqrt(max(0.0, 6.25 - min(proj, 2.5) * min(proj, 2.5)));
-    float fill = skin > 0.001 ? min(1.2, lat / skin) : 0.0;
-    float neckSkin = waist + (max(skin, waist) - waist) * (1.0 - pull);
-    float newLat = neckSkin * fill;
-    float s = lat > 0.0001 ? newLat / lat : 0.0;
-    q = axis * newProj + lateral * s;
-  }
-  return q;
 }
 
 vec3 formation(int s, float t) {
@@ -603,27 +606,20 @@ vec3 formation(int s, float t) {
     return vec3(cos(a) * r * 1.8, sin(a) * r, (seed.z - 0.5) * 0.7);
   }
   if (s == 4) {
-    // Industries: six clouds travel a sideways oval. The orbs turn
-    // inside each cloud. Neighbouring clouds share a hyperboloid neck.
+    // Industries: six clouds on a sideways oval. The cloud itself
+    // pinches toward each neighbour. A zoom keeps the round cloud.
     // Centre (4.2, 0.2), radii 5.8 and 4.3. Keep in step with formations.ts.
     float k = min(floor(aRand * 6.0), 5.0);
     float match = uFocus < 0.0 ? 0.0 : (1.0 - step(0.5, abs(k - uFocus)));
-    float neck = onNeck(seed);
-    // A zoom draws only the one cloud. Necks stay out so the dolly
-    // still frames a single mark.
-    if (uZoomOn > 0.5 && uFocus >= 0.0 && (match < 0.5 || neck > 0.5)) {
+    if (uZoomOn > 0.5 && uFocus >= 0.0 && match < 0.5) {
       return vec3(0.0, -40.0, 0.0);
     }
     float a = k / 6.0 * TAU - 1.5707963 + t * 0.18;
     float extra = fract(aRand * 6.0);
-    vec3 local = seed.z < 0.34 ? glyph(k, seed, extra) * 0.62 : halo(seed);
-    if (neck > 0.5) {
-      local = industryNeck(a, neckDir(seed), seed);
-    } else if (seed.z >= 0.34) {
-      float rad = length(local);
-      float spin = rad < 2.5 * 0.46 ? t * 0.62 : 0.0;
-      local = yaw(local, spin);
-      if (uZoomOn < 0.5) local = stretchLobe(local, a);
+    vec3 local = glyph(k, seed, extra) * 0.62;
+    if (seed.z >= 0.34) {
+      local = halo(seed);
+      if (uZoomOn < 0.5) local = pinchCloud(seed, a, t);
     } else {
       local = yaw(local, uIconSpin * match);
     }
@@ -820,19 +816,41 @@ void main() {
     if (nearIndustries > 0.0) {
       float k = floor(aRand * 6.0);
       float match = 1.0 - step(0.5, abs(k - uFocus));
-      float neck = onNeck(position);
       float dim = mix(0.32, 0.08, uZoom);
       float lift = mix(1.85, 2.1, uZoom);
-      if (neck < 0.5) {
-        vAlpha *= mix(dim, lift, match);
-        pos.z += match * 1.5 * nearIndustries;
-      } else {
-        // A neck belongs to both lobes, so either name lights the whole bridge.
-        float neighbor = mod(k + neckDir(position) + 6.0, 6.0);
-        float linked = max(match, 1.0 - step(0.5, abs(neighbor - uFocus)));
-        vAlpha *= mix(dim, 1.35, linked);
-        pos.z += linked * 0.4 * nearIndustries * (1.0 - uZoom);
+      float linked = match;
+      if (position.z >= 0.34) {
+        float hz = (position.z - 0.34) / 0.66;
+        float dirHit = 1.0;
+        float inThroat = 1.0;
+        if (hz < 0.08) {
+          float a = k / 6.0 * 6.2831853 - 1.5707963 + uTime * 0.18;
+          float cosP = (hz / 0.08) * 2.0 - 1.0;
+          float sinP = sqrt(max(0.0, 1.0 - cosP * cosP));
+          float az = position.x * 6.2831853;
+          vec3 dir = vec3(cos(az) * sinP, cosP, sin(az) * sinP);
+          float best = 0.0;
+          for (int i = 0; i < 2; i++) {
+            float side = i == 0 ? 1.0 : -1.0;
+            vec2 delta = orbitCenter(a + side * 1.0471975512) - orbitCenter(a);
+            float len = max(length(delta), 0.001);
+            float proj = dot(dir, vec3(delta / len, 0.0));
+            if (proj > best) {
+              best = proj;
+              dirHit = side;
+            }
+          }
+          inThroat = step(0.02, best);
+        } else {
+          dirHit = hz < 0.54 ? 1.0 : -1.0;
+        }
+        if (inThroat > 0.5) {
+          float neighbor = mod(k + dirHit + 6.0, 6.0);
+          linked = max(match, 1.0 - step(0.5, abs(neighbor - uFocus)));
+        }
       }
+      vAlpha *= mix(dim, lift, linked);
+      pos.z += linked * mix(1.5, 0.45, step(0.34, position.z)) * nearIndustries;
     }
   }
 
@@ -909,14 +927,24 @@ void main() {
     float ca = kk / 6.0 * 6.2831853 - 1.5707963 + uTime * 0.18;
     vec2 ctr = vec2(cos(ca) * 5.8 + 4.2, sin(ca) * 4.3 + 0.2);
     float rad = length(vec3(pos.x - ctr.x, pos.y - ctr.y, pos.z));
-    float haloReach = mix(2.5, 0.9, uMobile);
-    core = pow(clamp(1.0 - rad / haloReach, 0.0, 1.0), mix(1.35, 2.4, uMobile));
-    // Where the lobe faces a neighbour, drop the round rim so the
-    // centreline of the neck is what reads, not a ball with a tube on it.
-    float medial = medialCore(pos, ca);
-    float joint = smoothstep(1.05, 2.2, rad) * smoothstep(0.2, 0.65, medial);
-    core *= 1.0 - 0.72 * joint;
-    core = max(core, medial);
+    if (uZoomOn > 0.5) {
+      core = pow(clamp(1.0 - rad / 2.5, 0.0, 1.0), 1.35);
+    } else {
+      // Same material from the bulge through the waist. The round falloff
+      // only covers the outer side, so it does not paint a ball on the throat.
+      float medial = medialCore(pos, ca);
+      float roundCore = pow(clamp(1.0 - rad / 2.5, 0.0, 1.0), 1.15);
+      vec3 local = vec3(pos.x - ctr.x, pos.y - ctr.y, pos.z);
+      float along = 0.0;
+      for (int i = 0; i < 2; i++) {
+        float dir = i == 0 ? 1.0 : -1.0;
+        vec2 delta = orbitCenter(ca + dir * 1.0471975512) - orbitCenter(ca);
+        float len = max(length(delta), 0.001);
+        along = max(along, dot(local, vec3(delta / len, 0.0)));
+      }
+      float front = smoothstep(0.15, 0.85, along);
+      core = max(roundCore * (1.0 - front), medial);
+    }
   }
   vAlpha *= mix(1.0, mix(1.7, 2.6, uMobile), onGlyph);
   vAlpha *= mix(1.0, mix(0.16, 1.85, core) * mix(1.0, 0.2, uMobile), onHalo);
@@ -928,7 +956,7 @@ void main() {
   if (nearIndustries > 0.0 && uFocus >= 0.0 && uZoomOn > 0.5) {
     float k = floor(aRand * 6.0);
     float match = 1.0 - step(0.5, abs(k - uFocus));
-    hide = max(1.0 - match, onNeck(position));
+    hide = 1.0 - match;
   }
 
   // Driven by the contact form: the field tightens as the form completes.

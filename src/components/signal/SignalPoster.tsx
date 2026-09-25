@@ -1,8 +1,7 @@
 import {
   buildSeeds,
-  clusterCenter,
   formation,
-  industryNeckGlow,
+  industryBodyGlow,
   PHASE_CAPTION,
   PHASE_INDEX,
   SERVICE_CAPTION,
@@ -77,12 +76,8 @@ export function SignalPoster({
     }
     if (!showScene && phase === "industries") {
       const k = Math.min(5, Math.floor(s.rand * 6));
-      const [cx, cy] = clusterCenter(k);
-      const rad = Math.hypot(x - cx, y - cy, z);
-      const fall = Math.pow(Math.max(0, 1 - rad / 2.5), 1.35);
       const glyph = s.seed[2] < 0.34;
-      const neck = industryNeckGlow(s.seed);
-      const glow = neck == null ? fall : Math.max(fall, neck);
+      const glow = glyph ? 1 : industryBodyGlow(x, y, z, k);
       o = glyph ? 0.85 : Math.round((0.06 + glow * 0.72) * 100) / 100;
       r = Math.round(r * (glyph ? 0.7 : 0.55 + glow * 0.9) * 10) / 10;
     }

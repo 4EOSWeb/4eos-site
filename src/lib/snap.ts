@@ -1,7 +1,7 @@
 "use client";
 
 import type Snap from "lenis/snap";
-import { setPhase } from "@/components/signal/store";
+import { holdPhase, releasePhaseHold, setPhase, signal } from "@/components/signal/store";
 
 /**
  * Chapters register here so the Lenis snap instance can pick them up after
@@ -188,13 +188,26 @@ function scrollInside(el: HTMLElement, direction: 1 | -1) {
   return true;
 }
 
+let snapGen = 0;
+
 export function snapGoTo(index: number) {
   const el = ordered()[index];
   if (!el) return;
 
   const value = snapScrollFor(el);
+  const phase = el.dataset.phase;
+  const destination = phase === undefined ? null : Number(phase);
+  // A jump across several chapters, such as the wordmark back to the top,
+  // must not walk the field through every picture on the way.
+  const skip =
+    destination !== null &&
+    Number.isFinite(destination) &&
+    Math.abs(destination - signal.phase) > 1.01;
+  const gen = ++snapGen;
+  if (skip) holdPhase(destination);
   const settle = () => {
-    const phase = el.dataset.phase;
+    if (gen !== snapGen) return;
+    if (skip) releasePhaseHold();
     if (phase) setPhase(Number(phase));
   };
   if (scrollToValue) {

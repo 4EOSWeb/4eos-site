@@ -123,14 +123,11 @@ function Points({
     signal.mouseRX = signal.mouseX;
     signal.mouseRY = signal.mouseY;
 
-    // Phones show the unmanaged cloud, except an open industry, which zooms
-    // into that cluster the same way a desktop does.
-    const industryZoom =
-      signal.zoom > 0.02 && Math.abs(signal.phase - 4) < 0.6;
-    const phoneCloud = mobile && !industryZoom;
-    u.uPhase.value = phoneCloud ? 0 : signal.rendered;
-    u.uPhaseVel.value = phoneCloud ? 0 : signal.phaseVel;
-    u.uPhaseTarget.value = phoneCloud ? 0 : signal.phase;
+    // Phones always show the unmanaged cloud. Desktop keeps the chapter,
+    // including the zoom into one industry.
+    u.uPhase.value = mobile ? 0 : signal.rendered;
+    u.uPhaseVel.value = mobile ? 0 : signal.phaseVel;
+    u.uPhaseTarget.value = mobile ? 0 : signal.phase;
     u.uFlow.value = ORGANIC_FLOW && !still ? 1 : 0;
     u.uSettle.value = ORGANIC_FLOW && CONFIDENT_SETTLE && !still ? 1 : 0;
     u.uIntensity.value = signal.intensity;
@@ -148,8 +145,8 @@ function Points({
     u.uFocusAge.value = signal.focusAge;
     u.uScene.value = signal.sceneShown;
     u.uSceneMix.value = mobile ? 0 : signal.sceneMix;
-    u.uZoom.value = phoneCloud ? 0 : signal.zoomR;
-    u.uZoomOn.value = !phoneCloud && signal.zoom > 0.02 ? 1 : 0;
+    u.uZoom.value = mobile ? 0 : signal.zoomR;
+    u.uZoomOn.value = !mobile && signal.zoom > 0.02 ? 1 : 0;
     u.uIconSpin.value = signal.iconSpin;
 
     const pointer = u.uPointer.value as THREE.Vector2;
@@ -193,6 +190,7 @@ function CameraRig({
 }) {
   useFrame((state, delta) => {
     const zooming =
+      !mobile &&
       signal.focus >= 0 &&
       signal.focus < 6 &&
       signal.zoom > 0.02 &&
@@ -208,20 +206,25 @@ function CameraRig({
     // Ease both ways, the same curve. The oval itself returns as soon as
     // the zoom is released; only the camera travels back.
     const dt = Math.min(delta, 0.05);
-    const zoomStep = still ? 1 : 1 - Math.pow(0.18, dt);
+    const zoomStep = still ? 1 : 1 - Math.pow(0.0015, dt);
     signal.zoomR += (signal.zoom - signal.zoomR) * zoomStep;
     if (Math.abs(signal.zoom - signal.zoomR) < 0.0005) signal.zoomR = signal.zoom;
 
-    const z = mobile && !zooming ? 0 : signal.zoomR;
+    const z = mobile ? 0 : signal.zoomR;
     const fit = mobile ? MOBILE_FIT : 1;
     const restZ = mobile ? 24 : 20;
-    const nearZ = mobile ? 16 : lite ? 13.5 : 9;
+    // Closer than the wide chapter view so the one industry mark reads as a zoom.
+    // The resting camera stays at restZ, so this only applies while zoomed.
+    const nearZ = mobile ? 16 : 4;
+    // Aim at the cluster immediately. The old aim point was scaled by the
+    // zoom amount, so the mark sat off to the side until the dolly finished.
+    const aim = zooming ? 1 : z;
     state.camera.position.set(
       signal.lookX * z * 0.55 * fit,
       signal.lookY * z * 0.55 * fit,
       restZ + (nearZ - restZ) * z,
     );
-    state.camera.lookAt(signal.lookX * z * fit, signal.lookY * z * fit, 0);
+    state.camera.lookAt(signal.lookX * aim * fit, signal.lookY * aim * fit, 0);
   });
   return null;
 }

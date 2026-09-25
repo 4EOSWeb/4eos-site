@@ -4,11 +4,12 @@
  *
  * REWST_WEBHOOK_URL   https://engine.rewst.io/webhooks/custom/trigger/{TriggerID}/{OrganizationID}
  *
- * The body is name, email, message, and request_type (`assessment` or
- * `support`), plus company and phone when the person typed them. The
- * workflow routes assessment to the sales board and support to the help
- * desk board. If the trigger waits for the workflow, a returned ticket id
- * is passed back to the form.
+ * The body is name, email, message, request_type (`assessment` or
+ * `support`), company, and phone. Company and phone are empty strings when
+ * the person left them blank, so the workflow can fall back to Catchall.
+ * Assessment goes to the sales board and support goes to the help desk.
+ * The trigger answers before the ticket exists, so a ticket id comes back
+ * only if the workflow includes one in its response.
  */
 
 export type TicketInput = {
@@ -21,7 +22,9 @@ export type TicketInput = {
 };
 
 export function rewstWebhookUrl() {
-  const value = process.env.REWST_WEBHOOK_URL?.trim();
+  // Bracket access stays a runtime read. A static process.env.REWST_WEBHOOK_URL
+  // lookup can be frozen at `next build`, which would ignore a .env added later.
+  const value = process.env["REWST_WEBHOOK_URL"]?.trim();
   if (!value?.startsWith("https://")) return null;
   return value;
 }
@@ -32,8 +35,8 @@ export function rewstPayload(input: TicketInput) {
     email: input.email,
     message: input.message,
     request_type: input.intent === "Support" ? "support" : "assessment",
-    ...(input.company ? { company: input.company } : {}),
-    ...(input.phone ? { phone: input.phone } : {}),
+    company: input.company?.trim() ?? "",
+    phone: input.phone?.trim() ?? "",
   };
 }
 

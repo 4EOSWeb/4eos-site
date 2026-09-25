@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { setResolve } from "@/components/signal/store";
-import { salesEmail } from "@/lib/content";
 
 type Fields = {
   name: string;
@@ -141,7 +140,7 @@ export function IntakeForm({
         {status === "sending" ? "Sending" : `→ ${submitLabel}`}
       </button>
       <p className="body-sm text-fg-faint">
-        Sending this emails {intent === "assessment" ? salesEmail : "the help desk"} so we can reply. We do not sell what you type.{" "}
+        Sending this opens a ticket with {intent === "assessment" ? "sales" : "the help desk"} so we can reply. We do not sell what you type.{" "}
         <Link href="/privacy" className="underline decoration-hairline-strong underline-offset-4 hover:text-gold">
           Privacy
         </Link>

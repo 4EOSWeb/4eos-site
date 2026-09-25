@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { setFieldGlow } from "@/components/signal/store";
 
 const GLASS = ".sheet-glass, .sheet-ink-glass, .menu-glass, .site-bar";
 
@@ -16,6 +17,7 @@ export function GlassGlow() {
         current.style.removeProperty("--gy");
       }
       current = next;
+      setFieldGlow(!next);
       if (!next) return;
       const box = next.getBoundingClientRect();
       next.style.setProperty("--gx", `${event.clientX - box.left}px`);

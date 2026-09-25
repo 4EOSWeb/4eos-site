@@ -63,6 +63,7 @@ function Points({
       uPixelRatio: { value: 1 },
       uMouse: { value: new THREE.Vector2(0, 0) },
       uGlowScale: { value: 1 },
+      uFieldGlow: { value: 1 },
       uFocus: { value: -1 },
       uFocusAge: { value: 0 },
       uZoom: { value: 0 },
@@ -99,9 +100,8 @@ function Points({
       signal.rendered = signal.phase;
     }
 
-    const mouseStep = still ? 1 : 1 - Math.pow(0.0008, Math.min(delta, 0.05));
-    signal.mouseRX += (signal.mouseX - signal.mouseRX) * mouseStep;
-    signal.mouseRY += (signal.mouseY - signal.mouseRY) * mouseStep;
+    signal.mouseRX = signal.mouseX;
+    signal.mouseRY = signal.mouseY;
 
     u.uPhase.value = signal.rendered;
     u.uIntensity.value = signal.intensity;
@@ -133,6 +133,7 @@ function Points({
       );
     }
     u.uGlowScale.value = state.camera.position.z / 20;
+    u.uFieldGlow.value = signal.fieldGlow;
 
     if (!still) u.uTime.value = state.clock.elapsedTime;
   });

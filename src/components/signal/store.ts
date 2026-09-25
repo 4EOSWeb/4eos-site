@@ -38,6 +38,8 @@ type SignalStore = {
   mouseRY: number;
   /** False until the first real pointer sample, so the glow does not ease from 0,0. */
   mouseLive: boolean;
+  /** 0 while the pointer is on frosted glass, so the field light does not stack. */
+  fieldGlow: number;
   /** Set by the field so callers can wake a demand-driven frameloop. */
   invalidate: (() => void) | null;
 };
@@ -61,6 +63,7 @@ export const signal: SignalStore = {
   mouseRX: 0,
   mouseRY: 0,
   mouseLive: false,
+  fieldGlow: 1,
   invalidate: null,
 };
 
@@ -185,6 +188,11 @@ export function setZoom(value: number) {
 export function setLook(x: number, y: number) {
   signal.lookX = x;
   signal.lookY = y;
+  signal.invalidate?.();
+}
+
+export function setFieldGlow(on: boolean) {
+  signal.fieldGlow = on ? 1 : 0;
   signal.invalidate?.();
 }
 

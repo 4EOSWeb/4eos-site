@@ -20,6 +20,7 @@ uniform float uResolve;
 uniform float uPixelRatio;
 uniform vec2 uMouse;
 uniform float uGlowScale;
+uniform float uFieldGlow;
 uniform float uFocus;
 uniform float uFocusAge;
 uniform float uZoom;
@@ -634,7 +635,7 @@ void main() {
   // uMouse is world XY on the z=0 plane, unprojected through the live camera.
   // uGlowScale = camera.z / 20 so the shaft keeps its screen size when closer.
   float toMouse = length(pos.xy - uMouse);
-  float glow = smoothstep(5.8 * uGlowScale, 0.0, toMouse);
+  float glow = smoothstep(5.8 * uGlowScale, 0.0, toMouse) * uFieldGlow;
 
   float dens = mix(density(a), density(b), m);
   dens = mix(dens, serviceDensity(int(clamp(uScene, 0.0, 5.0))), uSceneMix);

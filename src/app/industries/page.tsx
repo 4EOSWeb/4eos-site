@@ -30,7 +30,8 @@ export default function IndustriesPage() {
             <li key={ind.slug} className="max-w-[62ch]">
               <PhaseLink
                 href={`/industries/${ind.slug}`}
-                phase="discovery"
+                phase="industries"
+                focus={i}
                 className="inline-flex w-fit items-baseline gap-4 border-b border-hairline py-3 transition-colors hover:text-gold"
               >
                 <span className="micro text-fg-faint">

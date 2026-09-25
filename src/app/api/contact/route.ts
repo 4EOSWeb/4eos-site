@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { salesEmail } from "@/lib/content";
 import { site } from "@/lib/site";
 
 const resend = process.env.RESEND_API_KEY
@@ -34,8 +35,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 
-  const intent = body.intent === "support" ? "Support" : "Assessment";
-  const to = process.env.INTAKE_TO ?? site.helpdesk;
+  const support = body.intent === "support";
+  const intent = support ? "Support" : "Assessment";
+  const to = support ? (process.env.INTAKE_TO ?? site.helpdesk) : salesEmail;
   const from = process.env.INTAKE_FROM ?? "4EOS Website <onboarding@resend.dev>";
 
   const text = [

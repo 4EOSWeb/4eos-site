@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <InnerPage
-      phase="security"
+      phase="discovery"
       kicker="Terms"
       title="Rules for using this website."
       lede="Updated September 25, 2026. These terms cover the site. They are not a quote, and they do not replace a signed agreement."

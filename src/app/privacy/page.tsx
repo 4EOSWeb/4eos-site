@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { InnerPage } from "@/components/layout/InnerPage";
 import { LegalSections } from "@/components/legal/LegalSections";
+import { salesEmail } from "@/lib/content";
 import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <InnerPage
-      phase="security"
+      phase="discovery"
       kicker="Privacy"
       title="What this website collects."
       lede="Updated September 25, 2026. This covers 4eos.com. A signed service agreement covers work we do for a client."
@@ -36,7 +37,7 @@ export default function PrivacyPage() {
           {
             heading: "How we use it",
             paragraphs: [
-              "Form messages are delivered by an email service, Resend, to the help desk. We do not sell personal information, and we do not share it for advertising.",
+              `The assessment form is delivered by an email service, Resend, to ${salesEmail}. The support form is delivered the same way to the help desk at ${site.helpdesk}. We do not sell personal information, and we do not share it for advertising.`,
               "We keep an inquiry for as long as we need it to respond and to keep a record of the request. Email us if you want a copy of a website inquiry, or if you want it deleted.",
             ],
           },

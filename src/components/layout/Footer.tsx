@@ -86,9 +86,22 @@ export function Footer() {
         <Rule className="my-10" />
 
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <p className="micro text-fg-faint">
-            © 2026 {site.name}. Fort Wayne, Indiana.
-          </p>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <p className="micro text-fg-faint">
+              © 2026 {site.name}. Fort Wayne, Indiana.
+            </p>
+            <nav aria-label="Legal" className="flex flex-wrap gap-x-4 gap-y-1">
+              <Link href="/privacy" className="micro text-fg-faint transition-colors hover:text-gold">
+                Privacy
+              </Link>
+              <Link href="/terms" className="micro text-fg-faint transition-colors hover:text-gold">
+                Terms
+              </Link>
+              <Link href="/accessibility" className="micro text-fg-faint transition-colors hover:text-gold">
+                Accessibility
+              </Link>
+            </nav>
+          </div>
           <SocialMarks />
           <p className="micro text-fg-faint">{addressLine}</p>
         </div>

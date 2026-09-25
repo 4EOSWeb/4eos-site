@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { setResolve } from "@/components/signal/store";
 
@@ -138,6 +139,16 @@ export function IntakeForm({
       >
         {status === "sending" ? "Sending" : `→ ${submitLabel}`}
       </button>
+      <p className="body-sm text-fg-faint">
+        Sending this emails the help desk so we can reply. We do not sell what you type.{" "}
+        <Link href="/privacy" className="underline decoration-hairline-strong underline-offset-4 hover:text-gold">
+          Privacy
+        </Link>
+        {" · "}
+        <Link href="/terms" className="underline decoration-hairline-strong underline-offset-4 hover:text-gold">
+          Terms
+        </Link>
+      </p>
       {status === "error" ? (
         <p className="body-sm" role="alert">
           The message did not go through. Call {`(260) 490-7740`} or try again.

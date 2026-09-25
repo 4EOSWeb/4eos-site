@@ -27,7 +27,6 @@ export function LoginForm() {
 
   return (
     <form onSubmit={onSubmit} className="command-login">
-      <p className="command-kicker">4EOS analytics</p>
       <h1>Sign in.</h1>
       <label>
         Username

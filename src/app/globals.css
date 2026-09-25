@@ -960,6 +960,14 @@ html.signal-live .signal-poster {
   gap: 0.8rem;
 }
 
+.command-login h1 {
+  margin: 0;
+  font-family: var(--font-archivo), sans-serif;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
 .command-login input {
   display: block;
   width: 100%;

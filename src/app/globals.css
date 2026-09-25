@@ -509,12 +509,12 @@ html.signal-live .signal-poster {
   pointer-events: none;
   opacity: 0;
   background: radial-gradient(
-    260px circle at var(--gx, 50%) var(--gy, 50%),
-    rgba(245, 183, 0, 0.12) 0%,
-    rgba(245, 183, 0, 0.045) 32%,
-    rgba(245, 183, 0, 0.012) 64%,
+    160px circle at var(--gx, 50%) var(--gy, 50%),
+    rgba(245, 183, 0, 0.28) 0%,
+    rgba(245, 183, 0, 0.08) 42%,
     rgba(245, 183, 0, 0) 100%
   );
+  filter: blur(48px);
   transition: opacity 160ms linear;
 }
 

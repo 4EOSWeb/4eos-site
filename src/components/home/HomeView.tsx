@@ -38,7 +38,7 @@ export function HomeView() {
       <SignalBackdrop phase="unmanaged" />
       <Nav />
       <PageFade>
-        <main id="main" tabIndex={-1} className="relative z-10 outline-none">
+        <main id="main" tabIndex={-1} className="story relative z-10 outline-none">
           <Hero />
           <Discovery />
           <Ownership />
@@ -171,7 +171,7 @@ function Ownership() {
 function Security() {
   return (
     <SignalChapter phase="security" id="chapter-security">
-      <section className={CHAPTER}>
+      <section className={`${CHAPTER} chapter-phone-flow`}>
           <GoldReveal
             as="h2"
             className="display chapter-display max-w-[18ch]"
@@ -193,10 +193,10 @@ function Security() {
                 Sixty-plus models on one platform, with the data staying yours.
               </span>
             </p>
-            <Link href="/secureai" className="bar-btn bar-btn-line mt-5 inline-flex">
-              Read SecureAI <span aria-hidden>→</span>
-            </Link>
           </div>
+          <Link href="/secureai" className="chapter-phone-actions bar-btn bar-btn-line mt-5 inline-flex">
+            Read SecureAI <span aria-hidden>→</span>
+          </Link>
       </section>
     </SignalChapter>
   );
@@ -258,7 +258,7 @@ function Industries() {
 function Response() {
   return (
     <SignalChapter phase="response" id="chapter-response">
-      <section className={CHAPTER}>
+      <section className={`${CHAPTER} chapter-phone-flow`}>
           <GoldReveal
             as="h2"
             className="display chapter-display max-w-[18ch]"
@@ -272,7 +272,7 @@ function Response() {
               with an issue — the help desk picks it up.
             </span>
           </p>
-          <div className="mt-8 flex flex-wrap gap-8">
+          <div className="chapter-phone-actions mt-8 flex flex-wrap gap-8">
             <Link href="/support" className="bar-btn bar-btn-line inline-flex">
               Request support <span aria-hidden>→</span>
             </Link>

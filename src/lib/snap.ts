@@ -91,6 +91,14 @@ function nearestIndex() {
 function moveBy(direction: 1 | -1) {
   const count = pending.size;
   if (count === 0) return;
+  const tall = tallStrategy();
+  if (tall && insideEl(tall)) {
+    const list = [...pending];
+    const index = list.indexOf(tall) + direction;
+    if (index < 0 || index >= list.length) return;
+    snapGoTo(index);
+    return;
+  }
   const index = nearestIndex() + direction;
   if (index < 0 || index >= count) return;
   snapGoTo(index);
@@ -102,6 +110,76 @@ export function stopSnap() {
 
 export function startSnap() {
   snap?.start();
+}
+
+const PHONE_MQ = "(pointer: coarse) and (max-width: 899px)";
+
+function isPhoneLayout() {
+  return window.matchMedia(PHONE_MQ).matches;
+}
+
+/** Strategy is the only chapter that may grow past one screen, and only on a phone. */
+function tallStrategy(): HTMLElement | null {
+  if (!isPhoneLayout()) return null;
+  const el = document.getElementById("chapter-strategy");
+  if (!el || !pending.has(el)) return null;
+  if (el.offsetHeight <= window.innerHeight + 24) return null;
+  return el;
+}
+
+function insideEl(el: HTMLElement, y = window.scrollY) {
+  const top = snapScrollFor(el);
+  const bottom = top + el.offsetHeight;
+  return y >= top - 2 && y < bottom - 2;
+}
+
+function strategyBounds(el: HTMLElement) {
+  const top = snapScrollFor(el);
+  const maxY = Math.max(top, top + el.offsetHeight - window.innerHeight);
+  return { top, maxY };
+}
+
+/**
+ * On a phone, a strategy chapter taller than the screen scrolls internally.
+ * "free" lets the gesture move the page. "held" already parked at the edge
+ * so the rows stay readable. "chapter" means the caller should change chapters.
+ */
+export function phoneStrategyGesture(
+  direction: 1 | -1,
+  delta: number,
+): "free" | "held" | "chapter" {
+  const el = tallStrategy();
+  if (!el || !insideEl(el)) return "chapter";
+  const { top, maxY } = strategyBounds(el);
+  const y = window.scrollY;
+  const room = direction > 0 ? maxY - y : y - top;
+  if (room <= 16) return "chapter";
+  if (Math.abs(delta) < room - 4) return "free";
+  const dest = direction > 0 ? maxY : top;
+  if (scrollToValue) scrollToValue(Math.round(dest));
+  else window.scrollTo({ top: Math.round(dest), behavior: "auto" });
+  return "held";
+}
+
+/** Proximity snap yanks a tall phone chapter back to its top. Keep it off there. */
+export function syncPhoneSnapHold() {
+  if (isPhoneLayout() && pending.size >= 2) stopSnap();
+  else startSnap();
+}
+
+function scrollInside(el: HTMLElement, direction: 1 | -1) {
+  const { top, maxY } = strategyBounds(el);
+  const room = direction > 0 ? maxY - window.scrollY : window.scrollY - top;
+  // At the edge the next gesture changes chapter instead of nudging a few pixels.
+  if (room <= 16) return false;
+  const dest = Math.min(
+    maxY,
+    Math.max(top, window.scrollY + direction * Math.round(window.innerHeight * 0.82)),
+  );
+  if (Math.abs(dest - window.scrollY) < 2) return false;
+  if (scrollToValue) scrollToValue(Math.round(dest));
+  else window.scrollTo({ top: Math.round(dest), behavior: "auto" });
+  return true;
 }
 
 export function snapGoTo(index: number) {
@@ -131,9 +209,13 @@ export function snapToEl(el: HTMLElement) {
 }
 
 export function snapNext() {
+  const tall = tallStrategy();
+  if (tall && insideEl(tall) && scrollInside(tall, 1)) return;
   moveBy(1);
 }
 
 export function snapPrev() {
+  const tall = tallStrategy();
+  if (tall && insideEl(tall) && scrollInside(tall, -1)) return;
   moveBy(-1);
 }

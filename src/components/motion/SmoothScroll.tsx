@@ -10,10 +10,12 @@ import { scroll } from "@/lib/scroll";
 import {
   attachSnap,
   detachSnap,
+  phoneStrategyGesture,
   snapNext,
   snapPrev,
   snapTargetCount,
   snapToEl,
+  syncPhoneSnapHold,
 } from "@/lib/snap";
 
 /** Long enough to cover one trackpad flick, short enough for a second notch. */
@@ -57,11 +59,17 @@ export function SmoothScroll() {
         if (snapTargetCount() < 2) return true;
         const { deltaX, deltaY } = data;
         if (Math.abs(deltaY) < 6 || Math.abs(deltaX) > Math.abs(deltaY)) return true;
+        syncPhoneSnapHold();
+        const direction = deltaY > 0 ? 1 : -1;
+        const gesture = phoneStrategyGesture(direction, deltaY);
+        // Still rows left in the strategy chapter. Let the swipe move them.
+        if (gesture === "free") return true;
         const now = performance.now();
         if (data.event.cancelable) data.event.preventDefault();
+        if (gesture === "held") return false;
         if (now < cooledUntil) return false;
         cooledUntil = now + STEP_COOLDOWN_MS;
-        if (deltaY > 0) snapNext();
+        if (direction > 0) snapNext();
         else snapPrev();
         return false;
       },
@@ -75,7 +83,10 @@ export function SmoothScroll() {
       easing: (t) => 1 - Math.pow(1 - t, 3),
     });
 
-    lenis.on("scroll", ScrollTrigger.update);
+    lenis.on("scroll", () => {
+      ScrollTrigger.update();
+      syncPhoneSnapHold();
+    });
     scroll.lenis = lenis;
     attachSnap(snap, (value, done) => {
       lenis.scrollTo(value, {
@@ -91,9 +102,12 @@ export function SmoothScroll() {
     gsap.ticker.lagSmoothing(0);
 
     window.addEventListener("hashchange", scrollToHash);
+    window.addEventListener("resize", syncPhoneSnapHold);
+    syncPhoneSnapHold();
 
     return () => {
       window.removeEventListener("hashchange", scrollToHash);
+      window.removeEventListener("resize", syncPhoneSnapHold);
       gsap.ticker.remove(tick);
       detachSnap();
       snap.destroy();

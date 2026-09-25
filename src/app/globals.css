@@ -589,6 +589,74 @@ html.signal-live .signal-poster {
   opacity: 1;
 }
 
+/* Phone tier matches detectTier: coarse pointer and a viewport under 900.
+   A fine pointer, including a narrowed window, keeps the desktop glow. */
+@media (pointer: coarse) and (max-width: 899px) {
+  .sheet-glass::after,
+  .sheet-ink-glass::after,
+  .menu-glass::after,
+  .site-bar::after,
+  .sheet-glass:hover::after,
+  .sheet-ink-glass:hover::after,
+  .menu-glass:hover::after,
+  .site-bar:hover::after {
+    content: none;
+    opacity: 0;
+    background: none;
+    filter: none;
+  }
+
+  /* The ink marker paints a hard plate over the field and softens the glyphs.
+     Full-strength type plus a 1px ink edge stays readable on the bright core. */
+  .story .lede {
+    color: var(--color-fg);
+  }
+
+  .story .field-copy {
+    padding: 0;
+    border-radius: 0;
+    background-color: transparent;
+    box-decoration-break: slice;
+    -webkit-box-decoration-break: slice;
+    text-shadow:
+      0 0 1px #05070a,
+      1px 0 0 #05070a,
+      -1px 0 0 #05070a,
+      0 1px 0 #05070a,
+      0 -1px 0 #05070a;
+    filter: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .story .bar-btn {
+    box-shadow: none;
+    filter: none;
+    text-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .chapter-phone-flow {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .chapter-phone-actions {
+    align-self: flex-start;
+    margin-top: auto;
+  }
+
+  /* A long service list is taller than the screen. It scrolls with the page
+     instead of clipping under the chapter rail. */
+  #chapter-strategy {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+}
+
 
 @media (prefers-reduced-motion: reduce) {
   .signal-poster {

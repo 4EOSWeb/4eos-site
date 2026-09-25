@@ -672,10 +672,9 @@ void main() {
     }
   }
 
-  // A small minority of points carry the accent. Glow warms the hot
-  // centre of the flashlight without turning the field orange.
+  // A small minority of points carry the accent. The flashlight only
+  // brightens, so the lit points stay the same blue as the rest.
   vGold = step(0.955, aGold) * 0.7;
-  vGold = max(vGold, glow * glow * 0.45);
 
   // Discovery: emphasise every few rows and columns so the lattice reads as
   // structure rather than as a finer grade of noise.

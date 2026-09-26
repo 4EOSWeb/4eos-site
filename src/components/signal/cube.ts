@@ -200,10 +200,19 @@ export function posterFacing(k: number) {
   return Math.max(0, m[6] * n[0] + m[7] * n[1] + m[8] * n[2]);
 }
 
+/**
+ * Silhouette row for each industry face.
+ * File order is graph, shield, cross, scale, gear, structure.
+ * Legal is the scale, insurance the shield, healthcare the cross,
+ * construction the structure, manufacturing the gear, private equity the graph.
+ */
+const FACE_ROW = [3, 1, 2, 5, 4, 0];
+
 /** Silhouette sample for one industry mark, in -1..1. Twin of the live attribute. */
 export function iconSample(k: number, seedX: number, seedY: number, extra: number): [number, number] {
+  const row = FACE_ROW[Math.min(5, Math.max(0, k))] ?? 0;
   const idx = Math.min(ICON_COUNT - 1, Math.floor(hash21(seedX + extra * 3.1, seedY) * ICON_COUNT));
-  return iconPoint(k, idx);
+  return iconPoint(row, idx);
 }
 
 /**

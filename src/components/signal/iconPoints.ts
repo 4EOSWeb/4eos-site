@@ -1,6 +1,7 @@
 /**
- * Sampled silhouettes for the six industry marks, one row each:
- * legal, insurance, healthcare, construction, manufacturing, private equity.
+ * Sampled silhouettes, one row each, in file order:
+ * graph, shield, cross, scale, gear, structure.
+ * Which industry reads which row is decided in iconSample.
  * R and G are the point across the source canvas, 0..255, G up.
  * The live field and the still poster both read these through iconPoint.
  */

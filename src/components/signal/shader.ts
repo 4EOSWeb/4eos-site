@@ -47,6 +47,8 @@ attribute float aRand;
 // accent to whatever aRand also selects — every gold point would land in the
 // same industry cluster and the same coverage tier.
 attribute float aGold;
+// Un-jittered sample of this point's industry silhouette, in -1..1.
+attribute vec2 aIcon;
 
 varying float vAlpha;
 varying float vGold;
@@ -76,109 +78,6 @@ float onLattice(float t, float n, float every) {
   float spacing = (n - 1.0) / gaps;
   float nearest = round(index / spacing) * spacing;
   return 1.0 - step(0.5, abs(index - nearest));
-}
-
-vec3 tube(vec3 a, vec3 b, float along, float ang, float rad) {
-  vec3 dir = b - a;
-  float t = clamp(along, 0.0, 1.0);
-  vec3 p = a + dir * t;
-  float dlen = length(dir);
-  vec3 nDir = dlen > 1e-4 ? dir / dlen : vec3(0.0, 1.0, 0.0);
-  vec3 up = abs(nDir.y) > 0.9 ? vec3(1.0, 0.0, 0.0) : vec3(0.0, 1.0, 0.0);
-  vec3 side = cross(nDir, up);
-  float sl = length(side);
-  side = sl > 1e-4 ? side / sl : vec3(1.0, 0.0, 0.0);
-  vec3 bin = cross(nDir, side);
-  return p + (side * cos(ang) + bin * sin(ang)) * rad;
-}
-
-vec3 bowl(float cx, float rimY, float along, float ang, float fill) {
-  float phi = along * 1.5707963;
-  float shell = 0.32 + fill * 0.12;
-  float horiz = cos(phi) * shell;
-  return vec3(cx + cos(ang) * horiz, rimY - sin(phi) * shell, sin(ang) * horiz);
-}
-
-// Local orb inside an industry mark. Twin of industryGlyph() in formations.ts.
-// One assignment and a final return — early returns leave ANGLE with an
-// uninitialised function result (X4000) and the mark disappears.
-vec3 glyph(float k, vec3 seed, float extra) {
-  float along = seed.x;
-  float ang = seed.y * TAU;
-  float fill = sqrt(hash21(seed.x, seed.y));
-  vec3 p = vec3(0.0);
-
-  if (k < 0.5) {
-    p = bowl(extra < 0.81 ? -0.66 : 0.66, 0.0, along, ang, fill);
-    if (extra < 0.1) p = tube(vec3(0.0, -1.08, 0.0), vec3(0.0, -0.9, 0.0), along, ang, 0.1 + fill * 0.22);
-    else if (extra < 0.3) p = tube(vec3(0.0, -0.9, 0.0), vec3(0.0, 0.5, 0.0), along, ang, fill * 0.13);
-    else if (extra < 0.48) p = tube(vec3(-0.92, 0.5, 0.0), vec3(0.92, 0.5, 0.0), along, ang, fill * 0.11);
-    else if (extra < 0.55) p = tube(vec3(-0.66, 0.5, 0.0), vec3(-0.66, 0.02, 0.0), along, ang, fill * 0.05);
-    else if (extra < 0.62) p = tube(vec3(0.66, 0.5, 0.0), vec3(0.66, 0.02, 0.0), along, ang, fill * 0.05);
-  } else if (k < 1.5) {
-    float phi = along * 1.5707963;
-    float shell = 0.86 + fill * 0.14;
-    float horiz = sin(phi) * shell;
-    p = vec3(cos(ang) * horiz, cos(phi) * shell * 0.88 + 0.12, sin(ang) * horiz);
-    if (extra >= 0.76) {
-      float sweep = 3.14159265 * 1.2;
-      float a = along * sweep;
-      float crook = 0.36;
-      float hx = (1.0 - cos(a)) * crook;
-      float hy = -0.92 - sin(a) * crook;
-      float thick = 0.045 + fill * 0.04;
-      float c = cos(ang);
-      float s = sin(ang);
-      p = vec3(hx + cos(a) * c * thick, hy + sin(a) * c * thick, s * thick);
-    } else if (extra >= 0.55) {
-      p = tube(vec3(0.0, 0.55, 0.0), vec3(0.0, -0.92, 0.0), along, ang, fill * 0.09);
-    }
-  } else if (k < 2.5) {
-    float rad = 0.16 + fill * 0.18;
-    if (extra < 0.5) p = tube(vec3(-0.95, 0.0, 0.0), vec3(0.95, 0.0, 0.0), along, ang, rad);
-    else if (along < 0.5) p = tube(vec3(0.0, -0.95, 0.0), vec3(0.0, -0.32, 0.0), along * 2.0, ang, rad);
-    else p = tube(vec3(0.0, 0.32, 0.0), vec3(0.0, 0.95, 0.0), (along - 0.5) * 2.0, ang, rad);
-  } else if (k < 3.5) {
-    // Tower crane: base, mast, level jib, counterweight, stay, hoist, hook.
-    float a = along * 2.82743339;
-    float hx = 0.86 - (1.0 - cos(a)) * 0.26;
-    float hy = -0.08 - sin(a) * 0.36;
-    float tx = -sin(a) * 0.26;
-    float ty = -cos(a) * 0.36;
-    float tlen = max(length(vec2(tx, ty)), 0.001);
-    float thick = 0.035 + fill * 0.045;
-    float c = cos(ang);
-    float s = sin(ang);
-    p = vec3(hx + (-ty / tlen) * c * thick, hy + (tx / tlen) * c * thick, s * thick);
-    if (extra < 0.12) p = tube(vec3(-0.82, -1.02, 0.0), vec3(0.12, -1.02, 0.0), along, ang, 0.11 + fill * 0.14);
-    else if (extra < 0.4) p = tube(vec3(-0.34, -0.94, 0.0), vec3(-0.34, 1.04, 0.0), along, ang, 0.08 + fill * 0.12);
-    else if (extra < 0.62) p = tube(vec3(-0.34, 0.9, 0.0), vec3(1.18, 0.9, 0.0), along, ang, 0.06 + fill * 0.1);
-    else if (extra < 0.72) p = tube(vec3(-0.34, 0.9, 0.0), vec3(-1.08, 0.82, 0.0), along, ang, 0.05 + fill * 0.08);
-    else if (extra < 0.8) p = tube(vec3(-0.98, 0.46, 0.0), vec3(-0.98, 0.84, 0.0), along, ang, 0.09 + fill * 0.1);
-    else if (extra < 0.88) p = tube(vec3(-0.26, 1.04, 0.0), vec3(1.02, 0.94, 0.0), along, ang, 0.025 + fill * 0.03);
-    else if (extra < 0.95) p = tube(vec3(0.86, 0.84, 0.0), vec3(0.86, -0.08, 0.0), along, ang, 0.028 + fill * 0.035);
-  } else if (k < 4.5) {
-    float z = (hash21(seed.x, extra) - 0.5) * 0.62;
-    if (extra < 0.52) {
-      float a = along * TAU;
-      float r = 0.4 + fill * 0.3;
-      p = vec3(cos(a) * r, sin(a) * r, z);
-    } else {
-      float tooth = min(floor(along * 8.0), 7.0);
-      float a = (tooth + 0.5) / 8.0 * TAU;
-      float r = 0.68 + fract(along * 8.0) * 0.4;
-      float w = (hash21(extra, seed.y) - 0.5) * 0.28;
-      p = vec3(cos(a) * r - sin(a) * w, sin(a) * r + cos(a) * w, z);
-    }
-  } else {
-    float bar = min(floor(extra * 3.0), 2.0);
-    float h = 0.62 + bar * 0.48;
-    float jx = (hash21(seed.x, extra) - 0.5) * 0.38;
-    float jz = (hash21(seed.y, extra) - 0.5) * 0.55;
-    p = vec3((bar - 1.0) * 0.78 + jx, -0.72 + along * h, jz);
-  }
-
-  return p;
 }
 
 // Rectangle outline in the XY plane. Twin of rectFrame() in formations.ts.
@@ -510,7 +409,8 @@ vec3 cornerPoint(float which, float u, float v) {
 // One particle in cube-local space. Twin of cubeLocal() in cube.ts.
 // One assignment path and a single return — early returns leave ANGLE
 // with an uninitialised result (X4000).
-vec3 cubeLocal(float k, vec3 seed, float extra, float t) {
+// icon is the silhouette sample for this point. Mark scale 2.65 matches cube.ts.
+vec3 cubeLocal(float k, vec3 seed, float extra, vec2 icon, float t) {
   vec3 n = vec3(0.0, 0.0, 1.0);
   vec3 tu = vec3(1.0, 0.0, 0.0);
   vec3 tv = vec3(0.0, 1.0, 0.0);
@@ -529,7 +429,18 @@ vec3 cubeLocal(float k, vec3 seed, float extra, float t) {
   }
 
   vec3 p = n * 5.4;
-  if (seed.z < 0.64) {
+  if (seed.z < 0.38) {
+    vec2 g = icon;
+    g.x += (hash21(seed.y, extra) - 0.5) * 0.012;
+    g.y += (hash21(extra, seed.x) - 0.5) * 0.012;
+    p = skinPoint(
+      k,
+      clamp(g.x * 2.65 / 3.2, -0.96, 0.96),
+      clamp(g.y * 2.65 / 3.2, -0.96, 0.96),
+      -0.14 - hash21(seed.x, seed.y) * 0.1,
+      n, tu, tv
+    );
+  } else if (seed.z < 0.64) {
     p = skinPoint(k, seed.x * 2.0 - 1.0, seed.y * 2.0 - 1.0, pow(hash21(seed.x, seed.y), 1.6) * 0.17, n, tu, tv);
   } else if (seed.z < 0.93) {
     float which = min(floor(fract(extra * 12.17 + seed.x) * 12.0), 11.0);
@@ -585,7 +496,7 @@ vec3 formation(int s, float t) {
     // Centre (3.32, 0), half-edge 5.4. Keep in step with cube.ts.
     float k = min(floor(aRand * 6.0), 5.0);
     float extra = fract(aRand * 6.0);
-    vec3 local = cubeLocal(k, seed, extra, t);
+    vec3 local = cubeLocal(k, seed, extra, aIcon, t);
     return uCube * local + vec3(3.32, 0.0, 0.0);
   }
   if (s == 5) {
@@ -855,7 +766,7 @@ void main() {
 
   // Faces, fillets, and corners are one die. The mark sits on the flat.
   float nearIndustries = (1.0 - clamp(abs(ph - 4.0), 0.0, 1.0)) * sceneOff * (1.0 - uCloud);
-  float onGlyph = 0.0;
+  float onGlyph = (1.0 - step(0.38, position.z)) * nearIndustries;
   float onFace = step(0.38, position.z) * (1.0 - step(0.64, position.z)) * nearIndustries;
   float onEdge = step(0.64, position.z) * (1.0 - step(0.93, position.z)) * nearIndustries;
   float onCorner = step(0.93, position.z) * nearIndustries;

@@ -1,3 +1,5 @@
+import { ICON_COUNT, iconPoint } from "./iconPoints";
+
 /**
  * The industries chapter is one cube. Six faces, one industry each.
  * Local points are built here and in shader.ts — keep the two in step.
@@ -19,8 +21,9 @@ export const CUBE_ICON = 0.38;
 export const CUBE_SHELL = 0.64;
 /** seed.z below this is a rounded edge. The rest is a rounded corner. */
 export const CUBE_EDGE = 0.93;
-/** Mark size in world units. Stays on the flat, short of the bevel. */
-const ICON_SCALE = 1.76;
+/** Mark size in world units. Stays on the flat, short of the bevel.
+ *  Twin of the 2.65 scale in shader.ts cubeLocal(). */
+const ICON_SCALE = 2.65;
 /** Corner radius. Large enough that the silhouette is a die, not a box. */
 const DIE_R = 2.2;
 
@@ -197,23 +200,26 @@ export function posterFacing(k: number) {
   return Math.max(0, m[6] * n[0] + m[7] * n[1] + m[8] * n[2]);
 }
 
+/** Silhouette sample for one industry mark, in -1..1. Twin of the live attribute. */
+export function iconSample(k: number, seedX: number, seedY: number, extra: number): [number, number] {
+  const idx = Math.min(ICON_COUNT - 1, Math.floor(hash21(seedX + extra * 3.1, seedY) * ICON_COUNT));
+  return iconPoint(k, idx);
+}
+
 /**
  * One particle in cube-local space, before the cube's rotation.
  * Twin of cubeLocal() in shader.ts.
  */
-export function cubeLocal(
-  k: number,
-  seed: Vec3,
-  extra: number,
-  glyph: Vec3 | null,
-  t: number,
-): Vec3 {
+export function cubeLocal(k: number, seed: Vec3, extra: number, t: number): Vec3 {
   // Dots are fixed on the die. `t` is only the cube's rotation, applied outside.
   void t;
-  if (glyph) {
-    const su = clamp((glyph[0] * ICON_SCALE) / DIE_A, -0.96, 0.96);
-    const sv = clamp((glyph[1] * ICON_SCALE) / DIE_A, -0.96, 0.96);
-    return skinPoint(k, su, sv, -0.1);
+  if (seed[2] < CUBE_ICON) {
+    const [gx, gy] = iconSample(k, seed[0], seed[1], extra);
+    const jx = (hash21(seed[1], extra) - 0.5) * 0.012;
+    const jy = (hash21(extra, seed[0]) - 0.5) * 0.012;
+    const su = clamp(((gx + jx) * ICON_SCALE) / DIE_A, -0.96, 0.96);
+    const sv = clamp(((gy + jy) * ICON_SCALE) / DIE_A, -0.96, 0.96);
+    return skinPoint(k, su, sv, -0.14 - hash21(seed[0], seed[1]) * 0.1);
   }
 
   if (seed[2] < CUBE_SHELL) {

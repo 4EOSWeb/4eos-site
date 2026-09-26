@@ -575,7 +575,7 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       // three-quarter view; the live field supplies its own rotation.
       const k = Math.min(5, Math.floor(rand * 6));
       const extra = fract(rand * 6);
-      const local = cubeLocal(k, seed, extra, null, t);
+      const local = cubeLocal(k, seed, extra, t);
       const spun = mulMatPoint(cubeOrientation(t, -1, 0), local);
       return [CUBE_CX + spun[0], CUBE_CY + spun[1], spun[2]];
     }

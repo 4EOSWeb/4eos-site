@@ -34,7 +34,6 @@ export function IndustrySettle() {
 
     let stage: "in" | "hold" | "fade" | "done" = "in";
     let heldSince = 0;
-    let holdFrames = 0;
     let fadeFrom = 0;
     const started = performance.now();
     let raf = 0;
@@ -64,25 +63,26 @@ export function IndustrySettle() {
       if (stage === "in") {
         // Latch black once the zoom has taken the die out. A later dip in
         // the zoom must not bring the icon back, and must not cancel the cut.
-        if (signal.zoomR > 0.96) signal.cover = 1;
+        if (signal.zoomR > 0.9) signal.cover = 1;
         if (signal.cover > 0.999) {
           if (heldSince === 0) heldSince = now;
-          if (now - heldSince > 70) {
+          // Fully black, and still, before anything is swapped.
+          if (now - heldSince > 700) {
             cutToCloud();
             stage = "hold";
-            holdFrames = 0;
+            heldSince = now;
           }
         }
       } else if (stage === "hold") {
-        // A few drawn frames of the cloud, still covered, before it appears.
+        // The cloud is already in place, still covered, so the fade
+        // cannot reveal the die.
         signal.cover = 1;
-        holdFrames += 1;
-        if (holdFrames >= 4) {
+        if (now - heldSince > 450) {
           stage = "fade";
           fadeFrom = now;
         }
       } else {
-        const t = Math.min(1, (now - fadeFrom) / 900);
+        const t = Math.min(1, (now - fadeFrom) / 1400);
         signal.cover = (1 - t) * (1 - t);
         if (t >= 1) {
           signal.cover = 0;

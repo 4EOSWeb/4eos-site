@@ -901,7 +901,7 @@ void main() {
 
   // Last word on visibility. Glyph and edge boosts sit above, so this has to
   // come after them or the icon and the wireframe flash as the face goes dark.
-  float zoomBlack = smoothstep(0.50, 0.62, uZoom) * nearIndustries;
+  float zoomBlack = smoothstep(0.62, 0.76, uZoom) * nearIndustries;
   vAlpha *= 1.0 - max(zoomBlack, uCover);
   float hide = step(0.999, max(zoomBlack, uCover));
 

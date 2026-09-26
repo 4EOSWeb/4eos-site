@@ -155,9 +155,8 @@ function Points({
     u.uCloud.value = mobile ? 0 : signal.cloudR;
     // Same frame the zoom crosses into black. A later rAF is a frame too late,
     // and that frame is the flash of the icon and the die.
-    if (!mobile && signal.zoom > 0.5 && signal.zoomR > 0.55) {
+    if (!mobile && signal.zoom > 0.5 && signal.zoomR > 0.74) {
       signal.cover = 1;
-      signal.handoff = 1;
     }
     u.uCover.value = mobile ? 0 : signal.cover;
     u.uHandoff.value = mobile ? 0 : signal.handoff;
@@ -278,6 +277,9 @@ function CameraRig({
         signal.zoomR += (zoomGoal - signal.zoomR) * zoomStep;
         if (zoomGoal - signal.zoomR < 0.0005) signal.zoomR = zoomGoal;
       }
+      // The last stretch is already black. Finish it in this frame so the
+      // hold starts on a still, fully black screen.
+      if (signal.zoomR > 0.74) signal.zoomR = 1;
     } else if (signal.cover > 0.5 || signal.handoff > 0.5) {
       signal.zoomR = 0;
     } else {

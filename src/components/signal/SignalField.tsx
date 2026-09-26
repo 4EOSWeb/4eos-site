@@ -250,20 +250,14 @@ function CameraRig({
       cubeQuat[1] = goal[1];
       cubeQuat[2] = goal[2];
       cubeQuat[3] = goal[3];
-    } else if (face < 0 && quatDot(cubeQuat, goal) > 0.995) {
-      cubeQuat[0] = goal[0];
-      cubeQuat[1] = goal[1];
-      cubeQuat[2] = goal[2];
-      cubeQuat[3] = goal[3];
     } else {
-      const rate = face < 0 ? 1.8 : 2.4;
+      // Back to the tumble is slower than the turn onto a face. Copying
+      // the spin while it is still degrees away is the snap on the way out.
+      const rate = face < 0 ? 0.62 : 2.4;
       let frac = 1 - Math.exp(-rate * dt);
-      if (face >= 0) {
-        // Finish on the face in this frame once the leftover turn is
-        // under a pixel. Copying the goal earlier was a visible snap.
-        const ang = 2 * Math.acos(Math.min(1, quatDot(cubeQuat, goal)));
-        if (ang * (1 - frac) < 0.004) frac = 1;
-      }
+      const ang = 2 * Math.acos(Math.min(1, quatDot(cubeQuat, goal)));
+      // Join the goal only once the leftover turn is under a pixel.
+      if (ang * (1 - frac) < 0.004) frac = 1;
       const next = slerpQuat(cubeQuat, goal, frac);
       cubeQuat[0] = next[0];
       cubeQuat[1] = next[1];
@@ -302,7 +296,10 @@ function CameraRig({
     // die, so slide onto the die's axis while it is held. Zoom then travels
     // straight through that face.
     const alignGoal = !mobile && face >= 0 ? 1 : 0;
-    const alignStep = still ? 1 : 1 - Math.pow(0.0012, dt);
+    // Arrive on the face promptly. Leave it at the tumble's pace so the
+    // die doesn't pop from head-on back to the angled spin.
+    const alignRate = alignGoal > faceAlign ? 6.7 : 0.85;
+    const alignStep = still ? 1 : 1 - Math.exp(-alignRate * dt);
     faceAlign += (alignGoal - faceAlign) * alignStep;
     if (Math.abs(alignGoal - faceAlign) < 0.0005) faceAlign = alignGoal;
     const along = Math.max(z, faceAlign);

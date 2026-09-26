@@ -11,6 +11,8 @@ import {
   releasePhaseHold,
   setCloud,
   setFocus,
+  setIntensity,
+  setZoom,
   setPhase,
   signal,
   setScene,
@@ -36,6 +38,9 @@ export function HomeView() {
   useEffect(() => {
     releasePhaseHold();
     setCloud(0, true);
+    setZoom(0);
+    signal.zoomR = 0;
+    setIntensity(1);
     const id = window.location.hash.slice(1);
     const named = id ? document.getElementById(id) : null;
     const fallback = id === "chapter-strategy-services"

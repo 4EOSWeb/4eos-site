@@ -5,14 +5,16 @@ import { detectTier, prefersReducedMotion } from "@/lib/env";
 import {
   setCloud,
   setFocus,
+  setIntensity,
   setZoom,
   signal,
   snapPhase,
 } from "@/components/signal/store";
 
 /**
- * After the camera has passed through an industry face, pull back out,
- * then let those points gather into the unmanaged cloud.
+ * The zoom through an industry face ends on black. From that black the
+ * unmanaged dots fade in. The die stays gone until the industries chapter
+ * is on screen again.
  */
 export function IndustrySettle() {
   useEffect(() => {
@@ -20,49 +22,58 @@ export function IndustrySettle() {
     const skip = !onCube || detectTier() === "mobile" || prefersReducedMotion();
     if (skip) {
       setZoom(0);
+      signal.zoomR = 0;
       setFocus(null);
       setCloud(0, true);
+      setIntensity(1);
       snapPhase("unmanaged");
       return;
     }
 
-    let stage: "in" | "back" | "orbs" | "done" = "in";
+    let stage: "in" | "fade" | "done" = "in";
     let heldSince = 0;
+    let fadeFrom = 0;
     const started = performance.now();
     let raf = 0;
 
-    const finish = () => {
-      if (stage === "done") return;
-      stage = "done";
-      signal.cloudR = 1;
-      snapPhase("unmanaged");
-      setCloud(0);
-      setZoom(0);
+    const cutToCloud = () => {
+      // The field is already black. Move the camera home and swap the
+      // formation before any of it is visible again.
+      signal.intensity = 0;
+      signal.zoom = 0;
+      signal.zoomR = 0;
       setFocus(null);
+      setCloud(0, true);
+      snapPhase("unmanaged");
+      signal.invalidate?.();
     };
 
     const tick = (now: number) => {
       if (stage === "done") return;
       if (now - started > 12000) {
-        finish();
+        cutToCloud();
+        signal.intensity = 1;
+        stage = "done";
         return;
       }
       if (stage === "in") {
-        if (signal.zoomR > 0.9) {
+        if (signal.zoomR > 0.97) {
           if (heldSince === 0) heldSince = now;
-          if (now - heldSince > 280) {
-            stage = "back";
-            setZoom(0);
+          if (now - heldSince > 180) {
+            cutToCloud();
+            stage = "fade";
+            fadeFrom = now;
           }
         }
-      } else if (stage === "back") {
-        if (signal.zoomR < 0.05) {
-          stage = "orbs";
-          setCloud(1);
+      } else {
+        const t = Math.min(1, (now - fadeFrom) / 1000);
+        signal.intensity = 1 - Math.pow(1 - t, 2);
+        signal.invalidate?.();
+        if (t >= 1) {
+          signal.intensity = 1;
+          stage = "done";
+          return;
         }
-      } else if (signal.cloudR > 0.97) {
-        finish();
-        return;
       }
       raf = requestAnimationFrame(tick);
     };
@@ -70,7 +81,10 @@ export function IndustrySettle() {
     raf = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(raf);
-      if (stage !== "done") setCloud(0, true);
+      if (stage !== "done") {
+        setCloud(0, true);
+        setIntensity(1);
+      }
     };
   }, []);
 

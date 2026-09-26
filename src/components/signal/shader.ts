@@ -873,8 +873,9 @@ void main() {
       float match = 1.0 - step(0.5, abs(kk - uFocus));
       vGold = max(vGold, onGlyph * match * facing);
     }
-    // Approach the chosen face, then quiet the field once the camera
-    // has passed through it so the industry page can be read.
+    // Approach the chosen face, then take the field to black once the
+    // camera has passed through it. The industry page fades the unmanaged
+    // dots in from that black. The die is not shown on the way out.
     if (uZoom > 0.15) {
       float faceMatch = 1.0 - step(0.5, abs(kk - uFocus));
       float bodyMatch = step(0.25, facing);
@@ -882,7 +883,7 @@ void main() {
       float match = uFocus < 0.0 ? facing : mix(faceMatch, bodyMatch, onBody);
       float approach = smoothstep(0.2, 0.72, uZoom);
       vAlpha *= mix(1.0, mix(0.05, 1.0, match), approach);
-      vAlpha *= mix(1.0, 0.22, smoothstep(0.8, 1.0, uZoom));
+      vAlpha *= 1.0 - smoothstep(0.78, 0.96, uZoom);
     }
   }
   // A three-quarter view still shows the side faces. Back faces drop

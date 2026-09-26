@@ -37,6 +37,8 @@ type SignalStore = {
   /** 0 = the chapter formation, 1 = the unmanaged cloud, blended directly. */
   cloud: number;
   cloudR: number;
+  /** 1 hides the field. Held across the industry handoff so the die cannot flash. */
+  cover: number;
   lookX: number;
   lookY: number;
   /** Pointer in NDC, -1..1. */
@@ -68,6 +70,7 @@ export const signal: SignalStore = {
   zoomR: 0,
   cloud: 0,
   cloudR: 0,
+  cover: 0,
   lookX: 0,
   lookY: 0,
   mouseX: 0,

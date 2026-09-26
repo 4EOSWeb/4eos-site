@@ -40,6 +40,7 @@ export function HomeView() {
     setCloud(0, true);
     setZoom(0);
     signal.zoomR = 0;
+    signal.cover = 0;
     setIntensity(1);
     const id = window.location.hash.slice(1);
     const named = id ? document.getElementById(id) : null;

@@ -81,6 +81,7 @@ function Points({
       uScene: { value: 0 },
       uSceneMix: { value: 0 },
       uCloud: { value: 0 },
+      uCover: { value: 0 },
       uLite: { value: lite ? 1 : 0 },
       uMobile: { value: mobile ? 1 : 0 },
       uCols: { value: cols },
@@ -151,6 +152,7 @@ function Points({
     signal.cloudR += (signal.cloud - signal.cloudR) * cloudStep;
     if (Math.abs(signal.cloud - signal.cloudR) < 0.0005) signal.cloudR = signal.cloud;
     u.uCloud.value = mobile ? 0 : signal.cloudR;
+    u.uCover.value = mobile ? 0 : signal.cover;
     signal.focusAge = still ? 8 : Math.min(8, signal.focusAge + delta);
     if (!still && signal.zoomR > 0) signal.iconSpin += 0.35 * signal.zoomR * delta;
 
@@ -263,6 +265,9 @@ function CameraRig({
     const zoomStep = still ? 1 : 1 - Math.pow(0.42, dt);
     signal.zoomR += (zoomGoal - signal.zoomR) * zoomStep;
     if (Math.abs(zoomGoal - signal.zoomR) < 0.0005) signal.zoomR = zoomGoal;
+    // Once the handoff has covered the field, do not ease the camera back
+    // out through the die.
+    if (signal.cover > 0.85 && signal.zoom < 0.5) signal.zoomR = 0;
 
     const z = mobile ? 0 : signal.zoomR;
     const fit = mobile ? MOBILE_FIT : 1;

@@ -12,9 +12,9 @@ import {
 } from "@/components/signal/store";
 
 /**
- * The zoom through an industry face ends on black. From that black the
- * unmanaged dots fade in. The die stays gone until the industries chapter
- * is on screen again.
+ * The zoom through an industry face ends on black. The die is swapped for
+ * the unmanaged cloud while that black is still held, then the dots fade in.
+ * The die stays gone until the industries chapter is on screen again.
  */
 export function IndustrySettle() {
   useEffect(() => {
@@ -23,6 +23,7 @@ export function IndustrySettle() {
     if (skip) {
       setZoom(0);
       signal.zoomR = 0;
+      signal.cover = 0;
       setFocus(null);
       setCloud(0, true);
       setIntensity(1);
@@ -30,20 +31,22 @@ export function IndustrySettle() {
       return;
     }
 
-    let stage: "in" | "fade" | "done" = "in";
+    let stage: "in" | "hold" | "fade" | "done" = "in";
     let heldSince = 0;
+    let holdFrames = 0;
     let fadeFrom = 0;
     const started = performance.now();
     let raf = 0;
 
     const cutToCloud = () => {
-      // The field is already black. Move the camera home and swap the
-      // formation before any of it is visible again.
-      signal.intensity = 0;
+      // Positions become the cloud before the camera leaves the black.
+      signal.cover = 1;
+      signal.intensity = 1;
+      signal.cloud = 1;
+      signal.cloudR = 1;
       signal.zoom = 0;
       signal.zoomR = 0;
       setFocus(null);
-      setCloud(0, true);
       snapPhase("unmanaged");
       signal.invalidate?.();
     };
@@ -52,29 +55,42 @@ export function IndustrySettle() {
       if (stage === "done") return;
       if (now - started > 12000) {
         cutToCloud();
-        signal.intensity = 1;
+        signal.cover = 0;
+        setCloud(0, true);
         stage = "done";
         return;
       }
       if (stage === "in") {
-        if (signal.zoomR > 0.97) {
+        // Latch black once the zoom has taken the die out. A later dip in
+        // the zoom must not bring the icon back, and must not cancel the cut.
+        if (signal.zoomR > 0.96) signal.cover = 1;
+        if (signal.cover > 0.999) {
           if (heldSince === 0) heldSince = now;
-          if (now - heldSince > 180) {
+          if (now - heldSince > 70) {
             cutToCloud();
-            stage = "fade";
-            fadeFrom = now;
+            stage = "hold";
+            holdFrames = 0;
           }
         }
+      } else if (stage === "hold") {
+        // A few drawn frames of the cloud, still covered, before it appears.
+        signal.cover = 1;
+        holdFrames += 1;
+        if (holdFrames >= 4) {
+          stage = "fade";
+          fadeFrom = now;
+        }
       } else {
-        const t = Math.min(1, (now - fadeFrom) / 1000);
-        signal.intensity = 1 - Math.pow(1 - t, 2);
-        signal.invalidate?.();
+        const t = Math.min(1, (now - fadeFrom) / 900);
+        signal.cover = (1 - t) * (1 - t);
         if (t >= 1) {
-          signal.intensity = 1;
+          signal.cover = 0;
+          setCloud(0, true);
           stage = "done";
           return;
         }
       }
+      signal.invalidate?.();
       raf = requestAnimationFrame(tick);
     };
 
@@ -82,6 +98,7 @@ export function IndustrySettle() {
     return () => {
       cancelAnimationFrame(raf);
       if (stage !== "done") {
+        signal.cover = 0;
         setCloud(0, true);
         setIntensity(1);
       }

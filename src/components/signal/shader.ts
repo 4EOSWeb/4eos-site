@@ -35,6 +35,7 @@ uniform float uMobile;
 uniform float uScene;
 uniform float uSceneMix;
 uniform float uCloud;
+uniform float uCover;
 uniform float uCols;
 uniform float uRows;
 uniform mat3 uCube;
@@ -895,7 +896,10 @@ void main() {
   vAlpha *= mix(1.0, mix(0.7, 1.1, lit), onCorner);
   vAlpha *= mix(1.0, 1.7, device * sceneOff);
 
-  float hide = 0.0;
+  // Cover stays up across the swap from the die to the unmanaged cloud,
+  // including the frame the zoom mask lets go. Nothing after this brings it back.
+  vAlpha *= 1.0 - uCover;
+  float hide = step(0.999, uCover);
 
   // Driven by the contact form: the field tightens as the form completes.
   vAlpha *= mix(1.0, 1.7, uResolve);

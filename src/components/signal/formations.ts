@@ -39,7 +39,7 @@ export const PHASE_CAPTION: Record<Phase, string> = {
     "Three coverage rings. The lit ring holds the devices that tier covers.",
   security: "A perimeter closed around the environment.",
   industries:
-    "One cube. Six faces — scales, umbrella, cross, crane, gear, and rising bars — turning to the right of the names.",
+    "One cube. Six faces, each a field of dots in the shape of that industry's mark, turning to the right of the names.",
   response: "The disc is whole. A sphere sits in the middle, and the sheet sags there.",
   strategy: "An unstructured field of drifting, unmonitored endpoints.",
 };

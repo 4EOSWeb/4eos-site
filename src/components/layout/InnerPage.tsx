@@ -15,6 +15,7 @@ export function InnerPage({
   focus,
   zoom = false,
   scene,
+  settleFromCube = false,
   backHref,
   backLabel,
 }: {
@@ -29,11 +30,19 @@ export function InnerPage({
   focus?: number;
   zoom?: boolean;
   scene?: number | null;
+  settleFromCube?: boolean;
   backHref?: string;
   backLabel?: string;
 }) {
   return (
-    <Page phase={phase} tone={tone} focus={focus} zoom={zoom} scene={scene}>
+    <Page
+      phase={phase}
+      tone={tone}
+      focus={focus}
+      zoom={zoom}
+      scene={scene}
+      settleFromCube={settleFromCube}
+    >
       <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
         <BackLink href={backHref ?? "/"} label={backLabel ?? "Home"} />
         {brand ? (

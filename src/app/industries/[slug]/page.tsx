@@ -28,12 +28,13 @@ export default async function IndustryPage({ params }: Props) {
 
   return (
     <InnerPage
-      phase="industries"
+      phase="unmanaged"
       kicker="Industry"
       title={industry.statement}
       lede={industry.lede}
       focus={index}
       zoom
+      settleFromCube
       backHref="/#chapter-industries"
       backLabel="Industries"
     >

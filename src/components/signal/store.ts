@@ -34,6 +34,9 @@ type SignalStore = {
   /** 0 = wide field, 1 = star-system zoom into the focused cluster. */
   zoom: number;
   zoomR: number;
+  /** 0 = the chapter formation, 1 = the unmanaged cloud, blended directly. */
+  cloud: number;
+  cloudR: number;
   lookX: number;
   lookY: number;
   /** Pointer in NDC, -1..1. */
@@ -63,6 +66,8 @@ export const signal: SignalStore = {
   sceneMix: 0,
   zoom: 0,
   zoomR: 0,
+  cloud: 0,
+  cloudR: 0,
   lookX: 0,
   lookY: 0,
   mouseX: 0,
@@ -191,6 +196,13 @@ export function setScene(next: number | null, immediate = false) {
 
 export function setZoom(value: number) {
   signal.zoom = Math.min(1, Math.max(0, value));
+  signal.invalidate?.();
+}
+
+/** Blend the live field straight to the unmanaged cloud. `immediate` skips the ease. */
+export function setCloud(value: number, immediate = false) {
+  signal.cloud = value > 0.5 ? 1 : 0;
+  if (immediate) signal.cloudR = signal.cloud;
   signal.invalidate?.();
 }
 

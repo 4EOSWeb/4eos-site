@@ -80,6 +80,7 @@ function Points({
       uIconSpin: { value: 0 },
       uScene: { value: 0 },
       uSceneMix: { value: 0 },
+      uCloud: { value: 0 },
       uLite: { value: lite ? 1 : 0 },
       uMobile: { value: mobile ? 1 : 0 },
       uCols: { value: cols },
@@ -146,6 +147,10 @@ function Points({
     if (Math.abs(sceneTarget - signal.sceneMix) < 0.0005) {
       signal.sceneMix = sceneTarget;
     }
+    const cloudStep = still ? 1 : 1 - Math.pow(0.04, dt);
+    signal.cloudR += (signal.cloud - signal.cloudR) * cloudStep;
+    if (Math.abs(signal.cloud - signal.cloudR) < 0.0005) signal.cloudR = signal.cloud;
+    u.uCloud.value = mobile ? 0 : signal.cloudR;
     signal.focusAge = still ? 8 : Math.min(8, signal.focusAge + delta);
     if (!still && signal.zoomR > 0) signal.iconSpin += 0.35 * signal.zoomR * delta;
 

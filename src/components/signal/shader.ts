@@ -34,6 +34,7 @@ uniform float uLite;
 uniform float uMobile;
 uniform float uScene;
 uniform float uSceneMix;
+uniform float uCloud;
 uniform float uCols;
 uniform float uRows;
 uniform mat3 uCube;
@@ -737,6 +738,11 @@ void main() {
   if (uSceneMix > 0.001) {
     pos = mix(pos, serviceAt(int(clamp(uScene, 0.0, 5.0)), uTime), uSceneMix);
   }
+  // After the industry zoom pulls back, the same points gather into the
+  // unmanaged cloud instead of walking back through the other chapters.
+  if (uCloud > 0.001) {
+    pos = mix(pos, formation(0, uTime), uCloud);
+  }
   float sceneOff = 1.0 - uSceneMix;
 
   // Flashlight in screen space. A circle on the field plane stretches toward
@@ -748,6 +754,7 @@ void main() {
 
   float dens = mix(density(a), density(b), m);
   dens = mix(dens, serviceDensity(int(clamp(uScene, 0.0, 5.0))), uSceneMix);
+  dens = mix(dens, density(0), uCloud);
   vAlpha = 0.62 * dens * uIntensity;
   float voiced = step(2.5, uScene) * (1.0 - step(3.5, uScene));
   float gear = step(4.5, uScene);
@@ -759,7 +766,7 @@ void main() {
   // forward and dim the rest. uFocus < 0 means nothing is selected.
   if (uFocus >= 0.0) {
     float nearOwnership = (1.0 - clamp(abs(ph - 2.0), 0.0, 1.0)) * sceneOff;
-    float nearIndustries = (1.0 - clamp(abs(ph - 4.0), 0.0, 1.0)) * sceneOff;
+    float nearIndustries = (1.0 - clamp(abs(ph - 4.0), 0.0, 1.0)) * sceneOff * (1.0 - uCloud);
     if (nearOwnership > 0.0) {
       float tier = floor(aRand * 3.0);
       float match = 1.0 - step(0.5, abs(tier - uFocus));
@@ -838,7 +845,7 @@ void main() {
   }
 
   // Faces, fillets, and corners are one die. The mark sits on the flat.
-  float nearIndustries = (1.0 - clamp(abs(ph - 4.0), 0.0, 1.0)) * sceneOff;
+  float nearIndustries = (1.0 - clamp(abs(ph - 4.0), 0.0, 1.0)) * sceneOff * (1.0 - uCloud);
   float onGlyph = (1.0 - step(0.38, position.z)) * nearIndustries;
   float onFace = step(0.38, position.z) * (1.0 - step(0.64, position.z)) * nearIndustries;
   float onEdge = step(0.64, position.z) * (1.0 - step(0.93, position.z)) * nearIndustries;

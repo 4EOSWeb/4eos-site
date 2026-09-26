@@ -9,6 +9,7 @@ import {
   getChapterIndex,
   getFocus,
   releasePhaseHold,
+  setCloud,
   setFocus,
   setPhase,
   signal,
@@ -34,6 +35,7 @@ const CHAPTER =
 export function HomeView() {
   useEffect(() => {
     releasePhaseHold();
+    setCloud(0, true);
     const id = window.location.hash.slice(1);
     const named = id ? document.getElementById(id) : null;
     const fallback = id === "chapter-strategy-services"

@@ -82,6 +82,7 @@ function Points({
       uSceneMix: { value: 0 },
       uCloud: { value: 0 },
       uCover: { value: 0 },
+      uHandoff: { value: 0 },
       uLite: { value: lite ? 1 : 0 },
       uMobile: { value: mobile ? 1 : 0 },
       uCols: { value: cols },
@@ -152,7 +153,14 @@ function Points({
     signal.cloudR += (signal.cloud - signal.cloudR) * cloudStep;
     if (Math.abs(signal.cloud - signal.cloudR) < 0.0005) signal.cloudR = signal.cloud;
     u.uCloud.value = mobile ? 0 : signal.cloudR;
+    // Same frame the zoom crosses into black. A later rAF is a frame too late,
+    // and that frame is the flash of the icon and the die.
+    if (!mobile && signal.zoom > 0.5 && signal.zoomR > 0.55) {
+      signal.cover = 1;
+      signal.handoff = 1;
+    }
     u.uCover.value = mobile ? 0 : signal.cover;
+    u.uHandoff.value = mobile ? 0 : signal.handoff;
     signal.focusAge = still ? 8 : Math.min(8, signal.focusAge + delta);
     if (!still && signal.zoomR > 0) signal.iconSpin += 0.35 * signal.zoomR * delta;
 
@@ -263,11 +271,19 @@ function CameraRig({
     const locked = still || (face >= 0 && quatDot(cubeQuat, goal) > 0.999);
     const zoomGoal = !mobile && signal.zoom > 0.5 && locked ? 1 : 0;
     const zoomStep = still ? 1 : 1 - Math.pow(0.42, dt);
-    signal.zoomR += (zoomGoal - signal.zoomR) * zoomStep;
-    if (Math.abs(zoomGoal - signal.zoomR) < 0.0005) signal.zoomR = zoomGoal;
-    // Once the handoff has covered the field, do not ease the camera back
-    // out through the die.
-    if (signal.cover > 0.85 && signal.zoom < 0.5) signal.zoomR = 0;
+    if (signal.zoom > 0.5) {
+      // Only travel inward. Easing back out here draws the die again,
+      // which is the flash before the unmanaged cloud.
+      if (zoomGoal > signal.zoomR) {
+        signal.zoomR += (zoomGoal - signal.zoomR) * zoomStep;
+        if (zoomGoal - signal.zoomR < 0.0005) signal.zoomR = zoomGoal;
+      }
+    } else if (signal.cover > 0.5 || signal.handoff > 0.5) {
+      signal.zoomR = 0;
+    } else {
+      signal.zoomR += (zoomGoal - signal.zoomR) * zoomStep;
+      if (Math.abs(zoomGoal - signal.zoomR) < 0.0005) signal.zoomR = zoomGoal;
+    }
 
     const z = mobile ? 0 : signal.zoomR;
     const fit = mobile ? MOBILE_FIT : 1;

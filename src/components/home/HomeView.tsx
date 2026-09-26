@@ -41,6 +41,7 @@ export function HomeView() {
     setZoom(0);
     signal.zoomR = 0;
     signal.cover = 0;
+    signal.handoff = 0;
     setIntensity(1);
     const id = window.location.hash.slice(1);
     const named = id ? document.getElementById(id) : null;

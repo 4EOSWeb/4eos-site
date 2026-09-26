@@ -36,6 +36,7 @@ uniform float uScene;
 uniform float uSceneMix;
 uniform float uCloud;
 uniform float uCover;
+uniform float uHandoff;
 uniform float uCols;
 uniform float uRows;
 uniform mat3 uCube;
@@ -884,7 +885,6 @@ void main() {
       float match = uFocus < 0.0 ? facing : mix(faceMatch, bodyMatch, onBody);
       float approach = smoothstep(0.2, 0.72, uZoom);
       vAlpha *= mix(1.0, mix(0.05, 1.0, match), approach);
-      vAlpha *= 1.0 - smoothstep(0.78, 0.96, uZoom);
     }
   }
   // A three-quarter view still shows the side faces. Back faces drop
@@ -896,13 +896,14 @@ void main() {
   vAlpha *= mix(1.0, mix(0.7, 1.1, lit), onCorner);
   vAlpha *= mix(1.0, 1.7, device * sceneOff);
 
-  // Cover stays up across the swap from the die to the unmanaged cloud,
-  // including the frame the zoom mask lets go. Nothing after this brings it back.
-  vAlpha *= 1.0 - uCover;
-  float hide = step(0.999, uCover);
-
   // Driven by the contact form: the field tightens as the form completes.
   vAlpha *= mix(1.0, 1.7, uResolve);
+
+  // Last word on visibility. Glyph and edge boosts sit above, so this has to
+  // come after them or the icon and the wireframe flash as the face goes dark.
+  float zoomBlack = smoothstep(0.50, 0.62, uZoom) * nearIndustries;
+  vAlpha *= 1.0 - max(zoomBlack, uCover);
+  float hide = step(0.999, max(zoomBlack, uCover));
 
   // Phones only. uMobile is 0 on desktop, so none of this moves the picture.
   // The discovery lattice turns upright so the tall frame can hold it.
@@ -914,6 +915,11 @@ void main() {
   vec2 fit = vec2(mix(1.0, 0.58, uMobile));
   pos.xy *= mix(fit, vec2(0.5, 1.22), onCloud * uMobile);
 
+  // Once the zoom has gone black, points are the unmanaged cloud even on
+  // the frame the die would otherwise draw.
+  if (uHandoff > 0.5) {
+    pos = formation(0, uTime);
+  }
   vec4 mv = modelViewMatrix * vec4(pos, 1.0);
   float onSpherePt = (1.0 - step(0.04, aRand)) * (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;
   float onGridPt = step(0.04, aRand) * (1.0 - step(0.22, fract(aRand * 7.13))) * (1.0 - clamp(abs(ph - 5.0), 0.0, 1.0)) * sceneOff;

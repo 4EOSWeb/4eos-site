@@ -24,6 +24,7 @@ export function IndustrySettle() {
       setZoom(0);
       signal.zoomR = 0;
       signal.cover = 0;
+      signal.handoff = 0;
       setFocus(null);
       setCloud(0, true);
       setIntensity(1);
@@ -41,6 +42,7 @@ export function IndustrySettle() {
     const cutToCloud = () => {
       // Positions become the cloud before the camera leaves the black.
       signal.cover = 1;
+      signal.handoff = 1;
       signal.intensity = 1;
       signal.cloud = 1;
       signal.cloudR = 1;
@@ -56,7 +58,6 @@ export function IndustrySettle() {
       if (now - started > 12000) {
         cutToCloud();
         signal.cover = 0;
-        setCloud(0, true);
         stage = "done";
         return;
       }
@@ -85,7 +86,6 @@ export function IndustrySettle() {
         signal.cover = (1 - t) * (1 - t);
         if (t >= 1) {
           signal.cover = 0;
-          setCloud(0, true);
           stage = "done";
           return;
         }
@@ -97,11 +97,9 @@ export function IndustrySettle() {
     raf = requestAnimationFrame(tick);
     return () => {
       cancelAnimationFrame(raf);
-      if (stage !== "done") {
-        signal.cover = 0;
-        setCloud(0, true);
-        setIntensity(1);
-      }
+      signal.cover = 0;
+      signal.handoff = 0;
+      if (stage !== "done") setIntensity(1);
     };
   }, []);
 

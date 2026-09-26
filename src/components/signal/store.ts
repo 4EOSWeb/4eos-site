@@ -39,6 +39,8 @@ type SignalStore = {
   cloudR: number;
   /** 1 hides the field. Held across the industry handoff so the die cannot flash. */
   cover: number;
+  /** 1 forces every point onto the unmanaged cloud until the industries chapter returns. */
+  handoff: number;
   lookX: number;
   lookY: number;
   /** Pointer in NDC, -1..1. */
@@ -71,6 +73,7 @@ export const signal: SignalStore = {
   cloud: 0,
   cloudR: 0,
   cover: 0,
+  handoff: 0,
   lookX: 0,
   lookY: 0,
   mouseX: 0,

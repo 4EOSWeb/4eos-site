@@ -574,13 +574,25 @@ function industryGlyph(k: number, seed: Vec3, extra: number): Vec3 {
   }
 
   if (k === 3) {
-    // Construction — solid mast and jib, thin cable, a small hook.
-    if (extra < 0.32) return tube([-0.52, -1.02, 0], [-0.52, 0.92, 0], along, ang, 0.08 + fill * 0.14);
-    if (extra < 0.6) return tube([-0.52, 0.84, 0], [1.05, 0.64, 0], along, ang, 0.06 + fill * 0.12);
-    if (extra < 0.72) return tube([-0.52, 0.84, 0], [-1.02, 0.72, 0], along, ang, 0.06 + fill * 0.12);
-    if (extra < 0.9) return tube([0.7, 0.7, 0], [0.7, -0.05, 0], along, ang, fill * 0.05);
-    const rr = fill * 0.14;
-    return [0.7 + Math.cos(ang) * rr, -0.16 - Math.abs(Math.sin(ang)) * rr, (hash21(along, extra) - 0.5) * 0.16];
+    // Construction — tower crane. Base, mast, level jib, counterweight,
+    // a stay, a hoist line, and a hook.
+    if (extra < 0.12) return tube([-0.82, -1.02, 0], [0.12, -1.02, 0], along, ang, 0.11 + fill * 0.14);
+    if (extra < 0.4) return tube([-0.34, -0.94, 0], [-0.34, 1.04, 0], along, ang, 0.08 + fill * 0.12);
+    if (extra < 0.62) return tube([-0.34, 0.9, 0], [1.18, 0.9, 0], along, ang, 0.06 + fill * 0.1);
+    if (extra < 0.72) return tube([-0.34, 0.9, 0], [-1.08, 0.82, 0], along, ang, 0.05 + fill * 0.08);
+    if (extra < 0.8) return tube([-0.98, 0.46, 0], [-0.98, 0.84, 0], along, ang, 0.09 + fill * 0.1);
+    if (extra < 0.88) return tube([-0.26, 1.04, 0], [1.02, 0.94, 0], along, ang, 0.025 + fill * 0.03);
+    if (extra < 0.95) return tube([0.86, 0.84, 0], [0.86, -0.08, 0], along, ang, 0.028 + fill * 0.035);
+    const a = along * 2.82743339;
+    const hx = 0.86 - (1 - Math.cos(a)) * 0.26;
+    const hy = -0.08 - Math.sin(a) * 0.36;
+    const tx = -Math.sin(a) * 0.26;
+    const ty = -Math.cos(a) * 0.36;
+    const tlen = Math.max(Math.hypot(tx, ty), 0.001);
+    const thick = 0.035 + fill * 0.045;
+    const c = Math.cos(ang);
+    const s = Math.sin(ang);
+    return [hx + (-ty / tlen) * c * thick, hy + (tx / tlen) * c * thick, s * thick];
   }
 
   if (k === 4) {

@@ -79,7 +79,7 @@ export function SignalPoster({
       const glyph = s.seed[2] < CUBE_ICON;
       const facing = posterFacing(k);
       const glow = glyph ? 1 : 0.35 + 0.65 * Math.min(1, facing / 0.5);
-      if (glyph) gold = true;
+      if (glyph) gold = false;
       o = glyph ? 0.92 : Math.round((0.06 + glow * 0.72) * 100) / 100;
       r = Math.round(r * (glyph ? 0.85 : 0.55 + glow * 0.9) * 10) / 10;
     }

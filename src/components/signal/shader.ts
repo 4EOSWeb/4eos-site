@@ -139,12 +139,24 @@ vec3 glyph(float k, vec3 seed, float extra) {
     else if (along < 0.5) p = tube(vec3(0.0, -0.95, 0.0), vec3(0.0, -0.32, 0.0), along * 2.0, ang, rad);
     else p = tube(vec3(0.0, 0.32, 0.0), vec3(0.0, 0.95, 0.0), (along - 0.5) * 2.0, ang, rad);
   } else if (k < 3.5) {
-    float rr = fill * 0.14;
-    p = vec3(0.7 + cos(ang) * rr, -0.16 - abs(sin(ang)) * rr, (hash21(along, extra) - 0.5) * 0.16);
-    if (extra < 0.32) p = tube(vec3(-0.52, -1.02, 0.0), vec3(-0.52, 0.92, 0.0), along, ang, 0.08 + fill * 0.14);
-    else if (extra < 0.6) p = tube(vec3(-0.52, 0.84, 0.0), vec3(1.05, 0.64, 0.0), along, ang, 0.06 + fill * 0.12);
-    else if (extra < 0.72) p = tube(vec3(-0.52, 0.84, 0.0), vec3(-1.02, 0.72, 0.0), along, ang, 0.06 + fill * 0.12);
-    else if (extra < 0.9) p = tube(vec3(0.7, 0.7, 0.0), vec3(0.7, -0.05, 0.0), along, ang, fill * 0.05);
+    // Tower crane: base, mast, level jib, counterweight, stay, hoist, hook.
+    float a = along * 2.82743339;
+    float hx = 0.86 - (1.0 - cos(a)) * 0.26;
+    float hy = -0.08 - sin(a) * 0.36;
+    float tx = -sin(a) * 0.26;
+    float ty = -cos(a) * 0.36;
+    float tlen = max(length(vec2(tx, ty)), 0.001);
+    float thick = 0.035 + fill * 0.045;
+    float c = cos(ang);
+    float s = sin(ang);
+    p = vec3(hx + (-ty / tlen) * c * thick, hy + (tx / tlen) * c * thick, s * thick);
+    if (extra < 0.12) p = tube(vec3(-0.82, -1.02, 0.0), vec3(0.12, -1.02, 0.0), along, ang, 0.11 + fill * 0.14);
+    else if (extra < 0.4) p = tube(vec3(-0.34, -0.94, 0.0), vec3(-0.34, 1.04, 0.0), along, ang, 0.08 + fill * 0.12);
+    else if (extra < 0.62) p = tube(vec3(-0.34, 0.9, 0.0), vec3(1.18, 0.9, 0.0), along, ang, 0.06 + fill * 0.1);
+    else if (extra < 0.72) p = tube(vec3(-0.34, 0.9, 0.0), vec3(-1.08, 0.82, 0.0), along, ang, 0.05 + fill * 0.08);
+    else if (extra < 0.8) p = tube(vec3(-0.98, 0.46, 0.0), vec3(-0.98, 0.84, 0.0), along, ang, 0.09 + fill * 0.1);
+    else if (extra < 0.88) p = tube(vec3(-0.26, 1.04, 0.0), vec3(1.02, 0.94, 0.0), along, ang, 0.025 + fill * 0.03);
+    else if (extra < 0.95) p = tube(vec3(0.86, 0.84, 0.0), vec3(0.86, -0.08, 0.0), along, ang, 0.028 + fill * 0.035);
   } else if (k < 4.5) {
     float z = (hash21(seed.x, extra) - 0.5) * 0.62;
     if (extra < 0.52) {
@@ -867,14 +879,10 @@ void main() {
     float inner = 3.2;
     vec3 nrm = local - clamp(local, -inner, inner);
     facing = clamp((uCube * nrm).z / max(length(nrm), 0.001), 0.0, 1.0);
-    // Marks are the accent. The panel stays blue so the symbol reads first.
-    vGold = max(vGold, onGlyph * facing * 0.92);
-    // Random accent specks stay off the rim. They were reading as corner flares.
+    // The mark stays the same blue as the face. Brightness is alpha, not gold.
+    // Random accent specks stay off the rim and off the icon.
     vGold *= 1.0 - step(0.64, position.z) * nearIndustries;
-    if (uFocus >= 0.0) {
-      float match = 1.0 - step(0.5, abs(kk - uFocus));
-      vGold = max(vGold, onGlyph * match * facing);
-    }
+    vGold *= 1.0 - onGlyph;
     // Approach the chosen face, then take the field to black once the
     // camera has passed through it. The industry page fades the unmanaged
     // dots in from that black. The die is not shown on the way out.

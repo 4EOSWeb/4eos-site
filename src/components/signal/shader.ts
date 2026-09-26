@@ -698,7 +698,10 @@ void main() {
       float match = 1.0 - step(0.5, abs(k - uFocus));
       // Interior dust stays put. The chosen face lifts; the cube stays one object.
       float skin = 1.0 - step(0.64, position.z);
-      vAlpha *= mix(1.0, mix(0.55, 1.35, match), skin);
+      float glyph = 1.0 - step(0.38, position.z);
+      vAlpha *= mix(1.0, mix(0.55, 1.35, match), skin * (1.0 - glyph));
+      // The other five marks drop out, so the face in front is the hovered industry.
+      vAlpha *= mix(1.0, mix(0.05, 1.0, match), glyph);
     }
   }
 
@@ -785,9 +788,7 @@ void main() {
     float inner = 3.2;
     vec3 nrm = local - clamp(local, -inner, inner);
     facing = clamp((uCube * nrm).z / max(length(nrm), 0.001), 0.0, 1.0);
-    // The mark stays the same blue as the face. Brightness is alpha, not gold.
-    // Random accent specks stay off the rim and off the icon.
-    vGold *= 1.0 - step(0.64, position.z) * nearIndustries;
+    // The mark stays blue. Faces, fillets, and corners share the yellow specks.
     vGold *= 1.0 - onGlyph;
     // Approach the chosen face, then take the field to black once the
     // camera has passed through it. The industry page fades the unmanaged

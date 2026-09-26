@@ -75,9 +75,9 @@ export function SignalPoster({
       o = 0.45;
     }
     if (!showScene && phase === "industries") {
-      gold = false;
       const k = Math.min(5, Math.floor(s.rand * 6));
       const glyph = s.seed[2] < CUBE_ICON;
+      gold = !glyph && s.gold > 0.955;
       const facing = posterFacing(k);
       const glow = 0.35 + 0.65 * Math.min(1, facing / 0.5);
       o = Math.round(((glyph ? 0.72 : 0.06) + glow * (glyph ? 0.28 : 0.55)) * 100) / 100;

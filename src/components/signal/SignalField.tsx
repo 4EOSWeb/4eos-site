@@ -15,6 +15,8 @@ const cubeQuat: Quat = [0, 0, 0, 1];
 let cubeQuatLive = false;
 let cubeLatch = -1;
 let focusGone = 0;
+/** 1 while a face is held, so the camera can sit on that face's axis. */
+let faceAlign = 0;
 
 const BASE_COLOR = new THREE.Color("#4f86b4");
 const ACCENT_COLOR = new THREE.Color("#f5b700");
@@ -296,16 +298,30 @@ function CameraRig({
 
     const z = mobile ? 0 : signal.zoomR;
     const fit = mobile ? MOBILE_FIT : 1;
-    // Rest camera is the wide chapter. Zoom travels through the front face
-    // (the face sits near z = 3.15) and comes out the far side.
+    // A selected face points at the viewer. The rest camera sits left of the
+    // die, so slide onto the die's axis while it is held. Zoom then travels
+    // straight through that face.
+    const alignGoal = !mobile && face >= 0 ? 1 : 0;
+    const alignStep = still ? 1 : 1 - Math.pow(0.0012, dt);
+    faceAlign += (alignGoal - faceAlign) * alignStep;
+    if (Math.abs(alignGoal - faceAlign) < 0.0005) faceAlign = alignGoal;
+    const along = Math.max(z, faceAlign);
     const restZ = mobile ? 24 : 20;
     const throughZ = -Math.max(0.85, CUBE_H * 0.35);
-    state.camera.position.set(
-      CUBE_CX * z * fit,
-      CUBE_CY * z * fit,
-      restZ + (throughZ - restZ) * z,
-    );
-    state.camera.lookAt(CUBE_CX * z * fit, CUBE_CY * z * fit, 0);
+    const camX = CUBE_CX * along * fit;
+    const camY = CUBE_CY * along * fit;
+    const camZ = restZ + (throughZ - restZ) * z;
+    state.camera.position.set(camX, camY, camZ);
+    state.camera.lookAt(camX, camY, 0);
+    // Keep the die in the gap beside the names. The lens shift does that
+    // without turning the face.
+    const cam = state.camera as THREE.PerspectiveCamera;
+    cam.updateProjectionMatrix();
+    const aspect = state.size.width / Math.max(state.size.height, 1);
+    const tan = Math.tan((cam.fov * Math.PI) / 180 / 2);
+    const wanted = CUBE_CX / (restZ * tan * aspect);
+    const natural = camZ > 0.2 ? (CUBE_CX * fit - camX) / (camZ * tan * aspect) : 0;
+    cam.projectionMatrix.elements[8] = -(wanted - natural);
   });
   return null;
 }

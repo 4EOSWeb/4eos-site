@@ -1,4 +1,4 @@
-import { CUBE_CX, CUBE_CY, CUBE_ICON, cubeLocal, cubeOrientation, mulMatPoint } from "./cube";
+import { CUBE_CX, CUBE_CY, cubeLocal, cubeOrientation, mulMatPoint } from "./cube";
 
 /**
  * The Operational Signal.
@@ -468,154 +468,8 @@ export function serviceFormation(scene: number, p: PointSeed, t = 0): Vec3 {
   return [x + local[0] * c + local[2] * s, local[1], -local[0] * s + local[2] * c];
 }
 
-/**
- * Industry marks. Keep every branch in step with `glyph()` in shader.ts.
- * `extra` is fract(rand * 6), a third uniform that is not seed.z.
- */
-
 function fract(n: number) {
   return n - Math.floor(n);
-}
-
-function hash21(x: number, y: number) {
-  const n = fract(x * 12.9898 + y * 78.233);
-  return fract(n * n * 45.233);
-}
-
-function tube(a: Vec3, b: Vec3, along: number, ang: number, rad: number): Vec3 {
-  const dir: Vec3 = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
-  const t = Math.min(1, Math.max(0, along));
-  const p: Vec3 = [a[0] + dir[0] * t, a[1] + dir[1] * t, a[2] + dir[2] * t];
-  const dlen = Math.hypot(dir[0], dir[1], dir[2]);
-  const nDir: Vec3 =
-    dlen > 1e-4
-      ? [dir[0] / dlen, dir[1] / dlen, dir[2] / dlen]
-      : [0, 1, 0];
-  const up: Vec3 = Math.abs(nDir[1]) > 0.9 ? [1, 0, 0] : [0, 1, 0];
-  const side: Vec3 = [
-    nDir[1] * up[2] - nDir[2] * up[1],
-    nDir[2] * up[0] - nDir[0] * up[2],
-    nDir[0] * up[1] - nDir[1] * up[0],
-  ];
-  const sl = Math.hypot(side[0], side[1], side[2]) || 1;
-  side[0] /= sl;
-  side[1] /= sl;
-  side[2] /= sl;
-  const bin: Vec3 = [
-    nDir[1] * side[2] - nDir[2] * side[1],
-    nDir[2] * side[0] - nDir[0] * side[2],
-    nDir[0] * side[1] - nDir[1] * side[0],
-  ];
-  const c = Math.cos(ang);
-  const s = Math.sin(ang);
-  return [
-    p[0] + (side[0] * c + bin[0] * s) * rad,
-    p[1] + (side[1] * c + bin[1] * s) * rad,
-    p[2] + (side[2] * c + bin[2] * s) * rad,
-  ];
-}
-
-/** Hemispherical bowl, opening upward. `phi` 0 is the rim, π/2 is the bottom. */
-function bowl(cx: number, rimY: number, along: number, ang: number, fill: number): Vec3 {
-  const phi = along * (Math.PI / 2);
-  const shell = 0.32 + fill * 0.12;
-  const horiz = Math.cos(phi) * shell;
-  return [
-    cx + Math.cos(ang) * horiz,
-    rimY - Math.sin(phi) * shell,
-    Math.sin(ang) * horiz,
-  ];
-}
-
-/** Local offset of one orb inside an industry mark. */
-function industryGlyph(k: number, seed: Vec3, extra: number): Vec3 {
-  const along = seed[0];
-  const ang = seed[1] * TAU;
-  const fill = Math.sqrt(hash21(seed[0], seed[1]));
-
-  if (k === 0) {
-    // Legal — a standing balance. Foot, post, beam, hangers, two bowls.
-    if (extra < 0.1) return tube([0, -1.08, 0], [0, -0.9, 0], along, ang, 0.1 + fill * 0.22);
-    if (extra < 0.3) return tube([0, -0.9, 0], [0, 0.5, 0], along, ang, fill * 0.13);
-    if (extra < 0.48) return tube([-0.92, 0.5, 0], [0.92, 0.5, 0], along, ang, fill * 0.11);
-    if (extra < 0.55) return tube([-0.66, 0.5, 0], [-0.66, 0.02, 0], along, ang, fill * 0.05);
-    if (extra < 0.62) return tube([0.66, 0.5, 0], [0.66, 0.02, 0], along, ang, fill * 0.05);
-    return bowl(extra < 0.81 ? -0.66 : 0.66, 0.0, along, ang, fill);
-  }
-
-  if (k === 1) {
-    // Insurance — a dome, a shaft, and a cane crook. The crook leaves
-    // the shaft to the right and the tip comes back up.
-    if (extra < 0.55) {
-      const phi = along * (Math.PI / 2);
-      const shell = 0.86 + fill * 0.14;
-      const horiz = Math.sin(phi) * shell;
-      return [Math.cos(ang) * horiz, Math.cos(phi) * shell * 0.88 + 0.12, Math.sin(ang) * horiz];
-    }
-    if (extra < 0.76) return tube([0, 0.55, 0], [0, -0.92, 0], along, ang, fill * 0.09);
-    const sweep = Math.PI * 1.2;
-    const a = along * sweep;
-    const crook = 0.36;
-    const hx = (1 - Math.cos(a)) * crook;
-    const hy = -0.92 - Math.sin(a) * crook;
-    const thick = 0.045 + fill * 0.04;
-    const c = Math.cos(ang);
-    const s = Math.sin(ang);
-    return [hx + Math.cos(a) * c * thick, hy + Math.sin(a) * c * thick, s * thick];
-  }
-
-  if (k === 2) {
-    // Healthcare — two round bars. Vertical arms stop at the bar
-    // so the centre is not sampled twice.
-    const rad = 0.16 + fill * 0.18;
-    if (extra < 0.5) return tube([-0.95, 0, 0], [0.95, 0, 0], along, ang, rad);
-    if (along < 0.5) return tube([0, -0.95, 0], [0, -0.32, 0], along * 2, ang, rad);
-    return tube([0, 0.32, 0], [0, 0.95, 0], (along - 0.5) * 2, ang, rad);
-  }
-
-  if (k === 3) {
-    // Construction — tower crane. Base, mast, level jib, counterweight,
-    // a stay, a hoist line, and a hook.
-    if (extra < 0.12) return tube([-0.82, -1.02, 0], [0.12, -1.02, 0], along, ang, 0.11 + fill * 0.14);
-    if (extra < 0.4) return tube([-0.34, -0.94, 0], [-0.34, 1.04, 0], along, ang, 0.08 + fill * 0.12);
-    if (extra < 0.62) return tube([-0.34, 0.9, 0], [1.18, 0.9, 0], along, ang, 0.06 + fill * 0.1);
-    if (extra < 0.72) return tube([-0.34, 0.9, 0], [-1.08, 0.82, 0], along, ang, 0.05 + fill * 0.08);
-    if (extra < 0.8) return tube([-0.98, 0.46, 0], [-0.98, 0.84, 0], along, ang, 0.09 + fill * 0.1);
-    if (extra < 0.88) return tube([-0.26, 1.04, 0], [1.02, 0.94, 0], along, ang, 0.025 + fill * 0.03);
-    if (extra < 0.95) return tube([0.86, 0.84, 0], [0.86, -0.08, 0], along, ang, 0.028 + fill * 0.035);
-    const a = along * 2.82743339;
-    const hx = 0.86 - (1 - Math.cos(a)) * 0.26;
-    const hy = -0.08 - Math.sin(a) * 0.36;
-    const tx = -Math.sin(a) * 0.26;
-    const ty = -Math.cos(a) * 0.36;
-    const tlen = Math.max(Math.hypot(tx, ty), 0.001);
-    const thick = 0.035 + fill * 0.045;
-    const c = Math.cos(ang);
-    const s = Math.sin(ang);
-    return [hx + (-ty / tlen) * c * thick, hy + (tx / tlen) * c * thick, s * thick];
-  }
-
-  if (k === 4) {
-    // Manufacturing — a thick gear, not a flat washer.
-    const z = (hash21(seed[0], extra) - 0.5) * 0.62;
-    if (extra < 0.52) {
-      const a = along * TAU;
-      const r = 0.4 + fill * 0.3;
-      return [Math.cos(a) * r, Math.sin(a) * r, z];
-    }
-    const tooth = Math.min(7, Math.floor(along * 8));
-    const a = ((tooth + 0.5) / 8) * TAU;
-    const r = 0.68 + fract(along * 8) * 0.4;
-    const w = (hash21(extra, seed[1]) - 0.5) * 0.28;
-    return [Math.cos(a) * r - Math.sin(a) * w, Math.sin(a) * r + Math.cos(a) * w, z];
-  }
-
-  // Private equity — three rising boxes.
-  const bar = Math.min(2, Math.floor(extra * 3));
-  const h = 0.62 + bar * 0.48;
-  const jx = (hash21(seed[0], extra) - 0.5) * 0.38;
-  const jz = (hash21(seed[1], extra) - 0.5) * 0.55;
-  return [(bar - 1) * 0.78 + jx, -0.72 + along * h, jz];
 }
 
 export type Vec3 = [number, number, number];
@@ -721,8 +575,7 @@ export function formation(phase: number, p: PointSeed, t = 0): Vec3 {
       // three-quarter view; the live field supplies its own rotation.
       const k = Math.min(5, Math.floor(rand * 6));
       const extra = fract(rand * 6);
-      const glyph = seed[2] < CUBE_ICON ? industryGlyph(k, seed, extra) : null;
-      const local = cubeLocal(k, seed, extra, glyph, t);
+      const local = cubeLocal(k, seed, extra, null, t);
       const spun = mulMatPoint(cubeOrientation(t, -1, 0), local);
       return [CUBE_CX + spun[0], CUBE_CY + spun[1], spun[2]];
     }

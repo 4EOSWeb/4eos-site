@@ -529,12 +529,7 @@ vec3 cubeLocal(float k, vec3 seed, float extra, float t) {
   }
 
   vec3 p = n * 5.4;
-  if (seed.z < 0.38) {
-    vec3 g = glyph(k, seed, extra);
-    float su = clamp(g.x * 1.76 / 3.2, -0.96, 0.96);
-    float sv = clamp(g.y * 1.76 / 3.2, -0.96, 0.96);
-    p = skinPoint(k, su, sv, -0.1, n, tu, tv);
-  } else if (seed.z < 0.64) {
+  if (seed.z < 0.64) {
     p = skinPoint(k, seed.x * 2.0 - 1.0, seed.y * 2.0 - 1.0, pow(hash21(seed.x, seed.y), 1.6) * 0.17, n, tu, tv);
   } else if (seed.z < 0.93) {
     float which = min(floor(fract(extra * 12.17 + seed.x) * 12.0), 11.0);
@@ -860,7 +855,7 @@ void main() {
 
   // Faces, fillets, and corners are one die. The mark sits on the flat.
   float nearIndustries = (1.0 - clamp(abs(ph - 4.0), 0.0, 1.0)) * sceneOff * (1.0 - uCloud);
-  float onGlyph = (1.0 - step(0.38, position.z)) * nearIndustries;
+  float onGlyph = 0.0;
   float onFace = step(0.38, position.z) * (1.0 - step(0.64, position.z)) * nearIndustries;
   float onEdge = step(0.64, position.z) * (1.0 - step(0.93, position.z)) * nearIndustries;
   float onCorner = step(0.93, position.z) * nearIndustries;

@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import { CUBE_CX, CUBE_CY, CUBE_H, cubeGoal, quatDot, quatToMat, slerpQuat, type Quat } from "./cube";
+import { CUBE_CX, CUBE_CY, CUBE_H, cubeGoal, faceBasis, quatDot, quatToMat, slerpQuat, type Quat } from "./cube";
+import { IndustryMarks, markEls } from "./IndustryMarks";
 import { buildSeeds, latticeSize } from "./formations";
 import { fragmentShader, vertexShader } from "./shader";
 import { CONFIDENT_SETTLE, FLOW_DAMPING, FLOW_STIFFNESS, ORGANIC_FLOW } from "./flow";
@@ -303,6 +304,78 @@ function CameraRig({
   return null;
 }
 
+const MARK_HALF = 1.78;
+const markVec = {
+  c: new THREE.Vector3(),
+  r: new THREE.Vector3(),
+  u: new THREE.Vector3(),
+  n: new THREE.Vector3(),
+  pc: new THREE.Vector3(),
+  pr: new THREE.Vector3(),
+  pd: new THREE.Vector3(),
+};
+
+function smooth(v: number, a: number, b: number) {
+  const t = Math.min(1, Math.max(0, (v - a) / (b - a)));
+  return t * t * (3 - 2 * t);
+}
+
+/** Projects each die face and pins that industry's SVG to it. */
+function FaceMarks() {
+  const { camera, size } = useThree();
+
+  useFrame(() => {
+    const presence = Math.max(0, 1 - Math.abs(signal.rendered - 4));
+    const zoomFade = 1 - smooth(signal.zoomR, 0.38, 0.66);
+    const coverFade = 1 - Math.min(1, signal.cover);
+    const show = presence * zoomFade * coverFade * (1 - Math.min(1, signal.handoff)) * (1 - Math.min(1, signal.cloudR));
+    const { c, r, u, n, pc, pr, pd } = markVec;
+    const w = size.width;
+    const h = size.height;
+
+    for (let k = 0; k < 6; k++) {
+      const el = markEls[k];
+      if (!el) continue;
+      const [nn, tu, tv] = faceBasis(k);
+      n.set(nn[0], nn[1], nn[2]).applyMatrix3(cubeMatrix);
+      r.set(tu[0], tu[1], tu[2]).multiplyScalar(MARK_HALF).applyMatrix3(cubeMatrix);
+      u.set(tv[0], tv[1], tv[2]).multiplyScalar(MARK_HALF).applyMatrix3(cubeMatrix);
+      c.copy(n).multiplyScalar(CUBE_H - 0.08);
+      c.x += CUBE_CX;
+      c.y += CUBE_CY;
+      const dx = camera.position.x - c.x;
+      const dy = camera.position.y - c.y;
+      const dz = camera.position.z - c.z;
+      const facing = (dx * n.x + dy * n.y + dz * n.z) / (Math.hypot(dx, dy, dz) || 1);
+      const faceFade = facing <= 0.04 ? 0 : Math.min(1, (facing - 0.04) / 0.38);
+      const opacity = show * faceFade;
+      if (opacity < 0.015) {
+        el.style.opacity = "0";
+        continue;
+      }
+      pc.copy(c).project(camera);
+      pr.copy(c).add(r).project(camera);
+      pd.copy(c).sub(u).project(camera);
+      const cx = (pc.x * 0.5 + 0.5) * w;
+      const cy = (-pc.y * 0.5 + 0.5) * h;
+      const rx = (pr.x * 0.5 + 0.5) * w - cx;
+      const ry = (-pr.y * 0.5 + 0.5) * h - cy;
+      const dxs = (pd.x * 0.5 + 0.5) * w - cx;
+      const dys = (-pd.y * 0.5 + 0.5) * h - cy;
+      const a = rx / 100;
+      const b = ry / 100;
+      const cc = dxs / 100;
+      const d = dys / 100;
+      const e = cx - a * 100 - cc * 100;
+      const f = cy - b * 100 - d * 100;
+      el.style.transform = `matrix(${a}, ${b}, ${cc}, ${d}, ${e}, ${f})`;
+      el.style.opacity = opacity.toFixed(3);
+    }
+  });
+
+  return null;
+}
+
 export default function SignalField({ tier }: { tier: DeviceTier }) {
   const host = useRef<HTMLDivElement>(null);
   const [still, setStill] = useState(false);
@@ -358,6 +431,7 @@ export default function SignalField({ tier }: { tier: DeviceTier }) {
         camera={{ fov: 45, position: [0, 0, 20], near: 0.1, far: 100 }}
       >
         <CameraRig still={still} lite={lite} mobile={mobile} />
+        <FaceMarks />
         <Points
           key={`${count}-${still ? "still" : "live"}-${lite ? "lite" : "full"}-${mobile ? "mobile" : "desk"}`}
           count={count}
@@ -366,6 +440,7 @@ export default function SignalField({ tier }: { tier: DeviceTier }) {
           mobile={mobile}
         />
       </Canvas>
+      <IndustryMarks />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { CUBE_ICON, posterFacing } from "./cube";
+import { posterFacing } from "./cube";
 import {
   buildSeeds,
   formation,
@@ -76,12 +76,10 @@ export function SignalPoster({
     }
     if (!showScene && phase === "industries") {
       const k = Math.min(5, Math.floor(s.rand * 6));
-      const glyph = s.seed[2] < CUBE_ICON;
       const facing = posterFacing(k);
-      const glow = glyph ? 1 : 0.35 + 0.65 * Math.min(1, facing / 0.5);
-      if (glyph) gold = false;
-      o = glyph ? 0.92 : Math.round((0.06 + glow * 0.72) * 100) / 100;
-      r = Math.round(r * (glyph ? 0.85 : 0.55 + glow * 0.9) * 10) / 10;
+      const glow = 0.35 + 0.65 * Math.min(1, facing / 0.5);
+      o = Math.round((0.06 + glow * 0.72) * 100) / 100;
+      r = Math.round(r * (0.55 + glow * 0.9) * 10) / 10;
     }
     dots.push(
       `<circle cx="${px}" cy="${py}" r="${r}" fill="${gold ? "#F5B700" : "#4F86B4"}" opacity="${o}"/>`,

@@ -372,8 +372,8 @@ vec3 serviceAt(int s, float t) {
 }
 
 vec3 skinPoint(float k, float su, float sv, float depth, vec3 n, vec3 tu, vec3 tv) {
-  float d = 5.4 - depth;
-  float a = 3.2;
+  float d = 4.32 - depth;
+  float a = 2.56;
   return n * d + tu * su * a + tv * sv * a;
 }
 
@@ -382,9 +382,9 @@ vec3 edgePoint(float which, float along, float ang) {
   float quad = floor(which / 3.0);
   float s1 = mod(quad, 2.0) < 0.5 ? -1.0 : 1.0;
   float s2 = quad < 1.5 ? -1.0 : 1.0;
-  float t = along * 3.2;
-  float c = 3.2 + cos(ang) * 2.2;
-  float s = 3.2 + sin(ang) * 2.2;
+  float t = along * 2.56;
+  float c = 2.56 + cos(ang) * 1.76;
+  float s = 2.56 + sin(ang) * 1.76;
   vec3 p = vec3(s1 * c, s2 * s, t);
   if (axis < 0.5) p = vec3(t, s1 * c, s2 * s);
   else if (axis < 1.5) p = vec3(s2 * s, t, s1 * c);
@@ -398,18 +398,18 @@ vec3 cornerPoint(float which, float u, float v) {
   float phi = u * 1.5707963;
   float mu = clamp(v, 0.0, 1.0);
   float sinT = sqrt(max(0.0, 1.0 - mu * mu));
-  float a = 3.2;
+  float a = 2.56;
   return vec3(
-    sx * (a + 2.2 * sinT * cos(phi)),
-    sy * (a + 2.2 * sinT * sin(phi)),
-    sz * (a + 2.2 * mu)
+    sx * (a + 1.76 * sinT * cos(phi)),
+    sy * (a + 1.76 * sinT * sin(phi)),
+    sz * (a + 1.76 * mu)
   );
 }
 
 // One particle in cube-local space. Twin of cubeLocal() in cube.ts.
 // One assignment path and a single return — early returns leave ANGLE
 // with an uninitialised result (X4000).
-// icon is the silhouette sample for this point. Mark scale 2.65 matches cube.ts.
+// icon is the silhouette sample for this point. Mark scale 2.12 matches cube.ts.
 vec3 cubeLocal(float k, vec3 seed, float extra, vec2 icon, float t) {
   vec3 n = vec3(0.0, 0.0, 1.0);
   vec3 tu = vec3(1.0, 0.0, 0.0);
@@ -428,15 +428,15 @@ vec3 cubeLocal(float k, vec3 seed, float extra, vec2 icon, float t) {
     n = vec3(0.0, -1.0, 0.0); tu = vec3(1.0, 0.0, 0.0); tv = vec3(0.0, 0.0, 1.0);
   }
 
-  vec3 p = n * 5.4;
+  vec3 p = n * 4.32;
   if (seed.z < 0.38) {
     vec2 g = icon;
     g.x += (hash21(seed.y, extra) - 0.5) * 0.012;
     g.y += (hash21(extra, seed.x) - 0.5) * 0.012;
     p = skinPoint(
       k,
-      clamp(g.x * 2.65 / 3.2, -0.96, 0.96),
-      clamp(g.y * 2.65 / 3.2, -0.96, 0.96),
+      clamp(g.x * 2.12 / 2.56, -0.96, 0.96),
+      clamp(g.y * 2.12 / 2.56, -0.96, 0.96),
       -0.14 - hash21(seed.x, seed.y) * 0.1,
       n, tu, tv
     );
@@ -493,7 +493,7 @@ vec3 formation(int s, float t) {
   }
   if (s == 4) {
     // Industries: one cube, six faces. Rotation arrives as uCube.
-    // Centre (3.32, 0), half-edge 5.4. Keep in step with cube.ts.
+    // Centre (3.32, 0), half-edge 4.32. Keep in step with cube.ts.
     float k = min(floor(aRand * 6.0), 5.0);
     float extra = fract(aRand * 6.0);
     vec3 local = cubeLocal(k, seed, extra, aIcon, t);
@@ -785,7 +785,7 @@ void main() {
       uCube[0][2], uCube[1][2], uCube[2][2]
     );
     vec3 local = cubeT * (pos - vec3(3.32, 0.0, 0.0));
-    float inner = 3.2;
+    float inner = 2.56;
     vec3 nrm = local - clamp(local, -inner, inner);
     facing = clamp((uCube * nrm).z / max(length(nrm), 0.001), 0.0, 1.0);
     // The mark stays blue. Faces, fillets, and corners share the yellow specks.

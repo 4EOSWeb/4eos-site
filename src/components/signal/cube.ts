@@ -10,7 +10,7 @@ export type Vec3 = [number, number, number];
 export type Quat = [number, number, number, number];
 
 /** Half-edge. Fills the open space to the right of the names. */
-export const CUBE_H = 5.4;
+export const CUBE_H = 4.32;
 /** Centre of the gap between the longest name and the right edge. */
 export const CUBE_CX = 3.32;
 export const CUBE_CY = 0;
@@ -22,10 +22,10 @@ export const CUBE_SHELL = 0.64;
 /** seed.z below this is a rounded edge. The rest is a rounded corner. */
 export const CUBE_EDGE = 0.93;
 /** Mark size in world units. Stays on the flat, short of the bevel.
- *  Twin of the 2.65 scale in shader.ts cubeLocal(). */
-const ICON_SCALE = 2.65;
+ *  Twin of the 2.12 scale in shader.ts cubeLocal(). */
+const ICON_SCALE = 2.12;
 /** Corner radius. Large enough that the silhouette is a die, not a box. */
-const DIE_R = 2.2;
+const DIE_R = 1.76;
 
 function fract(n: number) {
   return n - Math.floor(n);
@@ -203,10 +203,10 @@ export function posterFacing(k: number) {
 /**
  * Silhouette row for each industry face.
  * File order is graph, shield, cross, scale, gear, structure.
- * Legal is the scale, insurance the shield, healthcare the cross,
- * construction the structure, manufacturing the gear, private equity the graph.
+ * Legal is the scale, insurance the shield, healthcare the gear,
+ * construction the structure, manufacturing the cross, private equity the graph.
  */
-const FACE_ROW = [3, 1, 2, 5, 4, 0];
+const FACE_ROW = [3, 1, 4, 5, 2, 0];
 
 /** Silhouette sample for one industry mark, in -1..1. Twin of the live attribute. */
 export function iconSample(k: number, seedX: number, seedY: number, extra: number): [number, number] {

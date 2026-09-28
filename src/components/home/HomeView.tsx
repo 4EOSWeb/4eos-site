@@ -114,14 +114,14 @@ function Discovery() {
       <section className={CHAPTER}>
           <GoldReveal
             as="h2"
-            className="display-wide chapter-display max-w-[18ch]"
-            text="An unmanaged environment is a field of endpoints nobody is watching."
-            marks={["unmanaged", "nobody"]}
+            className="display-wide chapter-display max-w-[22em]"
+            text="We account for every device before we manage it."
+            marks={["every"]}
           />
           <p className="lede mt-6 max-w-[42ch]">
             <span className="field-copy">
-              We start by seeing what is actually there. Then the field resolves
-              onto a lattice — the same endpoints, finally accounted for.
+              Servers, laptops, and the connections between them. Once they are
+              named, they can be watched.
             </span>
           </p>
       </section>
@@ -154,13 +154,16 @@ function Ownership() {
   return (
     <SignalChapter phase="ownership" id="chapter-ownership">
       <section className={CHAPTER}>
-          <h2 className="display chapter-display max-w-[16ch]">
-            CompleteCare is not support. It is a system.
+          <h2 className="display-wide chapter-display max-w-[22em]">
+            CompleteCare is how your IT gets run.
           </h2>
-          <p className="lede mt-5 max-w-[44ch]">
+          <p className="lede mt-5 max-w-[46ch]">
             <span className="field-copy">
-              Three tiers. The field organises around whichever one the
-              environment needs — Base, Pro, or Premium.
+              More than a help desk. Proactive management, continuous monitoring,
+              and live U.S.-based support, in three levels. Base is the help
+              desk and monitoring. Pro runs the servers, the network, backups,
+              and security. Premium adds a roadmap and quarterly reviews with
+              leadership.
             </span>
           </p>
           <div className="phone-list-glass mt-10">
@@ -187,6 +190,9 @@ function Ownership() {
               onChange={(i) => setTier(i)}
             />
           </div>
+          <Link href="/services/completecare" className="bar-btn bar-btn-line mt-8 inline-flex">
+            What CompleteCare includes <span aria-hidden>→</span>
+          </Link>
       </section>
     </SignalChapter>
   );
@@ -198,14 +204,14 @@ function Security() {
       <section className={`${CHAPTER} chapter-phone-flow`}>
           <GoldReveal
             as="h2"
-            className="display chapter-display max-w-[18ch]"
-            text="A perimeter forms. Threats are absorbed, not just reported."
-            marks={["absorbed"]}
+            className="display-wide chapter-display max-w-[22em]"
+            text="Threats are stopped here, not only reported."
+            marks={["stopped"]}
           />
           <p className="lede mt-6 max-w-[42ch]">
             <span className="field-copy">
-              NIST Cybersecurity Framework. HIPAA, PCI, and SEC compliance
-              support.
+              Early detection and real-time monitoring, on the NIST Cybersecurity
+              Framework, with support for HIPAA, PCI, and SEC.
             </span>
           </p>
           <div className="mt-10 max-w-[42ch]">
@@ -248,8 +254,8 @@ function Industries() {
       <section className={`${CHAPTER} flex h-full flex-col`}>
           <p className="lede max-w-[44ch] shrink-0">
             <span className="field-copy">
-              Six practices, one object. The work is not generic, and neither
-              is the environment.
+              Six industries we already know. Familiar problems, so fewer
+              surprises.
             </span>
           </p>
           <div className="phone-list-glass mt-8 max-md:mt-10">
@@ -287,9 +293,9 @@ function Response() {
       <section className={`${CHAPTER} chapter-phone-flow`}>
           <GoldReveal
             as="h2"
-            className="display chapter-display max-w-[18ch]"
-            text="A pulse travels out. Most issues never reach the inbox."
-            marks={["never"]}
+            className="display-wide chapter-display max-w-[22em]"
+            text="Most issues are fixed before they reach you."
+            marks={["before"]}
           />
           <p className="lede mt-6 max-w-[42ch]">
             <span className="field-copy">
@@ -363,7 +369,7 @@ function Strategy() {
     <>
       <SignalChapter phase="strategy" id="chapter-strategy">
         <section className={CHAPTER}>
-          <h2 className="display chapter-display max-w-[16ch]">
+          <h2 className="display-wide chapter-display max-w-[22em]">
             A partner, <span className="text-gold">not a vendor.</span>
           </h2>
           <p className="lede mt-[clamp(0.85rem,2.4vh,1.5rem)] max-w-[42ch]">

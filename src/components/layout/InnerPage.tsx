@@ -52,7 +52,7 @@ export function InnerPage({
             <span className="field-copy">{kicker}</span>
           </p>
         ) : null}
-        <h1 className="display page-display mt-5 max-w-[18ch]">{title}</h1>
+        <h1 className="display-wide page-display mt-5 max-w-[22em]">{title}</h1>
         {lede ? (
           <p className="lede mt-6 max-w-[46ch]">
             <span className="field-copy">{lede}</span>

@@ -19,8 +19,8 @@ export default function ServicesPage() {
         <p className="micro mt-6 text-fg-muted">
           <span className="field-copy">Practice</span>
         </p>
-        <h1 className="display page-display mt-5 max-w-[16ch]">
-          Six practices. One accountable family.
+        <h1 className="display-wide page-display mt-5 max-w-[22em]">
+          IT, phones, and the data center.
         </h1>
       </section>
       <Breath size="md" />

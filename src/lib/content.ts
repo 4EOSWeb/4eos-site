@@ -239,7 +239,7 @@ export const industries = [
     statement: "Privileged client data stays protected.",
     offer: "Document systems, trial prep, and privileged client data.",
     lede: "We run the systems a firm works in: the document store, email, and the machines attorneys use. Privilege holds on an ordinary day and through trial prep.",
-    note: "We keep matter files, email, and the machines attorneys use available, and limited to the people allowed to see them. That holds through trial prep, when the firm cannot stop.",
+    note: "We keep matter files, email, and attorney machines available, and limited to the people allowed to see them, including through trial prep.",
     how: [
       "Secure document management, so a matter file stays with the people who should see it",
       "Systems that stay up through trial prep",
@@ -268,7 +268,7 @@ export const industries = [
     statement: "Agency systems stay up when the office needs them.",
     offer: "Agency systems, client data, and PCI-aligned payments.",
     lede: "We keep the agency management system available for producers, protect the client data in it, and handle payments in line with PCI.",
-    note: "The agency system is how the producers work. We keep it available, protect the client data in it, and handle the payments that move through it in line with PCI.",
+    note: "We keep the agency system up for producers, protect the client data in it, and handle payments in line with PCI.",
     how: [
       "Agency management systems kept available for producers",
       "Client data protected in the systems the office runs on",
@@ -297,7 +297,7 @@ export const industries = [
     statement: "Patient records stay up, and stay protected.",
     offer: "EHR uptime and HIPAA safeguards for patient data.",
     lede: "We keep the EHR up and patient data protected. HIPAA safeguards cover the record and every device and connection that can reach it.",
-    note: "The day runs on the record. We keep the EHR up, and HIPAA safeguards cover every device and connection that can reach patient data.",
+    note: "We keep the EHR up, and HIPAA safeguards cover every device and connection that can reach patient data.",
     how: [
       "HIPAA compliance support, kept audit-ready",
       "EHR uptime, because a down record stops the day",
@@ -326,7 +326,7 @@ export const industries = [
     statement: "Secure access for crews on the job site.",
     offer: "Job site connectivity and secure access for field crews.",
     lede: "We give field crews a connection and secure access to plans and project files from the job site, and we keep that access up under a deadline.",
-    note: "The workplace is the job site. We give crews a connection and a secure way into plans and project files, and we keep that access up while the deadline does not move.",
+    note: "We give crews a secure connection to plans and project files from the job site, and keep it up under a deadline.",
     how: [
       "Connectivity for trailers, job sites, and crews in the field",
       "Secure access to plans and project files from anywhere",
@@ -355,7 +355,7 @@ export const industries = [
     statement: "Downtime is measured in dollars per minute.",
     offer: "Production uptime, and a safe line between IT and the plant.",
     lede: "We keep production systems running, and we keep office IT off the plant floor except where that meeting is safe.",
-    note: "The line measures an outage in lost production. We keep production systems running, and office IT stays off the plant floor except where that meeting is safe.",
+    note: "We keep production systems running, and keep office IT off the plant floor except where that meeting is safe.",
     how: [
       "Production systems kept running",
       "Office IT and the plant floor kept separate",
@@ -384,7 +384,7 @@ export const industries = [
     statement: "One security standard across every company you own.",
     offer: "Diligence before the close, then one standard across holdings.",
     lede: "We read the technology before a close, bring a new holding onto one baseline, and hold the same security standard across the companies you own.",
-    note: "Each company arrives with its own stack. We read that technology before the close, bring the company onto one baseline, and hold the same security standard across the holdings.",
+    note: "We read the technology before a close, then hold one security standard across every company you own.",
     how: [
       "Technology due diligence before a deal closes",
       "Rapid onboarding once a company is a holding",

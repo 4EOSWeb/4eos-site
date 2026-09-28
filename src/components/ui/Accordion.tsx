@@ -21,6 +21,7 @@ export function Accordion({
   defaultOpen = 0,
   compact = false,
   stacked = false,
+  className = "",
 }: {
   items: AccordionItem[];
   onChange?: (index: number) => void;
@@ -30,12 +31,13 @@ export function Accordion({
   compact?: boolean;
   /** Statement above the detail, so a narrow column does not split across the field. */
   stacked?: boolean;
+  className?: string;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   const uid = useId();
 
   return (
-    <ul onMouseLeave={() => onHover?.(null)}>
+    <ul className={className} onMouseLeave={() => onHover?.(null)}>
       {items.map((item, i) => {
         const isOpen = open === i;
         const panelId = `${uid}-panel-${i}`;

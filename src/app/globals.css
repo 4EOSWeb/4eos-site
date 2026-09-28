@@ -177,11 +177,11 @@ body {
    ring, which reaches the middle of the frame. The wider one clears the
    industry cube, which sits to the right of the names. */
 .chapter-copy {
-  max-width: min(42rem, calc(46vw - var(--sheet-inset)));
+  max-width: min(42rem, max(22rem, calc(46vw - var(--sheet-inset))));
 }
 
 .chapter-copy-tight {
-  max-width: min(40rem, calc(32vw - var(--sheet-inset)));
+  max-width: min(40rem, max(22rem, calc(32vw - var(--sheet-inset))));
 }
 
 .industry-offer {
@@ -270,6 +270,33 @@ body {
    keeps that gap until the phone query turns the wrapper into a panel. */
 .phone-list-glass > ul {
   margin-top: 2.5rem;
+}
+
+/* The ownership list has to finish above the chapter label. The default
+   2.5rem gap pushes the action into that label on a laptop. On a short
+   window the bullet list yields; the statement and the link remain. */
+.phone-list-glass > ul.ownership-tiers {
+  margin-top: 0.75rem;
+}
+
+.ownership-tiers > li > h3 > button {
+  padding-block: 0.28rem;
+}
+
+.ownership-tiers .accordion-panel {
+  gap: 0.4rem;
+  padding-bottom: 0.35rem;
+}
+
+.ownership-tiers .lede {
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+@media (max-height: 760px) {
+  .ownership-tiers .accordion-panel ul {
+    display: none;
+  }
 }
 
 /* The top bar. A light frost so the field stays visible through it. */

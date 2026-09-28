@@ -171,6 +171,7 @@ function Ownership() {
           <div className="phone-list-glass mt-6 min-h-0">
             <Accordion
               key={collapsed ? "collapsed" : "open"}
+              className="ownership-tiers"
               compact
               stacked
               defaultOpen={collapsed ? -1 : 0}
@@ -179,7 +180,7 @@ function Ownership() {
                 title: tier.name,
                 statement: <span className="field-copy">{tier.statement}</span>,
                 children: (
-                  <ul className="space-y-2">
+                  <ul className="space-y-1">
                     {tier.points.map((p, i) => (
                       <li key={p} className="flex gap-4 text-sm tracking-tight">
                         <span className="micro">
@@ -194,7 +195,7 @@ function Ownership() {
               onChange={(i) => setTier(i)}
             />
           </div>
-          <Link href="/services/completecare" className="bar-btn bar-btn-line mt-5 inline-flex shrink-0 self-start">
+          <Link href="/services/completecare" className="bar-btn bar-btn-line mt-3 inline-flex shrink-0 self-start">
             What CompleteCare includes <span aria-hidden>→</span>
           </Link>
         </div>

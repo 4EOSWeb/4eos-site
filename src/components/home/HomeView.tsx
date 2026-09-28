@@ -114,14 +114,14 @@ function Discovery() {
       <section className={CHAPTER}>
           <GoldReveal
             as="h2"
-            className="display-wide chapter-display max-w-[22em]"
-            text="We account for every device before we manage it."
-            marks={["every"]}
+            className="display-wide chapter-display max-w-[18ch]"
+            text="An unmanaged environment is a field of endpoints nobody is watching."
+            marks={["unmanaged", "nobody"]}
           />
           <p className="lede mt-6 max-w-[42ch]">
             <span className="field-copy">
-              Servers, laptops, and the connections between them. Once they are
-              named, they can be watched.
+              We start by seeing what is actually there. Then the field resolves
+              onto a lattice — the same endpoints, finally accounted for.
             </span>
           </p>
       </section>
@@ -154,8 +154,12 @@ function Ownership() {
   return (
     <SignalChapter phase="ownership" id="chapter-ownership">
       <section className={CHAPTER}>
-          <h2 className="display-wide chapter-display max-w-[22em]">
-            CompleteCare is how your IT gets run.
+          <h2 className="display chapter-display [text-wrap:wrap]">
+            CompleteCare
+            <br />
+            is how your IT
+            <br />
+            gets run.
           </h2>
           <p className="lede mt-5 max-w-[46ch]">
             <span className="field-copy">
@@ -204,8 +208,8 @@ function Security() {
       <section className={`${CHAPTER} chapter-phone-flow`}>
           <GoldReveal
             as="h2"
-            className="display-wide chapter-display max-w-[22em]"
-            text="Threats are stopped here, not only reported."
+            className="display chapter-display [text-wrap:wrap]"
+            text={"Threats are stopped.\nNot only reported."}
             marks={["stopped"]}
           />
           <p className="lede mt-6 max-w-[42ch]">
@@ -293,9 +297,9 @@ function Response() {
       <section className={`${CHAPTER} chapter-phone-flow`}>
           <GoldReveal
             as="h2"
-            className="display-wide chapter-display max-w-[22em]"
-            text="Most issues are fixed before they reach you."
-            marks={["before"]}
+            className="display chapter-display [text-wrap:wrap]"
+            text={"A pulse travels out.\nMost issues never\nreach the inbox."}
+            marks={["never"]}
           />
           <p className="lede mt-6 max-w-[42ch]">
             <span className="field-copy">
@@ -369,8 +373,10 @@ function Strategy() {
     <>
       <SignalChapter phase="strategy" id="chapter-strategy">
         <section className={CHAPTER}>
-          <h2 className="display-wide chapter-display max-w-[22em]">
-            A partner, <span className="text-gold">not a vendor.</span>
+          <h2 className="display chapter-display [text-wrap:wrap]">
+            A partner,
+            <br />
+            <span className="text-gold">not a vendor.</span>
           </h2>
           <p className="lede mt-[clamp(0.85rem,2.4vh,1.5rem)] max-w-[42ch]">
             <span className="field-copy">

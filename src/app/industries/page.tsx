@@ -19,8 +19,12 @@ export default function IndustriesPage() {
         <p className="micro mt-6 text-fg-muted">
           <span className="field-copy">Industries</span>
         </p>
-        <h1 className="display-wide page-display mt-5 max-w-[22em]">
-          We have seen these problems before.
+        <h1 className="display page-display mt-5 [text-wrap:wrap]">
+          We have seen
+          <br />
+          your problems
+          <br />
+          before.
         </h1>
       </section>
       <Breath size="md" />

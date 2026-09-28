@@ -173,6 +173,26 @@ body {
   font-size: clamp(1.45rem, min(3.6vw, 5.2vh), 3rem);
 }
 
+/* Copy stays left of a formation. The tight column clears the ownership
+   ring, which reaches the middle of the frame. The wider one clears the
+   industry cube, which sits to the right of the names. */
+.chapter-copy {
+  max-width: min(42rem, calc(46vw - var(--sheet-inset)));
+}
+
+.chapter-copy-tight {
+  max-width: min(40rem, calc(32vw - var(--sheet-inset)));
+}
+
+.industry-offer {
+  display: block;
+  padding-left: calc(2rem + 3vw);
+  font-size: clamp(13px, 1.05vw, 15px);
+  line-height: 1.35;
+  letter-spacing: -0.011em;
+  color: var(--color-fg-muted);
+}
+
 .hero-display {
   font-size: clamp(2.2rem, min(10vw, 14.2vh), 8.4rem);
 }
@@ -716,6 +736,11 @@ html.signal-live .signal-poster {
     border-radius: 0;
   }
 
+  .chapter-copy,
+  .chapter-copy-tight {
+    max-width: none;
+  }
+
   /* Inner pages use this gap to show the field. On a phone the whole
      page is one glass sheet, so the gap is just empty space. */
   .breath {
@@ -750,6 +775,12 @@ html.signal-live .signal-poster {
 
 /* 720px is a 1080p laptop at Windows 150%. The open accordion has to
    finish above the chapter rail. */
+@media (max-height: 780px) and (pointer: fine) {
+  .industry-offer {
+    display: none;
+  }
+}
+
 @media (max-height: 780px) {
   .row-display {
     font-size: 1.05rem;

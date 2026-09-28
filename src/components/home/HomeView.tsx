@@ -153,33 +153,33 @@ function Ownership() {
 
   return (
     <SignalChapter phase="ownership" id="chapter-ownership">
-      <section className={CHAPTER}>
-          <h2 className="display chapter-display [text-wrap:wrap]">
+      <section className={`${CHAPTER} flex h-full flex-col`}>
+        <div className="chapter-copy-tight flex min-h-0 flex-1 flex-col">
+          <h2 className="display chapter-display shrink-0 [text-wrap:wrap]">
             CompleteCare
             <br />
             is how your IT
             <br />
             gets run.
           </h2>
-          <p className="lede mt-5 max-w-[46ch]">
+          <p className="lede mt-4 shrink-0">
             <span className="field-copy">
-              More than a help desk. Proactive management, continuous monitoring,
-              and live U.S.-based support, in three levels. Base is the help
-              desk and monitoring. Pro runs the servers, the network, backups,
-              and security. Premium adds a roadmap and quarterly reviews with
-              leadership.
+              More than a help desk. Proactive management, continuous
+              monitoring, and live U.S.-based support, in three levels.
             </span>
           </p>
-          <div className="phone-list-glass mt-10">
+          <div className="phone-list-glass mt-6 min-h-0">
             <Accordion
               key={collapsed ? "collapsed" : "open"}
+              compact
+              stacked
               defaultOpen={collapsed ? -1 : 0}
               items={tiers.map((tier) => ({
                 id: tier.name,
                 title: tier.name,
                 statement: <span className="field-copy">{tier.statement}</span>,
                 children: (
-                  <ul className="space-y-3">
+                  <ul className="space-y-2">
                     {tier.points.map((p, i) => (
                       <li key={p} className="flex gap-4 text-sm tracking-tight">
                         <span className="micro">
@@ -194,9 +194,10 @@ function Ownership() {
               onChange={(i) => setTier(i)}
             />
           </div>
-          <Link href="/services/completecare" className="bar-btn bar-btn-line mt-8 inline-flex">
+          <Link href="/services/completecare" className="bar-btn bar-btn-line mt-5 inline-flex shrink-0 self-start">
             What CompleteCare includes <span aria-hidden>→</span>
           </Link>
+        </div>
       </section>
     </SignalChapter>
   );
@@ -256,36 +257,41 @@ function Industries() {
   return (
     <SignalChapter phase="industries" id="chapter-industries">
       <section className={`${CHAPTER} flex h-full flex-col`}>
-          <p className="lede max-w-[44ch] shrink-0">
-            <span className="field-copy">
-              Six industries we already know. Familiar problems, so fewer
-              surprises.
-            </span>
-          </p>
-          <div className="phone-list-glass mt-8 max-md:mt-10">
-          <ol className="mt-8 grid min-h-0 w-max flex-1 grid-rows-6 max-md:mt-10 max-md:flex max-md:w-auto max-md:flex-none max-md:flex-col">
-            {industries.map((ind, i) => (
-              <li key={ind.slug} className="flex w-full items-center border-b border-hairline first:border-t max-md:w-fit max-md:flex-none">
-                <PhaseLink
-                  href={`/industries/${ind.slug}`}
-                  phase="industries"
-                  focus={i}
-                  className="inline-flex h-full items-center gap-[3vw] py-[clamp(0.35rem,1.05vh,1rem)] transition-colors hover:text-gold md:py-0"
-                >
-                  <span className="micro w-8 shrink-0">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="display row-display">
-                    {ind.title}
-                  </span>
-                </PhaseLink>
-              </li>
-            ))}
-          </ol>
+        <div className="chapter-copy flex min-h-0 flex-1 flex-col">
+          <GoldReveal
+            as="h2"
+            className="display chapter-display shrink-0 [text-wrap:wrap]"
+            text={"We have seen\nyour problems\nbefore."}
+            marks={["before"]}
+          />
+          <div className="phone-list-glass mt-6 min-h-0 flex-1 max-md:mt-8">
+            <ol className="grid min-h-0 flex-1 grid-rows-6 max-md:flex max-md:h-auto max-md:flex-none max-md:flex-col">
+              {industries.map((ind, i) => (
+                <li key={ind.slug} className="flex min-h-0 w-full items-center border-b border-hairline first:border-t max-md:w-full max-md:flex-none">
+                  <PhaseLink
+                    href={`/industries/${ind.slug}`}
+                    phase="industries"
+                    focus={i}
+                    className="flex h-full w-full flex-col justify-center py-[clamp(0.2rem,0.6vh,0.45rem)] transition-colors hover:text-gold"
+                  >
+                    <span className="flex items-baseline gap-[3vw]">
+                      <span className="micro w-8 shrink-0">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <span className="display row-display">
+                        {ind.title}
+                      </span>
+                    </span>
+                    <span className="industry-offer">{ind.offer}</span>
+                  </PhaseLink>
+                </li>
+              ))}
+            </ol>
           </div>
-          <p className="industry-note lede mt-8 max-w-[42ch] min-h-[4.5em] shrink-0" aria-live="polite">
+          <p className="industry-note lede mt-5 min-h-[4.5em] shrink-0" aria-live="polite">
             {note ? <span className="field-copy">{note}</span> : null}
           </p>
+        </div>
       </section>
     </SignalChapter>
   );

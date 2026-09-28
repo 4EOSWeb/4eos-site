@@ -20,6 +20,7 @@ export function Accordion({
   onHover,
   defaultOpen = 0,
   compact = false,
+  stacked = false,
 }: {
   items: AccordionItem[];
   onChange?: (index: number) => void;
@@ -27,6 +28,8 @@ export function Accordion({
   defaultOpen?: number;
   /** Tighter rows so a chapter list fits in one viewport. */
   compact?: boolean;
+  /** Statement above the detail, so a narrow column does not split across the field. */
+  stacked?: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
   const uid = useId();
@@ -67,14 +70,20 @@ export function Accordion({
               role="region"
               aria-labelledby={buttonId}
               hidden={!isOpen}
-              className={`accordion-panel grid grid-cols-1 gap-8 pl-[calc(2rem+3vw)] md:grid-cols-12 ${
-                compact ? "pb-6" : "pb-10"
-              }`}
+              className={`accordion-panel grid min-w-0 grid-cols-1 pl-[calc(2rem+3vw)] ${
+                stacked ? "" : "md:grid-cols-12"
+              } ${compact ? "gap-3 pb-3" : "gap-8 pb-10"}`}
             >
               {item.statement ? (
-                <p className="lede md:col-span-5">{item.statement}</p>
+                <p className={`lede min-w-0 ${stacked ? "" : "md:col-span-5"}`}>
+                  {item.statement}
+                </p>
               ) : null}
-              <div className={item.statement ? "md:col-span-7" : "md:col-span-12"}>
+              <div
+                className={`min-w-0 ${
+                  item.statement && !stacked ? "md:col-span-7" : ""
+                }`}
+              >
                 {item.children}
               </div>
             </div>

@@ -54,6 +54,27 @@ export function serviceSchema(service: Pick<Service, "title" | "summary" | "href
   };
 }
 
+export function articleSchema(post: {
+  title: string;
+  description: string;
+  date: string;
+  author: string;
+  path: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "@id": `${site.url}${post.path}#article`,
+    headline: post.title,
+    description: post.description,
+    datePublished: post.date,
+    author: { "@type": "Person", name: post.author, worksFor: { "@id": ORG_ID } },
+    publisher: { "@id": ORG_ID },
+    mainEntityOfPage: `${site.url}${post.path}`,
+    isPartOf: { "@id": SITE_ID },
+  };
+}
+
 export function webPageSchema(page: { title: string; description: string; path: string; type?: string }) {
   return {
     "@context": "https://schema.org",

@@ -6,12 +6,14 @@ export function Section({
   id,
   tone = "paper",
   labelledBy,
+  ariaLabel,
   className,
   children,
 }: {
   id?: string;
   tone?: Tone;
   labelledBy?: string;
+  ariaLabel?: string;
   className?: string;
   children: ReactNode;
 }) {
@@ -19,6 +21,7 @@ export function Section({
     <section
       id={id}
       aria-labelledby={labelledBy}
+      aria-label={ariaLabel}
       className={`section surface-${tone} ${className ?? ""}`}
     >
       <div className="wrap">{children}</div>

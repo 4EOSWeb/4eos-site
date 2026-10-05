@@ -1,55 +1,52 @@
-import type { Metadata } from "next";
 import Link from "next/link";
-import { Page } from "@/components/layout/Page";
-import { BackLink } from "@/components/ui/BackLink";
-import { Breath, Sheet } from "@/components/layout/Sheet";
+import { CtaBand } from "@/components/site/CtaBand";
+import { PageHero } from "@/components/site/PageHero";
+import { Section } from "@/components/site/Section";
+import { formatDate } from "@/lib/date";
+import { pageMetadata } from "@/lib/metadata";
 import { getPosts } from "@/lib/posts";
 
-export const metadata: Metadata = {
-  title: "Journal",
-  description: "Notes on managed IT, security, and running a business in Fort Wayne.",
-};
+export const metadata = pageMetadata({
+  title: "IT Insights for Growing Businesses",
+  description:
+    "Practical articles from 4EOS on managed IT, cybersecurity, and technology planning for businesses in Fort Wayne and Northeast Indiana.",
+  path: "/blog",
+});
 
 export default function BlogIndex() {
   const posts = getPosts();
 
   return (
-    <Page phase="discovery">
-      <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
-        <BackLink href="/" label="Home" />
-        <p className="micro mt-6 text-fg-muted">
-          <span className="field-copy">Journal</span>
-        </p>
-        <h1 className="display page-display mt-5 max-w-[14ch]">
-          Notes from the work.
-        </h1>
-      </section>
-      <Breath size="md" />
-      <Sheet tone="ink">
-        <ol className="sheet-pad divide-y divide-hairline py-4">
+    <>
+      <PageHero
+        crumbs={[
+          { name: "Resources", path: "/resources" },
+          { name: "Insights", path: "/blog" },
+        ]}
+        title="Insights"
+        lede="Plain-language articles on running technology well: choosing a provider, planning spend, and protecting the business."
+      />
+      <Section ariaLabel="Articles">
+        <ol className="tile-grid">
           {posts.map((post) => (
-            <li key={post.slug}>
-              <Link href={`/blog/${post.slug}`} className="group block py-10">
-                <p className="micro text-fg-faint">
-                  {formatDate(post.date)} · {post.author}
-                </p>
-                <h2 className="display mt-4 max-w-[22ch] text-[clamp(1.4rem,2.6vw,2rem)] group-hover:text-gold">
-                  {post.title}
-                </h2>
-                <p className="lede mt-4 max-w-[56ch]">{post.description}</p>
+            <li key={post.slug} className="tile">
+              <p className="label">
+                <time dateTime={post.date}>{formatDate(post.date)}</time> · {post.author}
+              </p>
+              <h2 className="t-title">{post.title}</h2>
+              <p className="body-sm">{post.description}</p>
+              <Link href={`/blog/${post.slug}`} className="svc-card-cta">
+                Read the article
+                <span aria-hidden="true" className="btn-arrow">
+                  →
+                </span>
+                <span className="sr-only">: {post.title}</span>
               </Link>
             </li>
           ))}
         </ol>
-      </Sheet>
-    </Page>
+      </Section>
+      <CtaBand title="Rather talk it through?" topic="assessment" />
+    </>
   );
-}
-
-function formatDate(iso: string) {
-  return new Date(`${iso}T00:00:00`).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
 }

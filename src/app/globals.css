@@ -16,7 +16,7 @@
   --color-fg-muted: var(--c-on-ink-muted);
   --color-fg-faint: var(--c-on-ink-faint);
   --color-hairline: var(--c-ink-line);
-  --color-hairline-strong: oklch(0.93 0.012 90 / 0.24);
+  --color-hairline-strong: var(--c-ink-line-mid);
 
   --font-display: var(--font-display-stack);
   --font-body: var(--font-body-stack);
@@ -88,13 +88,13 @@ svg {
   --fg-muted: var(--c-on-ink-muted);
   --fg-faint: var(--c-on-ink-faint);
   --line: var(--c-ink-line);
-  --line-strong: oklch(0.93 0.012 90 / 0.3);
+  --line-strong: var(--c-ink-line-strong);
   --raised: var(--c-ink-raised);
   --accent-text: var(--c-gold);
   --focus: var(--c-gold);
   --danger: var(--c-danger-ink);
   --success: var(--c-success-ink);
-  --input-bg: oklch(0.2 0.012 252);
+  --input-bg: var(--c-ink-input);
   background-color: var(--c-ink);
 }
 
@@ -149,6 +149,8 @@ svg {
   letter-spacing: -0.025em;
   text-transform: uppercase;
   text-wrap: balance;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 .t-hero {
@@ -644,7 +646,7 @@ svg {
   color: var(--c-on-ink);
   --fg: var(--c-on-ink);
   --fg-muted: var(--c-on-ink-muted);
-  --line-strong: oklch(0.93 0.012 90 / 0.3);
+  --line-strong: var(--c-ink-line-strong);
   --accent-text: var(--c-gold);
   --focus: var(--c-gold);
 }
@@ -810,6 +812,17 @@ svg {
   border-top: 1px solid var(--line);
 }
 
+@media (max-width: 22.5rem) {
+  .mobile-bar .btn-secondary {
+    width: var(--control-h);
+    padding-inline: 0;
+  }
+
+  .mobile-bar-label {
+    display: none;
+  }
+}
+
 @media (max-width: 47.99rem) {
   body {
     padding-bottom: calc(var(--control-h) + var(--space-6) + env(safe-area-inset-bottom));
@@ -943,11 +956,11 @@ svg {
 }
 
 .static-net .node {
-  fill: oklch(0.72 0.06 245);
+  fill: var(--c-signal);
 }
 
 .static-net .edge {
-  stroke: oklch(0.72 0.06 245 / 0.35);
+  stroke: var(--c-signal-line);
 }
 
 .static-net-layer {
@@ -1293,7 +1306,7 @@ svg {
   --fg-muted: var(--c-on-ink-muted);
   --fg-faint: var(--c-on-ink-faint);
   --line: var(--c-ink-line);
-  --line-strong: oklch(0.93 0.012 90 / 0.3);
+  --line-strong: var(--c-ink-line-strong);
   --accent-text: var(--c-gold);
   --focus: var(--c-gold);
   color: var(--fg);
@@ -1332,6 +1345,19 @@ svg {
   font-size: var(--text-sm);
   white-space: nowrap;
   color: var(--fg);
+}
+
+/* The card heading already names the service, so narrow screens show "Explore" while
+   assistive technology and crawlers still get the full link text. */
+@media (max-width: 30rem) {
+  .svc-cta-name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
 
 .svc-card-cta::after {

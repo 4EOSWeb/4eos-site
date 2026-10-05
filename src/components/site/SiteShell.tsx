@@ -19,7 +19,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
         </Link>
         <a href={site.phoneHref} className="btn btn-secondary" aria-label={`Call 4EOS at ${site.phone}`}>
           <Glyph name="call" size={16} />
-          Call
+          <span className="mobile-bar-label">Call</span>
         </a>
       </nav>
     </>

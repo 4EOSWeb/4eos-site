@@ -41,7 +41,7 @@ export function ServiceCard({
         </ul>
       ) : null}
       <Link href={service.href} className="svc-card-cta">
-        Explore {service.short}
+        Explore<span className="svc-cta-name"> {service.short}</span>
         <span aria-hidden="true" className="btn-arrow">
           →
         </span>

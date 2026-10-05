@@ -11,6 +11,11 @@
   --c-ink: oklch(0.135 0.008 255);
   --c-ink-raised: oklch(0.185 0.012 252);
   --c-ink-line: oklch(0.93 0.012 90 / 0.14);
+  --c-ink-line-mid: oklch(0.93 0.012 90 / 0.24);
+  --c-ink-line-strong: oklch(0.93 0.012 90 / 0.3);
+  --c-ink-input: oklch(0.2 0.012 252);
+  --c-signal: oklch(0.72 0.06 245);
+  --c-signal-line: oklch(0.72 0.06 245 / 0.35);
   --c-navy: oklch(0.24 0.045 250);
   --c-bone: oklch(0.917 0.017 90);
   --c-paper: oklch(0.968 0.008 90);

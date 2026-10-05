@@ -21,6 +21,8 @@ export function Nav() {
   const drawerRef = useRef<HTMLDivElement>(null);
   const menuBtn = useRef<HTMLButtonElement>(null);
   const timer = useRef<number | undefined>(undefined);
+  /** Set when hover opened a menu, so the click that follows does not close it again. */
+  const hoverOpened = useRef<string | null>(null);
 
   if (seenPath !== pathname) {
     setSeenPath(pathname);
@@ -31,7 +33,10 @@ export function Nav() {
   const cancelClose = useCallback(() => window.clearTimeout(timer.current), []);
   const scheduleClose = useCallback(() => {
     window.clearTimeout(timer.current);
-    timer.current = window.setTimeout(() => setOpen(null), CLOSE_GRACE);
+    timer.current = window.setTimeout(() => {
+      hoverOpened.current = null;
+      setOpen(null);
+    }, CLOSE_GRACE);
   }, []);
 
   useEffect(() => () => window.clearTimeout(timer.current), []);
@@ -117,6 +122,7 @@ export function Nav() {
                     onPointerEnter={(e) => {
                       if (e.pointerType !== "mouse") return;
                       cancelClose();
+                      if (open !== entry.id) hoverOpened.current = entry.id;
                       setOpen(entry.id);
                     }}
                     onPointerLeave={(e) => {
@@ -130,7 +136,13 @@ export function Nav() {
                       aria-expanded={open === entry.id}
                       aria-controls={`mega-${entry.id}`}
                       data-active={isActive(pathname, entry.match) || undefined}
-                      onClick={() => setOpen((o) => (o === entry.id ? null : entry.id))}
+                      onClick={() => {
+                        if (hoverOpened.current === entry.id) {
+                          hoverOpened.current = null;
+                          return;
+                        }
+                        setOpen((o) => (o === entry.id ? null : entry.id));
+                      }}
                     >
                       {entry.bar ?? entry.label}
                       <Glyph name="caret" size={10} className="nav-caret" />

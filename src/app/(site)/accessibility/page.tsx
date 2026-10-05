@@ -35,8 +35,8 @@ export default function AccessibilityPage() {
           {
             heading: "How we build pages",
             paragraphs: [
-              "Pages use text you can resize, controls you can reach and operate from a keyboard, and labels on form fields. The moving network behind the home page heading is decorative and is hidden from assistive technology.",
-              "That animation only runs on larger screens with a mouse or trackpad. If reduced motion is turned on in your operating system, or you are on a phone, a still image is shown instead.",
+              "Pages use text you can resize, controls you can reach and operate from a keyboard, and labels on form fields. The moving network behind the dark parts of each page is decorative and is hidden from assistive technology.",
+              "If reduced motion is turned on in your operating system, the network holds still. If the animation cannot run, a still image is shown behind the home page heading instead.",
               "The site is written to work with current versions of major browsers and with commonly used screen readers.",
             ],
           },

@@ -83,6 +83,32 @@ svg {
   color: var(--fg);
 }
 
+/* The particle field sits behind the page. Ink regions are clear so it
+   shows through; the bar, menu, and footer keep a solid ground so text stays readable. */
+html.signal-live body {
+  background-color: var(--c-ink);
+}
+
+html.signal-live .surface-ink {
+  background-color: transparent;
+}
+
+html.signal-live .site-nav,
+html.signal-live .drawer,
+html.signal-live .site-footer,
+html.signal-live .mobile-bar {
+  background-color: var(--c-ink);
+}
+
+html.signal-live .hero-atmos {
+  display: none;
+}
+
+.site-frame {
+  position: relative;
+  z-index: 1;
+}
+
 .surface-ink {
   --fg: var(--c-on-ink);
   --fg-muted: var(--c-on-ink-muted);

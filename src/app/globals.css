@@ -1286,6 +1286,7 @@ svg {
 }
 
 .svc-card-ink {
+  --raised: var(--c-ink);
   background: var(--c-ink);
   border-color: var(--c-ink);
   --fg: var(--c-on-ink);

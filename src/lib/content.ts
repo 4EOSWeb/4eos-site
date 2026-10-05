@@ -54,7 +54,7 @@ export type Service = {
   delivery: string[];
   related: ServiceSlug[];
   faqs: Qa[];
-  cta: { label: string; topic: string };
+  cta: { label: string; topic: TopicValue };
   parent?: ServiceSlug;
   family?: "Midwest VoIP" | "SafeHouse DataCenter";
 };

@@ -32,11 +32,11 @@ function Managed() {
       {rows.map((r, i) => (
         <g key={r} transform={`translate(44 ${84 + i * 46})`}>
           <text x="0" y="16" className="dg-text">{r}</text>
-          <line x1="110" y1="12" x2="370" y2="12" className="dg-line" />
+          <line x1="100" y1="12" x2="350" y2="12" className="dg-line" />
           {Array.from({ length: 9 }).map((_, j) => (
-            <circle key={j} cx={120 + j * 30} cy="12" r="4" className={i === 3 && j === 6 ? "dg-dot-gold" : "dg-dot"} />
+            <circle key={j} cx={108 + j * 29} cy="12" r="4" className={i === 3 && j === 6 ? "dg-dot-gold" : "dg-dot"} />
           ))}
-          <text x="392" y="16" className="dg-text">{i === 3 ? "Fixed" : "OK"}</text>
+          <text x="372" y="16" className="dg-text">{i === 3 ? "Fixed" : "OK"}</text>
         </g>
       ))}
     </Frame>

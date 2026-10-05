@@ -12,6 +12,8 @@ export const site = {
     "Managed IT, cybersecurity, cloud and Microsoft 365, backup and disaster recovery, and IT strategy for growing businesses in Fort Wayne and Northeast Indiana. Founded in 2002.",
   url: "https://www.4eos.com",
   founded: 2002,
+  /** Last substantive content revision, for dateModified and feeds. Bump with content changes. */
+  updated: "2026-10-05",
   phone: "(260) 490-7740",
   phoneHref: "tel:+12604907740",
   phoneIntl: "+1-260-490-7740",

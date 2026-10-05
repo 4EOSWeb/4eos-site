@@ -85,6 +85,7 @@ export function webPageSchema(page: { title: string; description: string; path: 
     url: `${site.url}${page.path}`,
     isPartOf: { "@id": SITE_ID },
     about: { "@id": ORG_ID },
+    dateModified: site.updated,
   };
 }
 
@@ -95,6 +96,7 @@ export function websiteSchema() {
     name: site.name,
     url: site.url,
     inLanguage: "en-US",
+    dateModified: site.updated,
     publisher: { "@id": ORG_ID },
   };
 }

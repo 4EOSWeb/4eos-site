@@ -193,11 +193,11 @@ body {
   color: var(--color-fg-muted);
 }
 
-/* Two longer lines than the previous hero. The cap keeps each line
-   inside the left column on a desktop, and the floor fits a 320px phone. */
+/* Four short lines, sized like the original hero, so the heading
+   fills the first screen instead of sitting in a band at the bottom. */
 .hero-display {
   max-width: 100%;
-  font-size: clamp(1.5rem, min(4.7vw, 8.5vh), 5.15rem);
+  font-size: clamp(2.2rem, min(10vw, 14.2vh), 8.4rem);
 }
 
 .row-display {

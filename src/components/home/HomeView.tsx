@@ -87,9 +87,15 @@ function Hero() {
           <span className="field-copy">Fort Wayne · Since {site.founded}</span>
         </p>
         <h1 className="display hero-display mt-[clamp(0.75rem,2vh,1.5rem)]">
-          Modern IT leadership
+          Modern IT
           <br />
-          <span className="text-gold">for growing businesses</span>
+          leadership
+          <br />
+          <span className="text-gold">
+            for growing
+            <br />
+            businesses
+          </span>
         </h1>
         <p className="lede mt-[clamp(1rem,3vh,2.5rem)] max-w-[42ch]">
           <span className="field-copy">

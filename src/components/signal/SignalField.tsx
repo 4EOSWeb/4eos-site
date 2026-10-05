@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import { CUBE_CX, CUBE_CY, CUBE_H, cubeGoal, iconSample, quatDot, quatToMat, slerpQuat, type Quat } from "./cube";
@@ -8,7 +8,7 @@ import { buildSeeds, latticeSize } from "./formations";
 import { fragmentShader, vertexShader } from "./shader";
 import { CONFIDENT_SETTLE, FLOW_DAMPING, FLOW_STIFFNESS, ORGANIC_FLOW } from "./flow";
 import { setMouse, signal } from "./store";
-import { MOBILE_FIT, POINT_BUDGET, prefersReducedMotion, type DeviceTier } from "@/lib/env";
+import { MOBILE_FIT, POINT_BUDGET, prefersReducedMotion, REDUCED_MOTION_QUERY, type DeviceTier } from "@/lib/env";
 
 const cubeMatrix = new THREE.Matrix3();
 const cubeQuat: Quat = [0, 0, 0, 1];
@@ -325,6 +325,12 @@ function CameraRig({
   return null;
 }
 
+function subscribeReducedMotion(onChange: () => void) {
+  const query = window.matchMedia(REDUCED_MOTION_QUERY);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
 export default function SignalField({
   tier,
   ambient = false,
@@ -337,12 +343,8 @@ export default function SignalField({
   paused?: boolean;
 }) {
   const host = useRef<HTMLDivElement>(null);
-  const [still, setStill] = useState(false);
+  const still = useSyncExternalStore(subscribeReducedMotion, prefersReducedMotion, () => false);
   const [awake, setAwake] = useState(true);
-
-  useEffect(() => {
-    setStill(prefersReducedMotion());
-  }, [tier]);
 
   const mobile = tier === "mobile";
 

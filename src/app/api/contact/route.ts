@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { recordFormLead } from "@/lib/analytics/ingest";
 import { postRewstTicket, rewstWebhookUrl } from "@/lib/rewst";
+import { salesEmail } from "@/lib/content";
 import { site } from "@/lib/site";
 
 const resend = process.env.RESEND_API_KEY
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
 
   const support = body.intent === "support";
   const intent = support ? "Support" : "Assessment";
-  const to = support ? (process.env.INTAKE_TO ?? site.helpdesk) : site.sales;
+  const to = support ? (process.env.INTAKE_TO ?? site.helpdesk) : salesEmail;
   const from = process.env.INTAKE_FROM ?? "4EOS Website <onboarding@resend.dev>";
 
   const text = [

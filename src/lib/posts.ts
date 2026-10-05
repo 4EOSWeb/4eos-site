@@ -7,8 +7,6 @@ const DIR = path.join(process.cwd(), "content/blog");
 export type Post = {
   slug: string;
   title: string;
-  /** Shorter title for search results when the headline runs long. */
-  seoTitle?: string;
   date: string;
   author: string;
   description: string;
@@ -24,7 +22,6 @@ export function getPosts(): Post[] {
       return {
         slug: file.replace(/\.mdx$/, ""),
         title: String(data.title),
-        seoTitle: data.seoTitle ? String(data.seoTitle) : undefined,
         date: data.date instanceof Date ? data.date.toISOString().slice(0, 10) : String(data.date),
         author: String(data.author),
         description: String(data.description),

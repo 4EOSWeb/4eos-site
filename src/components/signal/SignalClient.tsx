@@ -2,21 +2,23 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { detectTier, prefersReducedMotion, type DeviceTier } from "@/lib/env";
-import { MAX_PHASE } from "./formations";
-import { setPhase } from "./store";
+import { detectTier, type DeviceTier } from "@/lib/env";
 
+// Three plus the field is the largest thing on the site, so it is kept out
+// of the initial bundle and only requested once the tier is known.
 const SignalField = dynamic(() => import("./SignalField"), { ssr: false });
 
 /**
- * The particle field, mounted once so it survives route changes.
- * Scrolling a page morphs it through the same formations as before.
- * Reduced motion holds the calm lattice and draws it once.
+ * Mounted once from the root layout so the live field survives route
+ * changes. Pages pin a formation through PhasePin; they do not remount this.
  */
 export function SignalClient() {
   const [tier, setTier] = useState<DeviceTier | null>(null);
 
   useEffect(() => {
+    // Defer past hydration so the text is interactive before the GPU work
+    // starts competing for the main thread. Zoom and display scaling change
+    // the CSS viewport after load, so the tier is measured again then.
     let timer = 0;
     const apply = () => setTier(detectTier());
     const id = window.setTimeout(apply, 0);
@@ -35,34 +37,10 @@ export function SignalClient() {
   }, []);
 
   useEffect(() => {
-    if (tier && tier !== "none") document.documentElement.classList.add("signal-live");
-    return () => document.documentElement.classList.remove("signal-live");
-  }, [tier]);
-
-  useEffect(() => {
-    if (!tier || tier === "none") return;
-    if (prefersReducedMotion()) {
-      setPhase(1);
-      return;
+    if (tier && tier !== "none") {
+      document.documentElement.classList.add("signal-live");
     }
-    let frame = 0;
-    const update = () => {
-      frame = 0;
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = max > 0 ? window.scrollY / max : 0;
-      setPhase(progress * MAX_PHASE);
-    };
-    const onScroll = () => {
-      if (!frame) frame = window.requestAnimationFrame(update);
-    };
-    update();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
-      if (frame) window.cancelAnimationFrame(frame);
-    };
+    return () => document.documentElement.classList.remove("signal-live");
   }, [tier]);
 
   if (!tier || tier === "none") return null;

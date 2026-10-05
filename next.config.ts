@@ -9,19 +9,36 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   async redirects() {
     return [
-      { source: "/services/completecare", destination: "/managed-it", permanent: true },
-      { source: "/services/cybersecurity", destination: "/cybersecurity", permanent: true },
-      { source: "/services/cloud", destination: "/cloud-microsoft-365", permanent: true },
-      { source: "/services/voip", destination: "/voip", permanent: true },
-      { source: "/services/datacenter", destination: "/data-center", permanent: true },
-      { source: "/services/hardware", destination: "/hardware", permanent: true },
-      { source: "/why-4eos", destination: "/about", permanent: true },
-      { source: "/safehouse-data-center", destination: "/data-center", permanent: true },
-      { source: "/midwest-voip", destination: "/voip", permanent: true },
-      { source: "/4-key-guiding-values", destination: "/about", permanent: true },
-      { source: "/new-page", destination: "/", permanent: true },
-      { source: "/command", destination: "/analytics", permanent: false },
-      { source: "/command/:path*", destination: "/analytics/:path*", permanent: false },
+      {
+        source: "/safehouse-data-center",
+        destination: "/services/datacenter",
+        permanent: true,
+      },
+      {
+        source: "/midwest-voip",
+        destination: "/services/voip",
+        permanent: true,
+      },
+      {
+        source: "/4-key-guiding-values",
+        destination: "/why-4eos",
+        permanent: true,
+      },
+      {
+        source: "/new-page",
+        destination: "/",
+        permanent: true,
+      },
+      {
+        source: "/command",
+        destination: "/analytics",
+        permanent: false,
+      },
+      {
+        source: "/command/:path*",
+        destination: "/analytics/:path*",
+        permanent: false,
+      },
     ];
   },
 };

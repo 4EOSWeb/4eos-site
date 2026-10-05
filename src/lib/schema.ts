@@ -1,8 +1,7 @@
-import type { Qa, Service } from "@/lib/content";
-import { leadership, site } from "@/lib/site";
+import { hours } from "@/lib/content";
+import { site } from "@/lib/site";
 
-const ORG_ID = `${site.url}/#organization`;
-const SITE_ID = `${site.url}/#website`;
+type Qa = { q: string; a: string };
 
 export function faqSchema(items: readonly Qa[]) {
   return {
@@ -22,100 +21,50 @@ export function breadcrumbSchema(items: { name: string; path: string }[]) {
       "@type": "ListItem",
       position: index + 1,
       name: item.name,
-      item: `${site.url}${item.path === "/" ? "" : item.path}`,
+      item: `${site.url}${item.path}`,
     })),
   };
 }
 
-const areaServed = [
-  { "@type": "City", name: "Fort Wayne" },
-  { "@type": "AdministrativeArea", name: "Northeast Indiana" },
-];
-
-export function serviceSchema(service: Pick<Service, "title" | "summary" | "href" | "included">) {
+export function serviceSchema(service: { title: string; lede: string; slug: string }) {
   return {
-    "@context": "https://schema.org",
     "@type": "Service",
-    "@id": `${site.url}${service.href}#service`,
     name: service.title,
-    serviceType: service.title,
-    description: service.summary,
-    url: `${site.url}${service.href}`,
-    provider: { "@id": ORG_ID },
-    areaServed,
-    hasOfferCatalog: {
-      "@type": "OfferCatalog",
-      name: `${service.title} from ${site.name}`,
-      itemListElement: service.included.map((item) => ({
-        "@type": "Offer",
-        itemOffered: { "@type": "Service", name: item.title, description: item.body },
-      })),
-    },
+    description: service.lede,
+    url: `${site.url}/services/${service.slug}`,
+    provider: { "@type": "Organization", name: site.name, url: site.url },
   };
 }
 
-export function articleSchema(post: {
-  title: string;
-  description: string;
-  date: string;
-  author: string;
-  path: string;
-}) {
+export function industryPageSchema(industry: { title: string; lede: string; slug: string }) {
   return {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    "@id": `${site.url}${post.path}#article`,
-    headline: post.title,
-    description: post.description,
-    datePublished: post.date,
-    author: { "@type": "Person", name: post.author, worksFor: { "@id": ORG_ID } },
-    publisher: { "@id": ORG_ID },
-    mainEntityOfPage: `${site.url}${post.path}`,
-    isPartOf: { "@id": SITE_ID },
-  };
-}
-
-export function webPageSchema(page: { title: string; description: string; path: string; type?: string }) {
-  return {
-    "@context": "https://schema.org",
-    "@type": page.type ?? "WebPage",
-    "@id": `${site.url}${page.path}#webpage`,
-    name: page.title,
-    description: page.description,
-    url: `${site.url}${page.path}`,
-    isPartOf: { "@id": SITE_ID },
-    about: { "@id": ORG_ID },
-    dateModified: site.updated,
+    "@type": "WebPage",
+    name: industry.title,
+    description: industry.lede,
+    url: `${site.url}/industries/${industry.slug}`,
+    about: { "@type": "Organization", name: site.name, url: site.url },
   };
 }
 
 export function websiteSchema() {
   return {
+    "@context": "https://schema.org",
     "@type": "WebSite",
-    "@id": SITE_ID,
     name: site.name,
     url: site.url,
-    inLanguage: "en-US",
-    dateModified: site.updated,
-    publisher: { "@id": ORG_ID },
   };
 }
 
 export function organizationSchema() {
   return {
-    "@type": ["Organization", "LocalBusiness", "ProfessionalService"],
-    "@id": ORG_ID,
+    "@context": "https://schema.org",
+    "@type": "ProfessionalService",
     name: site.name,
-    legalName: site.legalName,
     description: site.description,
     url: site.url,
-    logo: `${site.url}/brand/4eos-lockup.svg`,
-    image: `${site.url}/opengraph-image`,
-    telephone: site.phoneIntl,
-    faxNumber: site.faxIntl,
+    telephone: site.phone,
     email: site.helpdesk,
     foundingDate: String(site.founded),
-    foundingLocation: { "@type": "Place", name: "Fort Wayne, Indiana" },
     address: {
       "@type": "PostalAddress",
       streetAddress: site.address.street,
@@ -124,66 +73,15 @@ export function organizationSchema() {
       postalCode: site.address.postal,
       addressCountry: site.address.country,
     },
-    areaServed,
-    openingHours: "Mo-Fr 08:00-17:00",
+    areaServed: "Indiana",
+    sameAs: [site.social.facebook, site.social.linkedin, site.social.x],
     openingHoursSpecification: {
       "@type": "OpeningHoursSpecification",
       dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       opens: "08:00",
       closes: "17:00",
+      description: hours,
     },
-    contactPoint: [
-      {
-        "@type": "ContactPoint",
-        telephone: site.phoneIntl,
-        email: site.helpdesk,
-        contactType: "customer support",
-        areaServed: "US",
-        availableLanguage: "English",
-      },
-      {
-        "@type": "ContactPoint",
-        telephone: site.phoneIntl,
-        email: site.sales,
-        contactType: "sales",
-        areaServed: "US",
-        availableLanguage: "English",
-      },
-    ],
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: site.rating.value,
-      reviewCount: site.rating.count,
-      bestRating: "5",
-      worstRating: "1",
-    },
-    sameAs: [site.social.facebook, site.social.linkedin, site.social.x, site.rating.reviewUrl],
-    knowsAbout: [
-      "Managed IT services",
-      "Cybersecurity",
-      "NIST Cybersecurity Framework",
-      "Cloud migration",
-      "Microsoft 365",
-      "Azure",
-      "Backup and disaster recovery",
-      "Business continuity",
-      "Network infrastructure",
-      "IT strategy and vCIO services",
-      "Business VoIP",
-      "Data center co-location",
-      "Hardware procurement",
-      "Secure AI platforms",
-    ],
-    employee: leadership.map((p) => ({
-      "@type": "Person",
-      name: p.name,
-      jobTitle: p.role,
-      sameAs: p.linkedin,
-    })),
-    subOrganization: [
-      { "@type": "Organization", name: "Midwest VoIP", url: `${site.url}/voip` },
-      { "@type": "Organization", name: "SafeHouse DataCenter", url: `${site.url}/data-center` },
-    ],
   };
 }
 

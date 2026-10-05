@@ -1,9 +1,10 @@
-import { generalFaqs, industries, services, tiers } from "@/lib/content";
+import { faqs, industries, services } from "@/lib/content";
 import { getPosts } from "@/lib/posts";
-import { addressLine, leadership, site } from "@/lib/site";
+import { site } from "@/lib/site";
 
+/** Matches the description on the SecureAI page. */
 const SECUREAI =
-  "Access to more than sixty AI models, including GPT-4 and Claude, on one managed platform with company-wide monthly credits instead of per-user fees. Plans: Starter $500 (100,000 credits), Small Business $1,000 (250,000 credits), Business $2,250 (750,000 credits); enterprise pricing above 1,500,000 credits.";
+  "Sixty-plus AI models on one secure platform. No per-user fees. The data stays yours.";
 
 function abs(path: string) {
   return `${site.url}${path}`;
@@ -14,101 +15,78 @@ function link(label: string, path: string, detail?: string) {
   return detail ? `${line}: ${detail}` : line;
 }
 
-function qa(items: readonly { q: string; a: string }[]) {
-  return items.flatMap((item) => [`Q: ${item.q}`, `A: ${item.a}`, ""]);
-}
-
-const contact = [
-  `${site.name} (${site.legalName}), ${addressLine}.`,
-  `Phone ${site.phone}. Fax ${site.fax}. Help desk ${site.helpdesk}. Sales ${site.sales}.`,
-  `Hours: ${site.hours}. Service area: ${site.serviceArea}. Founded ${site.founded}.`,
-  `Family companies: Midwest VoIP (business phone systems) and SafeHouse DataCenter (Fort Wayne data center).`,
-  `Partners: ${site.partners.join(", ")}. Rated ${site.rating.value} on ${site.rating.source} from ${site.rating.count} reviews.`,
-];
-
 export function llmsTxt() {
-  return [
+  const lines = [
     `# ${site.name}`,
     "",
     `> ${site.description}`,
-    "",
-    ...contact,
     "",
     `Full reference: ${abs("/llms-full.txt")}`,
     "",
     "## Services",
     "",
-    link("All services", "/services"),
-    ...services.map((s) => link(s.title, s.href, s.summary)),
+    link("Services", "/services"),
+    ...services.map((s) => link(s.title, `/services/${s.slug}`, s.lede)),
     link("SecureAI", "/secureai", SECUREAI),
     "",
     "## Industries",
     "",
-    link("Industries we support", "/industries"),
-    ...industries.map((i) => link(i.title, `/industries/${i.slug}`, i.summary)),
+    link("Industries", "/industries"),
+    ...industries.map((i) => link(i.title, `/industries/${i.slug}`, i.lede)),
     "",
     "## Company",
     "",
     link("About 4EOS", "/about"),
-    link("Contact and consultations", "/contact"),
-    link("Client support", "/support"),
-    "",
-    "## Resources",
-    "",
-    link("Resources", "/resources"),
+    link("Why 4EOS", "/why-4eos"),
     link("FAQ", "/faq"),
-    link("Insights", "/blog"),
+    link("Contact", "/contact"),
+    link("Support", "/support"),
+    link("Journal", "/blog"),
     "",
-    "## Optional",
+    "## Legal",
     "",
-    link("Privacy Policy", "/privacy"),
-    link("Terms of Use", "/terms"),
-    link("Accessibility Statement", "/accessibility"),
+    link("Privacy", "/privacy"),
+    link("Terms", "/terms"),
+    link("Accessibility", "/accessibility"),
     "",
-  ].join("\n");
+  ];
+  return lines.join("\n");
 }
 
 function block(title: string, path: string, parts: string[]) {
-  return [`## ${title}`, abs(path), "", ...parts, ""].join("\n");
+  return [`## ${title}`, abs(path), "", ...parts.filter(Boolean), ""].join("\n");
 }
 
 export function llmsFullTxt() {
-  const serviceBlocks = services.map((s) =>
-    block(s.title, s.href, [
-      `${s.headline}.`,
-      s.summary,
+  const serviceBlocks = services.map((service) =>
+    block(service.title, `/services/${service.slug}`, [
+      service.statement,
+      service.lede,
       "",
-      ...s.body,
+      "How it shows up",
+      ...service.how.map((item) => `- ${item}`),
       "",
-      "Signs it is time:",
-      ...s.problems.map((p) => `- ${p}`),
+      "In practice",
+      ...service.points.map((item) => `- ${item}`),
       "",
-      "What is included:",
-      ...s.included.map((i) => `- ${i.title}: ${i.body}`),
-      ...(s.slug === "managed-it"
-        ? [
-            "",
-            "CompleteCare levels:",
-            ...tiers.map((t) => `- ${t.name}: ${t.fit}`),
-            "Typical managed IT pricing runs about $100 to $200 per user per month; 4EOS quotes a fixed monthly price after a free assessment.",
-          ]
-        : []),
-      "",
-      ...qa(s.faqs),
+      ...service.faqs.flatMap((item) => [`Q: ${item.q}`, `A: ${item.a}`, ""]),
     ]),
   );
 
-  const industryBlocks = industries.map((i) =>
-    block(`IT for ${i.title}`, `/industries/${i.slug}`, [
-      `${i.headline}.`,
-      i.summary,
+  const industryBlocks = industries.map((industry) =>
+    block(industry.title, `/industries/${industry.slug}`, [
+      industry.statement,
+      industry.lede,
+      industry.note,
       "",
-      ...i.how.map((h) => `- ${h}`),
+      "How it shows up",
+      ...industry.how.map((item) => `- ${item}`),
       "",
-      ...qa(i.faqs),
+      ...industry.faqs.flatMap((item) => [`Q: ${item.q}`, `A: ${item.a}`, ""]),
     ]),
   );
 
+  const questions = faqs.flatMap((item) => [`Q: ${item.q}`, `A: ${item.a}`, ""]);
   const posts = getPosts().map((post) => link(post.title, `/blog/${post.slug}`, post.description));
 
   return [
@@ -116,17 +94,12 @@ export function llmsFullTxt() {
     "",
     `> ${site.description}`,
     "",
-    ...contact,
+    `${site.name}, ${site.address.street}, ${site.address.city}, ${site.address.region} ${site.address.postal}. ${site.phone}. ${site.helpdesk}. Founded ${site.founded}.`,
     "",
-    block(
-      "Leadership",
-      "/about",
-      leadership.map((p) => `- ${p.name}, ${p.role}: ${p.focus}`),
-    ),
     ...serviceBlocks,
     block("SecureAI", "/secureai", [SECUREAI]),
     ...industryBlocks,
-    block("Frequently asked questions", "/faq", qa(generalFaqs)),
-    ["## Insights", abs("/blog"), "", ...posts, ""].join("\n"),
+    block("Questions", "/faq", questions),
+    ["## Journal", abs("/blog"), "", ...posts, ""].join("\n"),
   ].join("\n");
 }

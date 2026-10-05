@@ -1,5 +1,3 @@
-import { services } from "@/lib/content";
-
 /** Paths that must never enter visitor totals. */
 export function isIgnoredPath(path: string) {
   return (
@@ -11,9 +9,7 @@ export function isIgnoredPath(path: string) {
 
 export type ContentKind = "service" | "industry" | "support" | "contact" | "page";
 
-/** Current service routes, plus the pre-2026 URLs so older events still label. */
-export const SERVICES: Record<string, string> = {
-  ...Object.fromEntries(services.map((s) => [s.href, s.short])),
+const SERVICES: Record<string, string> = {
   "/services/completecare": "CompleteCare",
   "/services/cybersecurity": "Cybersecurity",
   "/services/cloud": "Cloud",
@@ -22,10 +18,6 @@ export const SERVICES: Record<string, string> = {
   "/services/hardware": "Hardware",
   "/secureai": "SecureAI",
 };
-
-export function isServicePath(path: string | null | undefined) {
-  return !!path && path in SERVICES;
-}
 
 const INDUSTRIES: Record<string, string> = {
   "/industries/legal": "Legal",

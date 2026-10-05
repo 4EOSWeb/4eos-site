@@ -1,0 +1,326 @@
+.command-shell {
+  position: relative;
+  z-index: 2;
+  min-height: 100dvh;
+  padding: 6.5rem var(--sheet-inset) 4rem;
+  color: var(--fg);
+}
+
+.command-gate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem var(--sheet-inset);
+}
+
+.command-kicker,
+.command-stat p,
+.command-panel h3 {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+
+.command-top,
+.command-ranges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: end;
+  justify-content: space-between;
+}
+
+.command h1 {
+  font-family: var(--font-archivo), sans-serif;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+.command-ranges button,
+.command-login button {
+  border: 1px solid color-mix(in srgb, var(--fg) 25%, transparent);
+  background: rgba(5, 7, 10, 0.45);
+  color: inherit;
+  padding: 0.45rem 0.8rem;
+  text-transform: capitalize;
+  cursor: pointer;
+}
+
+.command-ranges button.is-on {
+  color: #14120b;
+  background: var(--color-gold);
+}
+
+.command-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.command-stat,
+.command-panel,
+.command-login {
+  background: rgba(5, 7, 10, 0.46);
+  border: 1px solid color-mix(in srgb, white 12%, transparent);
+  border-radius: var(--radius-sheet, 1.25rem);
+  padding: 1rem 1.1rem;
+  backdrop-filter: blur(16px) saturate(1.1);
+}
+
+.command-stat strong {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 1.6rem;
+}
+
+.command-stat span,
+.command-empty {
+  color: color-mix(in srgb, var(--fg) 70%, transparent);
+  font-size: 0.9rem;
+}
+
+.command-split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.command-panel {
+  margin-top: 0.75rem;
+}
+
+.command-panel h2 {
+  font-size: 1.15rem;
+  margin-bottom: 0.8rem;
+}
+
+.command-bars,
+.command-feed,
+.command-paths,
+.command-heat,
+.command-funnel ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.command-bars li,
+.command-feed li,
+.command-paths li,
+.command-funnel li {
+  display: grid;
+  grid-template-columns: minmax(5rem, 1fr) 2fr auto;
+  gap: 0.6rem;
+  align-items: center;
+  margin: 0.35rem 0;
+  font-size: 0.92rem;
+}
+
+.command-bars i {
+  display: block;
+  height: 0.45rem;
+  background: var(--color-gold);
+  border-radius: 99px;
+}
+
+.command-heat {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.6rem;
+}
+
+.command-heat li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.8rem;
+  background: rgba(214, 179, 106, 0.16);
+  border-radius: 0.8rem;
+}
+
+.command table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.command th,
+.command td {
+  text-align: left;
+  padding: 0.35rem 0.4rem;
+  border-bottom: 1px solid color-mix(in srgb, white 10%, transparent);
+}
+
+.command-trend {
+  width: 100%;
+  height: 10rem;
+  color: var(--color-gold);
+}
+
+.command-login {
+  width: min(24rem, 100%);
+  display: grid;
+  gap: 0.8rem;
+}
+
+.command-login h1 {
+  margin: 0;
+  font-family: var(--font-archivo), sans-serif;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+.command-login input {
+  display: block;
+  width: 100%;
+  margin-top: 0.3rem;
+  padding: 0.55rem 0.7rem;
+  color: inherit;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid color-mix(in srgb, white 16%, transparent);
+}
+
+.command-hero {
+  display: grid;
+  grid-template-columns: minmax(16rem, 0.9fr) 1.2fr 1fr;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+.command-impact {
+  background: rgba(245, 183, 0, 0.12);
+  border: 1px solid rgba(245, 183, 0, 0.45);
+  border-radius: var(--radius-sheet, 1.25rem);
+  padding: 1.2rem 1.3rem;
+}
+
+.command-impact strong {
+  display: block;
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+
+.command-impact em {
+  display: block;
+  margin: 0.6rem 0 0.8rem;
+  font-style: normal;
+}
+
+.command-impact ul,
+.command-summary dl,
+.command-panel dl {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.command-impact li,
+.command-summary dl div,
+.command-panel dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.35rem 0;
+  border-top: 1px solid color-mix(in srgb, white 12%, transparent);
+}
+
+.command-summary dd,
+.command-panel dd {
+  margin: 0;
+  text-align: right;
+}
+
+.command-journeys {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.command-journeys ol {
+  list-style: none;
+  margin: 0.4rem 0 0;
+  padding: 0;
+}
+
+.command-journeys li {
+  position: relative;
+  padding: 0.25rem 0 0.25rem 1rem;
+}
+
+.command-journeys li::before {
+  content: "";
+  position: absolute;
+  left: 0.2rem;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-gold);
+}
+
+.command-funnel i {
+  display: block;
+  height: 1.4rem;
+  background: rgba(245, 183, 0, 0.75);
+  border-radius: 0.2rem;
+}
+
+.command details summary {
+  cursor: pointer;
+  font-size: 1.05rem;
+}
+
+.command-quiet {
+  margin: 0.4rem 0 0;
+  color: color-mix(in srgb, var(--fg) 72%, transparent);
+}
+
+.command-live,
+.command-ranks,
+.command-trend-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.command-live li,
+.command-ranks li {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.7rem 0;
+  border-top: 1px solid color-mix(in srgb, white 10%, transparent);
+}
+
+.command-live em {
+  color: var(--color-gold);
+  font-style: normal;
+}
+
+.command-trend-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0;
+}
+
+@media (max-width: 980px) {
+  .command-hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

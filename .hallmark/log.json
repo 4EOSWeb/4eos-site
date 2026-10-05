@@ -1,0 +1,27 @@
+[
+  {
+    "date": "2026-10-05",
+    "project": "4EOS",
+    "scope": "full public site",
+    "genre": "modern-minimal",
+    "macrostructure": "Split Studio",
+    "theme": "custom (4EOS ink, bone, gold)",
+    "enrichment": "ambient particle field behind the home hero, static SVG network on phones and reduced motion",
+    "nav": "N11 mega-menu",
+    "footer": "Ft4 dense typographic",
+    "knobs": {
+      "mega_columns": "3 groups + promoted feature card",
+      "scrim": "dim only, no blur",
+      "services_grid": "irregular spans: two feature tiles, four standard, one wide, family band",
+      "surfaces": "ink hero, paper and bone reading sections, ink final CTA and footer"
+    },
+    "preflight": {
+      "fonts": "Archivo (display, width axis), Instrument Sans (body), Geist Mono (labels and colophon)",
+      "colours": "ink #05070a, navy #0a1f33, bone #e8e4d8, gold #f5b700 converted to OKLCH tokens",
+      "logo": "public/brand wordmarks and lockups kept",
+      "audience": "owners, executives and operations leaders at growing Indiana SMBs",
+      "primary_action": "Schedule a Consultation"
+    },
+    "critique": "P4 H5 E4 S5 R4 V5"
+  }
+]

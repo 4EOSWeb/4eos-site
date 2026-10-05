@@ -1063,13 +1063,6 @@ export const generalFaqs: Qa[] = [
   },
 ];
 
-export const homeFaqs: Qa[] = [
-  generalFaqs[0],
-  generalFaqs[1],
-  generalFaqs[3],
-  generalFaqs[4],
-];
-
 /* ------------------------------------------------------------------
    Contact topics, used by the consultation form and service CTAs.
 ------------------------------------------------------------------- */

@@ -1,6 +1,12 @@
 import { analyticsDb } from "./db";
 import { companyLookupEnabled } from "./enrich";
-import { contentOf } from "./paths";
+import { contentOf, isServicePath, SERVICES } from "./paths";
+
+const SERVICE_RE = new RegExp(
+  `^(${Object.keys(SERVICES)
+    .map((path) => path.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&"))
+    .join("|")})$`,
+);
 
 export type RangeKey = "day" | "week" | "month" | "quarter" | "year";
 
@@ -458,9 +464,11 @@ export function pageName(path: string) {
     "/about": "About",
     "/why-4eos": "Why 4EOS",
     "/faq": "FAQ",
-    "/blog": "Journal",
+    "/blog": "Insights",
+    "/resources": "Resources",
   };
   if (names[path]) return names[path];
+  if (SERVICES[path]) return SERVICES[path];
   const tail = path.split("/").filter(Boolean).pop() ?? path;
   return tail.replace(/-/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
@@ -536,9 +544,9 @@ function leadReport(from: number, to: number, sessions: number) {
 
 function funnels(sessions: SessionRow[]) {
   const defs = [
-    { name: "Industry, then service, then contact", test: [/\/industries\/[^/]+/, /\/services\/[^/]+|\/secureai/, /\/contact/] },
-    { name: "Service, then contact", test: [/\/services\/[^/]+|\/secureai/, /\/contact/] },
-    { name: "Support, then a service", test: [/\/support/, /\/services\/[^/]+|\/secureai/] },
+    { name: "Industry, then service, then contact", test: [/\/industries\/[^/]+/, SERVICE_RE, /\/contact/] },
+    { name: "Service, then contact", test: [SERVICE_RE, /\/contact/] },
+    { name: "Support, then a service", test: [/\/support/, SERVICE_RE] },
   ];
   return defs.map((def) => {
     const steps = def.test.map(() => 0);
@@ -595,7 +603,7 @@ function aiReport(from: number, to: number) {
     )
     .all(from, to) as { path: string | null; n: number }[];
   const industry = pages.filter((row) => row.path?.startsWith("/industries/"));
-  const service = pages.filter((row) => row.path?.startsWith("/services/") || row.path === "/secureai");
+  const service = pages.filter((row) => isServicePath(row.path));
   const named = ["ChatGPT", "Copilot", "Perplexity", "Gemini", "Claude"];
   const referralMap = new Map(referrals.map((row) => [row.label, row.n]));
   const step = Math.max(3_600_000, Math.round((to - from) / 12));

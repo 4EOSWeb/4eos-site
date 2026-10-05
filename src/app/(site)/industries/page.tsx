@@ -1,55 +1,78 @@
-import type { Metadata } from "next";
-import { Page } from "@/components/layout/Page";
-import { BackLink } from "@/components/ui/BackLink";
-import { Breath, Sheet } from "@/components/layout/Sheet";
-import { PhaseLink } from "@/components/ui/PhaseLink";
-import { industries } from "@/lib/content";
+import Link from "next/link";
+import { ButtonLink } from "@/components/site/Button";
+import { CtaBand } from "@/components/site/CtaBand";
+import { Glyph } from "@/components/site/Glyph";
+import { PageHero } from "@/components/site/PageHero";
+import { Section, SectionHead } from "@/components/site/Section";
+import { getService, industries } from "@/lib/content";
+import { pageMetadata } from "@/lib/metadata";
+import { consultHref, consultLabel } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Industries",
+export const metadata = pageMetadata({
+  title: "Industries We Support in Northeast Indiana",
   description:
-    "Legal, insurance, healthcare, construction, manufacturing, and private equity.",
-};
+    "Managed IT and cybersecurity for healthcare, manufacturing, legal, insurance, construction, and private equity firms across Fort Wayne and Northeast Indiana.",
+  path: "/industries",
+});
 
 export default function IndustriesPage() {
   return (
-    <Page phase="discovery">
-      <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
-        <BackLink href="/" label="Home" />
-        <p className="micro mt-6 text-fg-muted">
-          <span className="field-copy">Industries</span>
-        </p>
-        <h1 className="display page-display mt-5 [text-wrap:wrap]">
-          We have seen
-          <br />
-          your problems
-          <br />
-          before.
-        </h1>
-      </section>
-      <Breath size="md" />
-      <Sheet tone="ink">
-        <ol className="sheet-pad flex flex-col items-start gap-8 py-8">
-          {industries.map((ind, i) => (
-            <li key={ind.slug} className="max-w-[62ch]">
-              <PhaseLink
-                href={`/industries/${ind.slug}`}
-                phase="industries"
-                focus={i}
-                className="inline-flex w-fit items-baseline gap-4 border-b border-hairline py-3 transition-colors hover:text-gold"
-              >
-                <span className="micro text-fg-faint">
-                  {String(i + 1).padStart(2, "0")}
+    <>
+      <PageHero
+        crumbs={[{ name: "Industries", path: "/industries" }]}
+        kicker={<p className="label">Who we help</p>}
+        title="IT built around how your industry works"
+        lede="Each industry carries its own rules, software, and pressure points. 4EOS fits the same managed IT, security, and strategy practice to the way your firm actually operates."
+        actions={
+          <>
+            <ButtonLink href={consultHref} size="lg">
+              {consultLabel}
+            </ButtonLink>
+            <ButtonLink href="/services" variant="secondary" size="lg">
+              Explore Services
+            </ButtonLink>
+          </>
+        }
+      />
+
+      <Section labelledBy="industries-title">
+        <SectionHead
+          id="industries-title"
+          title="Six industries, one accountable team"
+          lede="Pick your industry to see the pressures we plan for and the services that matter most."
+        />
+        <ul className="tile-grid tile-grid-3">
+          {industries.map((ind) => (
+            <li key={ind.slug} className="tile">
+              <h3 className="t-title">{ind.title}</h3>
+              <p className="body-sm">{ind.offer}</p>
+              <ul className="svc-card-points mt-2">
+                {ind.pressures.map((p) => (
+                  <li key={p}>
+                    <Glyph name="check" size={14} />
+                    <span>{p}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="tile-meta pt-2">
+                {ind.services.map((s) => getService(s).short).join(" · ")}
+              </p>
+              <Link href={`/industries/${ind.slug}`} className="svc-card-cta">
+                IT for {ind.title}
+                <span aria-hidden="true" className="btn-arrow">
+                  →
                 </span>
-                <span className="display text-[clamp(1.4rem,2.6vw,2rem)]">
-                  {ind.title}
-                </span>
-              </PhaseLink>
-              <p className="lede mt-3">{ind.lede}</p>
+              </Link>
             </li>
           ))}
-        </ol>
-      </Sheet>
-    </Page>
+        </ul>
+      </Section>
+
+      <CtaBand
+        title="Not on the list? We probably still fit."
+        lede="Most of what 4EOS does applies to any growing business with people, data, and systems to protect. Tell us about yours."
+        topic="assessment"
+      />
+    </>
   );
 }

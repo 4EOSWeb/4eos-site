@@ -13,7 +13,7 @@ import { consultHref, consultLabel } from "@/lib/site";
 export const metadata = pageMetadata({
   title: "IT Services for Growing Businesses",
   description:
-    "Every 4EOS service in one place: managed IT, backup and disaster recovery, network infrastructure, cybersecurity, SecureAI, cloud and Microsoft 365, IT strategy and vCIO, hardware, Midwest VoIP, and SafeHouse DataCenter.",
+    "Every 4EOS service in one place: managed IT, cybersecurity, backup, networks, cloud and Microsoft 365, vCIO strategy, hardware, VoIP, and data center.",
   path: "/services",
 });
 

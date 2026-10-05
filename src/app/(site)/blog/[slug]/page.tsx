@@ -18,11 +18,14 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps<"/blog/[slug]">): Promise<Metadata> {
   const post = getPost((await params).slug);
   if (!post) return {};
+  const title = post.seoTitle ?? post.title;
   return pageMetadata({
-    title: post.title,
+    title,
+    absoluteTitle: title.length > 56,
     description: post.description,
     path: `/blog/${post.slug}`,
     type: "article",
+    hasImageFile: true,
   });
 }
 

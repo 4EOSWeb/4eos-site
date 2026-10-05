@@ -16,10 +16,12 @@ import { ServiceCard } from "./ServiceCard";
 
 export function serviceMetadata(slug: ServiceSlug) {
   const s = getService(slug);
+  const name = s.title.length > 40 ? s.short : s.title;
   return pageMetadata({
-    title: s.family ? `${s.title} in Fort Wayne` : `${s.title} for Fort Wayne Businesses`,
-    description: s.summary,
+    title: s.family ? `${name} in Fort Wayne` : `${name} for Fort Wayne Businesses`,
+    description: s.meta ?? s.summary,
     path: s.href,
+    hasImageFile: true,
   });
 }
 

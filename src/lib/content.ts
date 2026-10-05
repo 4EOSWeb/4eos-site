@@ -46,6 +46,8 @@ export type Service = {
   headline: string;
   /** Meta description and hero lede. */
   summary: string;
+  /** Search snippet, at most 158 characters, when summary runs long. */
+  meta?: string;
   /** The longer case, in paragraphs. */
   body: string[];
   /** What the business is dealing with before 4EOS. */
@@ -70,6 +72,7 @@ export const services: Service[] = [
     headline: "IT that is handled before it becomes a problem",
     summary:
       "CompleteCare managed IT from 4EOS: 24/7 monitoring, a live U.S.-based help desk, a primary engineer who knows your environment, and onsite visits from Fort Wayne.",
+    meta: "CompleteCare managed IT from 4EOS: 24/7 monitoring, a live U.S.-based help desk, a primary engineer, and onsite visits across Fort Wayne.",
     body: [
       "Most growing companies do not need more tickets closed faster. They need fewer tickets. CompleteCare is built around that: systems are watched around the clock, patched on a schedule, and maintained so the problems that usually interrupt a workday are caught while they are still small.",
       "When someone does need help, they reach a live, U.S.-based help desk. Remote support is included without per-ticket billing, so no one hesitates to report a small issue. Your primary engineer knows the environment, and Eyes On Site visits mean we also know your office, your people, and how the work actually gets done.",
@@ -145,6 +148,7 @@ export const services: Service[] = [
     headline: "Know your business can recover, before you need to",
     summary:
       "Backup and disaster recovery from 4EOS: verified backups, immutable cloud copies, documented restore testing, and recovery in SafeHouse DataCenter in Fort Wayne.",
+    meta: "Verified backups, immutable cloud copies, tested restores, and recovery in SafeHouse DataCenter. Backup and disaster recovery from 4EOS.",
     body: [
       "A backup that has never been restored is a hope, not a plan. Many businesses learn that during an outage, a ransomware attack, or a failed server, which is the most expensive moment to find out.",
       "4EOS treats recovery as something to prove. Backups are verified, immutable copies are kept in the cloud, and restores are tested and documented, so you know what can be recovered and how long it takes before an incident forces the question.",
@@ -216,6 +220,7 @@ export const services: Service[] = [
     headline: "A network your business can grow on",
     summary:
       "Network and infrastructure from 4EOS: managed servers and networks, connectivity between offices and job sites, hybrid environments, and Dell and Cisco hardware sized to the work.",
+    meta: "Managed servers and networks, office and job-site connectivity, and Dell and Cisco hardware sized to the work. Network services from 4EOS.",
     body: [
       "The network is the part of IT nobody thinks about until it slows down or stops. Then everything stops with it: phones, line-of-business software, cloud apps, and the payment system.",
       "4EOS designs, runs, and maintains the servers, network, and connections your business runs on, across one office or several sites. When the business adds a location, a production line, or a remote team, the network is planned for it instead of patched around it.",
@@ -278,6 +283,7 @@ export const services: Service[] = [
     headline: "Security you can explain to your board and your auditor",
     summary:
       "Cybersecurity from 4EOS: a layered defense structured on the NIST Cybersecurity Framework, real-time monitoring, security awareness training, and HIPAA, PCI, and SEC compliance support.",
+    meta: "Layered cybersecurity on the NIST Cybersecurity Framework: monitoring, staff training, and HIPAA, PCI, and SEC compliance support from 4EOS.",
     body: [
       "Most leaders cannot answer a simple question with confidence: if someone tried to get in today, would we know, and could we recover? Insurers, auditors, and customers are asking that question more often.",
       "4EOS builds security on the NIST Cybersecurity Framework, so protection is structured instead of a collection of products. That means knowing what you have, protecting it in layers, detecting threats early, responding quickly, and recovering cleanly.",
@@ -414,6 +420,7 @@ export const services: Service[] = [
     headline: "IT leadership without hiring a full-time CIO",
     summary:
       "IT strategy and vCIO services from 4EOS: executive-level IT guidance, a prioritized technology roadmap, budget planning, quarterly business reviews, and technology due diligence.",
+    meta: "Executive IT guidance from a 4EOS vCIO: a prioritized technology roadmap, budget planning, quarterly reviews, and technology due diligence.",
     body: [
       "Many growing companies spend real money on technology without a plan. Purchases are made in emergencies, tools overlap, and nobody owns the question of what the business will need next year.",
       "A 4EOS vCIO acts as your part-time technology executive. We learn where the business is going, including hiring, new locations, customers, and compliance obligations, and turn that into a prioritized roadmap: what to invest in now, what can wait, and what to retire.",
@@ -485,6 +492,7 @@ export const services: Service[] = [
     headline: "Business phones that work the way your team does",
     summary:
       "Business-class VoIP from Midwest VoIP, part of the 4EOS family: PBX installation, number porting, call routing, queues, ring groups, mobile apps, and end-user training.",
+    meta: "Business VoIP from Midwest VoIP, part of the 4EOS family: PBX installation, number porting, call routing, queues, mobile apps, and training.",
     body: [
       "Phones are still how many customers reach a business. Dropped calls, missed transfers, and a system nobody knows how to change cost revenue quietly.",
       "Midwest VoIP is part of the 4EOS family. It installs and supports business-class VoIP, moves your existing numbers, and sets up routing, queues, and ring groups around how calls should actually flow.",
@@ -552,6 +560,7 @@ export const services: Service[] = [
     headline: "A secure home for critical systems, in Fort Wayne",
     summary:
       "SafeHouse DataCenter, part of the 4EOS family: co-location in full or partial racks, 4EOS-administered hosted systems, and remote backup and disaster recovery in a secure Fort Wayne facility.",
+    meta: "SafeHouse DataCenter in Fort Wayne: co-location in full or partial racks, hosted systems run by 4EOS, and offsite backup and disaster recovery.",
     body: [
       "Some systems should not live in a closet at the office. They need protected power, cooling, connectivity, and physical security that most businesses cannot justify building for themselves.",
       "SafeHouse DataCenter is part of the 4EOS family. You can place your own equipment in a full or partial rack, or run on hosted systems that 4EOS administers. Either way, critical systems sit in a secure Fort Wayne facility instead of a back room.",
@@ -610,6 +619,7 @@ export const services: Service[] = [
     headline: "Hardware sized to the work, not the catalog",
     summary:
       "Hardware procurement from 4EOS, the largest Dell reseller in Northeast Indiana, with Microsoft and Cisco partnerships: right-sized specifications and procurement handled end to end.",
+    meta: "Business hardware from 4EOS, the largest Dell reseller in Northeast Indiana: right-sized specifications and procurement handled end to end.",
     body: [
       "Buying hardware one emergency at a time leads to mismatched machines, missed warranties, and specifications chosen by whoever was selling that week.",
       "4EOS is the largest Dell reseller in Northeast Indiana, with Microsoft and Cisco partnerships. We specify equipment to the work it has to do, handle the purchase, and install it with the engineers who will support it.",
@@ -881,6 +891,8 @@ export type Industry = {
   title: string;
   headline: string;
   summary: string;
+  /** Search snippet, at most 158 characters, when summary runs long. */
+  meta?: string;
   pressures: string[];
   offer: string;
   how: string[];
@@ -895,6 +907,7 @@ export const industries: Industry[] = [
     headline: "Patient systems that stay available and stay private",
     summary:
       "IT for clinics and healthcare practices in Northeast Indiana: EHR uptime, HIPAA safeguards across every device and connection, encrypted backup, and staff phishing training.",
+    meta: "IT for Northeast Indiana clinics and practices: EHR uptime, HIPAA safeguards on every device, encrypted backup, and phishing training for staff.",
     pressures: ["HIPAA obligations", "EHR downtime stops the clinic", "Patient data on many devices"],
     offer: "EHR uptime, HIPAA safeguards, and backup for the systems that hold patient records.",
     how: [
@@ -918,6 +931,7 @@ export const industries: Industry[] = [
     headline: "Keep the line running and the plant floor protected",
     summary:
       "IT for Northeast Indiana manufacturers: production-critical systems monitored around the clock, office IT and plant systems kept safely apart, and vendor and procurement coordination.",
+    meta: "IT for Northeast Indiana manufacturers: production systems monitored around the clock, plant and office networks kept apart, and vendor coordination.",
     pressures: ["Downtime costs production", "IT and plant systems meet", "Customer-driven security requirements"],
     offer: "Production uptime and a deliberate boundary between office IT and the plant floor.",
     how: [
@@ -941,6 +955,7 @@ export const industries: Industry[] = [
     headline: "Client confidentiality, protected in every system",
     summary:
       "IT for law firms: secure document management, systems that stay up through trial preparation, and protection for privileged client data in email, on devices, and in the file store.",
+    meta: "IT for law firms: secure document management, systems that stay up through trial preparation, and protection for privileged client data.",
     pressures: ["Privileged client data", "Deadlines that do not move", "Document systems the practice runs on"],
     offer: "Secure document systems and privileged data, protected through trial preparation.",
     how: [
@@ -964,6 +979,7 @@ export const industries: Industry[] = [
     headline: "Agency systems available whenever producers need them",
     summary:
       "IT for insurance agencies: agency management systems kept available, client data protected, payments handled in line with PCI, and secure access for producers outside the office.",
+    meta: "IT for insurance agencies: agency management systems kept available, client data protected, PCI-aligned payments, and secure remote access.",
     pressures: ["Agency system availability", "Client financial data", "PCI for payments"],
     offer: "Available agency systems, protected client data, and PCI-aligned payments.",
     how: [
@@ -987,6 +1003,7 @@ export const industries: Industry[] = [
     headline: "Field crews connected to the plans they need",
     summary:
       "IT for construction firms: connectivity for trailers and job sites, secure access to plans and project files from the field, and backup for the files every project depends on.",
+    meta: "IT for construction firms: job-site and trailer connectivity, secure field access to plans and project files, and backup for every project.",
     pressures: ["Crews away from the office", "Temporary job sites", "Large project files"],
     offer: "Job site connectivity and secure access to project files from the field.",
     how: [
@@ -1010,6 +1027,7 @@ export const industries: Industry[] = [
     headline: "One technology standard across every portfolio company",
     summary:
       "IT for private equity firms and their holdings: technology due diligence before a close, rapid onboarding after it, and one security standard across the portfolio.",
+    meta: "IT for private equity firms: technology due diligence before close, rapid onboarding after it, and one security standard across the portfolio.",
     pressures: ["Unknown technology risk before a close", "Every holding runs differently", "Consistent security across companies"],
     offer: "Technology diligence before the close, then one standard across every holding.",
     how: [

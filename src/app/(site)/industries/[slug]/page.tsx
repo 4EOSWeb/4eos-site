@@ -27,8 +27,9 @@ export async function generateMetadata({ params }: PageProps<"/industries/[slug]
   if (!industry) return {};
   return pageMetadata({
     title: `IT Services for ${industry.title} in Fort Wayne`,
-    description: industry.summary,
+    description: industry.meta ?? industry.summary,
     path: `/industries/${industry.slug}`,
+    hasImageFile: true,
   });
 }
 

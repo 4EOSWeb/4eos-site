@@ -194,7 +194,10 @@ body {
   color: var(--color-fg-muted);
 }
 
+/* Four short lines, sized like the original hero, so the heading
+   fills the first screen instead of sitting in a band at the bottom. */
 .hero-display {
+  max-width: 100%;
   font-size: clamp(2.2rem, min(10vw, 14.2vh), 8.4rem);
 }
 
@@ -868,7 +871,6 @@ html.signal-live .signal-poster {
 }
 
 .command-kicker,
-.command-stat p,
 .command-metric p,
 .command-panel h3 {
   font-family: var(--font-mono);
@@ -949,6 +951,21 @@ html.signal-live .signal-poster {
 .command-status button:active,
 .command-banner button:active {
   transform: translateY(1px);
+}
+
+.command-ranges button:disabled,
+.command-login button:disabled,
+.command-signout:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.command-ranges button:hover,
+.command-login button:hover,
+.command-signout:hover,
+.command-status button:hover,
+.command-banner button:hover {
+  border-color: var(--color-gold);
 }
 
 .command-ranges button:disabled,

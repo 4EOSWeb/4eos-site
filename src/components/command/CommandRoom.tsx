@@ -159,7 +159,7 @@ export function CommandRoom() {
         />
         <div className="command-status" role="alert">
           <p className="command-kicker">Report unavailable</p>
-          <p>The {rangeLabel.toLowerCase()} report did not load. Nothing on this page was invented to fill the gap.</p>
+          <p>The {rangeLabel.toLowerCase()} report did not load.</p>
           <button type="button" onClick={() => setAttempt((value) => value + 1)}>
             Try again
           </button>
@@ -194,7 +194,7 @@ export function CommandRoom() {
     current.ai.crawlers.reduce((sum, row) => sum + row.count, 0);
 
   return (
-    <div className="command" aria-busy={failed && Boolean(current) ? true : undefined}>
+    <div className="command">
       <RoomHeader
         mode={mode}
         range={range}

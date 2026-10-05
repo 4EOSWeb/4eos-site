@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { recordFormLead } from "@/lib/analytics/ingest";
 import { postRewstTicket, rewstWebhookUrl } from "@/lib/rewst";
-import { salesEmail } from "@/lib/content";
 import { site } from "@/lib/site";
 
 const resend = process.env.RESEND_API_KEY
@@ -16,6 +15,7 @@ type Payload = {
   phone?: string;
   message?: string;
   company_url?: string;
+  topic?: string;
   intent?: "assessment" | "support";
 };
 
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
 
   const support = body.intent === "support";
   const intent = support ? "Support" : "Assessment";
-  const to = support ? (process.env.INTAKE_TO ?? site.helpdesk) : salesEmail;
+  const to = support ? (process.env.INTAKE_TO ?? site.helpdesk) : site.sales;
   const from = process.env.INTAKE_FROM ?? "4EOS Website <onboarding@resend.dev>";
 
   const text = [
@@ -47,6 +47,7 @@ export async function POST(request: Request) {
     `Email: ${email}`,
     body.company ? `Company: ${body.company}` : null,
     body.phone ? `Phone: ${body.phone}` : null,
+    body.topic ? `Topic: ${String(body.topic).slice(0, 80)}` : null,
     "",
     message,
   ]
@@ -66,7 +67,7 @@ export async function POST(request: Request) {
         email,
         company,
         phone,
-        message,
+        message: body.topic ? `[${String(body.topic).slice(0, 80)}] ${message}` : message,
       });
       ticketOk = ticket.ok;
       ticketId = ticket.ticketId;

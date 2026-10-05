@@ -17,17 +17,17 @@ const LINKS = [
 
 export function SocialMarks({ className = "" }: { className?: string }) {
   return (
-    <ul className={`flex items-center gap-1.5 ${className}`}>
+    <ul className={className}>
       {LINKS.map((item) => (
         <li key={item.name}>
           <a
             href={item.href}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label={item.label}
-            className="social-mark inline-flex h-8 w-8 items-center justify-center rounded-full border text-inherit transition-colors hover:border-[rgba(245,183,0,0.7)] hover:text-gold"
+            aria-label={`4EOS on ${item.label}`}
+            className="social-link"
           >
-            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-3.5 w-3.5 fill-current">
+            <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16" fill="currentColor">
               <path d={GLYPH[item.name]} />
             </svg>
           </a>

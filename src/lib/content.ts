@@ -810,7 +810,7 @@ export const differentiators = [
   },
 ] as const;
 
-export const process = [
+export const engagement = [
   {
     title: "Assess",
     body: "A senior engineer reviews your environment and tells you plainly what could hurt the business.",

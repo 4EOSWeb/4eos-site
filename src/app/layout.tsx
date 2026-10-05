@@ -1,18 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Instrument_Sans, Geist_Mono } from "next/font/google";
-import { JsonLd } from "@/components/seo/JsonLd";
-import { organizationSchema } from "@/lib/schema";
-import { site, addressLine } from "@/lib/site";
-import { ChapterRail } from "@/components/layout/ChapterRail";
-import { Trail } from "@/components/layout/Trail";
-import { GlassGlow } from "@/components/layout/GlassGlow";
-import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { Beacon } from "@/components/analytics/Beacon";
-import { SignalClient } from "@/components/signal/SignalClient";
+import { site } from "@/lib/site";
 import "./globals.css";
 
-/* Archivo carries a width axis, so one family covers both the condensed
-   display setting and the airier wide setting. */
+/* Archivo carries a width axis, so one family covers the condensed display
+   setting and the card titles. */
 const archivo = Archivo({
   variable: "--font-archivo",
   subsets: ["latin"],
@@ -35,15 +28,14 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name} — Managed IT, Cybersecurity and Compliance in Fort Wayne`,
-    template: `%s — ${site.name}`,
+    default: "Managed IT, Cybersecurity and IT Strategy in Fort Wayne | 4EOS",
+    template: `%s | ${site.name}`,
   },
   description: site.description,
+  applicationName: site.name,
   openGraph: {
     type: "website",
     siteName: site.name,
-    title: `${site.name} — ${site.tagline}`,
-    description: site.description,
     locale: "en_US",
   },
   twitter: { card: "summary_large_image" },
@@ -55,33 +47,19 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#05070A",
-  colorScheme: "dark",
+  themeColor: "#0b0d11",
+  colorScheme: "light dark",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${archivo.variable} ${instrument.variable} ${geistMono.variable}`}
-    >
+    <html lang="en" className={`${archivo.variable} ${instrument.variable} ${geistMono.variable}`}>
       <body>
-        <JsonLd data={organizationSchema()} />
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:bg-gold focus:px-4 focus:py-2 focus:text-ink focus:micro"
-        >
+        <a href="#main" className="skip-link btn btn-primary">
           Skip to content
         </a>
         <Beacon />
-        <SmoothScroll />
-        <Trail />
-        <SignalClient />
-        <GlassGlow />
-        <ChapterRail />
-        <div aria-hidden="true" className="film-grain" />
         {children}
-        <span className="sr-only">{addressLine}</span>
       </body>
     </html>
   );

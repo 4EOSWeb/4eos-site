@@ -1033,6 +1033,89 @@ svg {
 }
 
 /* ------------------------------------------------------------------
+   Service diagrams
+------------------------------------------------------------------- */
+
+.diagram {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 34rem;
+  margin-inline: auto;
+}
+
+.dg-panel {
+  fill: var(--raised);
+  stroke: var(--line);
+}
+
+.dg-node {
+  fill: var(--raised);
+  stroke: var(--line-strong);
+}
+
+.dg-node-gold {
+  stroke: var(--c-gold);
+}
+
+.dg-empty {
+  fill: none;
+  stroke: var(--line);
+  stroke-dasharray: 3 3;
+}
+
+.dg-line,
+.dg-ring {
+  fill: none;
+  stroke: var(--line-strong);
+  stroke-width: 1.25;
+}
+
+.dg-ring-gold,
+.dg-gold {
+  fill: none;
+  stroke: var(--c-gold);
+  stroke-width: 1.5;
+}
+
+.dg-pill {
+  fill: none;
+  stroke: var(--line-strong);
+}
+
+.dg-dot {
+  fill: var(--fg-faint);
+}
+
+.dg-dot-gold {
+  fill: var(--c-gold);
+}
+
+.dg-arrowhead {
+  fill: var(--fg-faint);
+}
+
+.dg-arrowhead-gold {
+  fill: var(--c-gold);
+}
+
+.dg-text {
+  font-family: var(--font-body-stack);
+  font-size: 12px;
+  fill: var(--fg-muted);
+}
+
+.dg-text-strong {
+  fill: var(--fg);
+  font-weight: 600;
+}
+
+.dg-text-gold {
+  fill: var(--accent-text);
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------------
    Section heads and split sections
 ------------------------------------------------------------------- */
 
@@ -1572,6 +1655,11 @@ svg {
   transition: color var(--dur-fast) var(--ease-out);
 }
 
+.faq-q {
+  font: inherit;
+  color: inherit;
+}
+
 .faq-item > summary::-webkit-details-marker {
   display: none;
 }
@@ -1931,11 +2019,27 @@ textarea.input {
   gap: var(--space-1);
 }
 
-.social a {
+.social .social-link {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
   width: var(--control-h);
   height: var(--control-h);
   border-radius: var(--radius-pill);
+  border: 1px solid var(--line);
+  color: var(--fg-muted);
+  transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .social .social-link:hover {
+    color: var(--accent-text);
+    border-color: var(--line-strong);
+  }
+}
+
+.social .social-link:active {
+  color: var(--accent-text);
 }
 
 @media (min-width: 48rem) {

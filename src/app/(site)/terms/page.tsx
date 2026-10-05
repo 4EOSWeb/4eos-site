@@ -1,21 +1,21 @@
-import type { Metadata } from "next";
-import { InnerPage } from "@/components/layout/InnerPage";
-import { LegalSections } from "@/components/legal/LegalSections";
+import { LegalPage, LegalSections } from "@/components/legal/LegalSections";
+import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Terms",
-  description: "Terms of use for the 4EOS website. Client work is covered by a signed agreement.",
-};
+export const metadata = pageMetadata({
+  title: "Terms of Use",
+  description:
+    "Terms of use for the 4EOS website. Client services are covered by a separate signed service agreement.",
+  path: "/terms",
+});
 
 const updated = "September 26, 2026";
 
 export default function TermsPage() {
   return (
-    <InnerPage
-      phase="discovery"
-      kicker="Terms"
-      title="Terms of use."
+    <LegalPage
+      title="Terms of Use"
+      path="/terms"
       lede={`Effective ${updated}. These terms govern your use of the ${site.name} website. They do not replace a signed service agreement.`}
     >
       <LegalSections
@@ -93,6 +93,6 @@ export default function TermsPage() {
           },
         ]}
       />
-    </InnerPage>
+    </LegalPage>
   );
 }

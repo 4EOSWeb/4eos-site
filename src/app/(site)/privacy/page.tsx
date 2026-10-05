@@ -1,21 +1,21 @@
-import type { Metadata } from "next";
-import { InnerPage } from "@/components/layout/InnerPage";
-import { LegalSections } from "@/components/legal/LegalSections";
+import { LegalPage, LegalSections } from "@/components/legal/LegalSections";
+import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Privacy",
-  description: "How 4EOS collects, uses, and shares information on this website.",
-};
+export const metadata = pageMetadata({
+  title: "Privacy Policy",
+  description:
+    "How 4EOS collects, uses, and protects information submitted through this website, including contact and support forms.",
+  path: "/privacy",
+});
 
 const updated = "September 26, 2026";
 
 export default function PrivacyPage() {
   return (
-    <InnerPage
-      phase="discovery"
-      kicker="Privacy"
-      title="Privacy policy."
+    <LegalPage
+      title="Privacy Policy"
+      path="/privacy"
       lede={`Effective ${updated}. This policy explains how ${site.name} handles information collected on this website.`}
     >
       <LegalSections
@@ -90,6 +90,6 @@ export default function PrivacyPage() {
           },
         ]}
       />
-    </InnerPage>
+    </LegalPage>
   );
 }

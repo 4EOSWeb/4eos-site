@@ -1,21 +1,21 @@
-import type { Metadata } from "next";
-import { InnerPage } from "@/components/layout/InnerPage";
-import { LegalSections } from "@/components/legal/LegalSections";
+import { LegalPage, LegalSections } from "@/components/legal/LegalSections";
+import { pageMetadata } from "@/lib/metadata";
 import { site } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "Accessibility",
-  description: "4EOS is working to make this website conform to WCAG 2.2 Level AA.",
-};
+export const metadata = pageMetadata({
+  title: "Accessibility Statement",
+  description:
+    "The 4EOS commitment to WCAG 2.2 Level AA, what we test, and how to report an accessibility problem with this website.",
+  path: "/accessibility",
+});
 
 const updated = "September 26, 2026";
 
 export default function AccessibilityPage() {
   return (
-    <InnerPage
-      phase="discovery"
-      kicker="Accessibility"
-      title="Accessibility."
+    <LegalPage
+      title="Accessibility Statement"
+      path="/accessibility"
       lede={`Effective ${updated}. ${site.name} wants this website to be usable by as many people as possible.`}
     >
       <LegalSections
@@ -35,8 +35,8 @@ export default function AccessibilityPage() {
           {
             heading: "How we build pages",
             paragraphs: [
-              "Pages use text you can resize, controls you can reach and operate from a keyboard, and labels on form fields. The particle field behind the pages is decorative and is hidden from assistive technology.",
-              "If motion makes a page difficult, turn on reduced motion in your operating system. The field then holds still.",
+              "Pages use text you can resize, controls you can reach and operate from a keyboard, and labels on form fields. The moving network behind the home page heading is decorative and is hidden from assistive technology.",
+              "That animation only runs on larger screens with a mouse or trackpad. If reduced motion is turned on in your operating system, or you are on a phone, a still image is shown instead.",
               "The site is written to work with current versions of major browsers and with commonly used screen readers.",
             ],
           },
@@ -55,6 +55,6 @@ export default function AccessibilityPage() {
           },
         ]}
       />
-    </InnerPage>
+    </LegalPage>
   );
 }

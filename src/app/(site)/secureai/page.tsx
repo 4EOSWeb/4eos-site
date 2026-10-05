@@ -1,71 +1,111 @@
-import type { Metadata } from "next";
-import Link from "next/link";
-import { InnerPage } from "@/components/layout/InnerPage";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { ButtonLink } from "@/components/site/Button";
+import { CtaBand } from "@/components/site/CtaBand";
+import { PageHero } from "@/components/site/PageHero";
+import { Section, SectionHead } from "@/components/site/Section";
+import { pageMetadata } from "@/lib/metadata";
+import { webPageSchema } from "@/lib/schema";
+import { site } from "@/lib/site";
 
-export const metadata: Metadata = {
-  title: "SecureAI",
-  description:
-    "Sixty-plus AI models on one secure platform. No per-user fees. The data stays yours.",
-};
+const description =
+  "SecureAI from 4EOS gives your whole team access to more than sixty AI models on one managed platform, with company-wide credits instead of per-user subscriptions.";
+
+export const metadata = pageMetadata({
+  title: "SecureAI: Managed AI Access for Business Teams",
+  description,
+  path: "/secureai",
+});
 
 const plans = [
-  { name: "Starter", price: "$500", credits: "100,000 credits monthly" },
-  { name: "Small Business", price: "$1,000", credits: "250,000 credits monthly" },
-  { name: "Business", price: "$2,250", credits: "750,000 credits monthly" },
+  { name: "Starter", price: "$500", credits: "100,000 credits each month" },
+  { name: "Small Business", price: "$1,000", credits: "250,000 credits each month" },
+  { name: "Business", price: "$2,250", credits: "750,000 credits each month" },
 ];
 
 const points = [
   {
-    title: "Multiple models",
-    lede: "GPT-4, Claude, and other leading models through a single platform. The right model for the task.",
+    title: "Many models, one place",
+    body: "GPT-4, Claude, and dozens of other leading models behind a single sign-in, so people can pick the right tool for each task.",
   },
   {
-    title: "The data stays yours",
-    lede: "Enterprise-grade access controls. No training on company data. Usage policies leadership can enforce.",
+    title: "Company data stays company data",
+    body: "Business-grade access controls, no training on your data, and usage policies leadership can set and enforce.",
   },
   {
-    title: "The whole team",
-    lede: "Not just for power users. Easy onboarding, credits that reset monthly, no stacked per-user fees.",
+    title: "Built for everyone, not a few",
+    body: "Simple onboarding and a shared pool of credits that refreshes monthly, instead of a stack of individual subscriptions.",
   },
 ];
 
 export default function SecureAIPage() {
   return (
-    <InnerPage
-      phase="unmanaged"
-      kicker="SecureAI"
-      title="Give the whole team AI. Without the risk."
-      lede="Sixty-plus models, including GPT-4 and Claude, on one secure platform. No individual subscriptions. No per-user fees stacking up month after month."
-    >
-      <ul className="divide-y divide-hairline border-y border-hairline">
-        {points.map((p) => (
-          <li key={p.title} className="grid gap-4 py-8 md:grid-cols-12">
-            <h2 className="display text-[clamp(1.4rem,2.4vw,2rem)] md:col-span-5">
-              {p.title}
-            </h2>
-            <p className="lede md:col-span-7">{p.lede}</p>
-          </li>
-        ))}
-      </ul>
-      <ol className="mt-16 divide-y divide-hairline border-y border-hairline">
-        {plans.map((plan, i) => (
-          <li key={plan.name} className="flex items-baseline justify-between gap-8 py-6">
-            <span className="micro text-fg-faint">{String(i + 1).padStart(2, "0")}</span>
-            <span className="display text-[clamp(1.4rem,2.4vw,2rem)]">{plan.name}</span>
-            <span className="ml-auto text-right">
-              <span className="display text-[clamp(1.4rem,2.4vw,2rem)]">{plan.price}</span>
-              <span className="micro ml-4 text-fg-faint">{plan.credits}</span>
+    <>
+      <JsonLd data={webPageSchema({ title: "SecureAI", description, path: "/secureai" })} />
+      <PageHero
+        crumbs={[
+          { name: "Services", path: "/services" },
+          { name: "SecureAI", path: "/secureai" },
+        ]}
+        kicker={<p className="label">From the 4EOS cybersecurity practice</p>}
+        title="SecureAI"
+        lede={
+          <>
+            <span className="t-title block text-[var(--fg)]">AI for the whole team, without the exposure.</span>
+            <span className="mt-4 block">
+              More than sixty models on one managed platform, with monthly company credits instead of per-user fees
+              that climb as you grow.
             </span>
-          </li>
-        ))}
-      </ol>
-      <p className="body-sm mt-8">
-        Need more than 1,500,000 credits? Enterprise pricing is sized to the
-        organization.
-      </p>
-      <Link href="/contact" className="bar-btn bar-btn-line mt-10 inline-flex">
-        Talk about SecureAI <span aria-hidden>→</span>
-      </Link>
-    </InnerPage>
+          </>
+        }
+        actions={
+          <>
+            <ButtonLink href="/contact?topic=secureai" size="lg">
+              Ask about SecureAI
+            </ButtonLink>
+            <ButtonLink href="/cybersecurity" variant="secondary" size="lg">
+              Explore Cybersecurity
+            </ButtonLink>
+          </>
+        }
+      />
+
+      <Section labelledBy="why-title">
+        <SectionHead id="why-title" title="Why teams use it" />
+        <ul className="capability-grid">
+          {points.map((p) => (
+            <li key={p.title}>
+              <h3 className="t-title-sm">{p.title}</h3>
+              <p className="body-sm mt-2">{p.body}</p>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section tone="bone" labelledBy="plans-title">
+        <SectionHead
+          id="plans-title"
+          title="Plans"
+          lede="Every plan is billed monthly for the whole company. Credits reset each month."
+        />
+        <ol className="price-rows">
+          {plans.map((plan) => (
+            <li key={plan.name}>
+              <h3 className="t-title">{plan.name}</h3>
+              <p className="t-title">
+                {plan.price}
+                <span className="body-sm"> per month</span>
+              </p>
+              <p className="body-sm">{plan.credits}</p>
+            </li>
+          ))}
+        </ol>
+        <p className="body-sm mt-6">
+          Need more than 1,500,000 credits a month? Enterprise pricing is sized to the organization. Call {site.phone}{" "}
+          or send a note.
+        </p>
+      </Section>
+
+      <CtaBand title="Talk to 4EOS about SecureAI." topic="secureai" />
+    </>
   );
 }

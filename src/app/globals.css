@@ -1935,6 +1935,7 @@ textarea.input {
 
 .site-footer {
   padding-block: var(--space-20) var(--space-10);
+  border-top: 1px solid var(--line);
 }
 
 .footer-top {

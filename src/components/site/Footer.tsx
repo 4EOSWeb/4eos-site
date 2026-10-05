@@ -69,7 +69,8 @@ export function Footer() {
           </nav>
         </div>
 
-        <address className="colophon not-italic">
+        <div className="colophon">
+        <address className="not-italic">
           {site.name} ({site.legalName}), {site.address.street}, {site.address.city}, {site.address.region}{" "}
           {site.address.postal}. Phone <a href={site.phoneHref}>{site.phone}</a>. Fax {site.fax}. Help desk{" "}
           <a href={`mailto:${site.helpdesk}`}>{site.helpdesk}</a>. Sales <a href={`mailto:${site.sales}`}>{site.sales}</a>. Help
@@ -81,6 +82,7 @@ export function Footer() {
           </a>{" "}
           from {site.rating.count} reviews.
         </address>
+        </div>
 
         <div className="footer-base">
           <p>

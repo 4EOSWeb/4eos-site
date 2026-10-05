@@ -18,6 +18,8 @@ let focusGone = 0;
 /** 1 while a face is held, so the camera can sit on that face's axis. */
 let faceAlign = 0;
 
+const AMBIENT_POINTS = 14_000;
+
 const BASE_COLOR = new THREE.Color("#4f86b4");
 const ACCENT_COLOR = new THREE.Color("#f5b700");
 const DETECT_COLOR = new THREE.Color("#ff3b2e");
@@ -323,7 +325,17 @@ function CameraRig({
   return null;
 }
 
-export default function SignalField({ tier }: { tier: DeviceTier }) {
+export default function SignalField({
+  tier,
+  ambient = false,
+  paused = false,
+}: {
+  tier: DeviceTier;
+  /** Fill the parent instead of the viewport, at a low point count, without pointer light. */
+  ambient?: boolean;
+  /** Stop drawing, for example while the host is scrolled out of view. */
+  paused?: boolean;
+}) {
   const host = useRef<HTMLDivElement>(null);
   const [still, setStill] = useState(false);
   const [awake, setAwake] = useState(true);
@@ -335,7 +347,7 @@ export default function SignalField({ tier }: { tier: DeviceTier }) {
   const mobile = tier === "mobile";
 
   useEffect(() => {
-    if (still || mobile) return;
+    if (still || mobile || ambient) return;
     const onMove = (event: PointerEvent) => {
       setMouse(
         (event.clientX / window.innerWidth) * 2 - 1,
@@ -344,7 +356,7 @@ export default function SignalField({ tier }: { tier: DeviceTier }) {
     };
     window.addEventListener("pointermove", onMove, { passive: true });
     return () => window.removeEventListener("pointermove", onMove);
-  }, [still, mobile]);
+  }, [still, mobile, ambient]);
 
   // Stop the render loop entirely when the tab is hidden. A paused rAF is
   // the difference between a background tab costing nothing and costing a
@@ -355,21 +367,21 @@ export default function SignalField({ tier }: { tier: DeviceTier }) {
     return () => document.removeEventListener("visibilitychange", onVisibility);
   }, []);
 
-  const count = POINT_BUDGET[tier];
+  const count = ambient ? AMBIENT_POINTS : POINT_BUDGET[tier];
   if (count === 0) return null;
 
   const lite = tier === "reduced";
-  const frameloop = !awake ? "never" : still ? "demand" : "always";
+  const frameloop = !awake || paused ? "never" : still ? "demand" : "always";
 
   return (
     <div
       ref={host}
       aria-hidden="true"
-      className="pointer-events-none fixed inset-0 z-0"
+      className={ambient ? "pointer-events-none absolute inset-0" : "pointer-events-none fixed inset-0 z-0"}
     >
       <Canvas
         frameloop={frameloop}
-        dpr={mobile ? [1, 3] : lite ? 1 : [1, 1.5]}
+        dpr={ambient ? 1 : mobile ? [1, 3] : lite ? 1 : [1, 1.5]}
         gl={{
           antialias: false,
           alpha: true,

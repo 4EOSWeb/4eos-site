@@ -950,6 +950,14 @@ svg {
   stroke: oklch(0.72 0.06 245 / 0.35);
 }
 
+.static-net-layer {
+  transition: opacity 900ms var(--ease-out);
+}
+
+.static-net-layer[data-live="true"] {
+  opacity: 0;
+}
+
 .field-fade {
   opacity: 0;
   transition: opacity 1200ms var(--ease-out);
@@ -1006,7 +1014,7 @@ svg {
 @media (max-width: 63.99rem) {
   .hero-atmos {
     width: 100%;
-    opacity: 0.45;
+    opacity: 0.28;
   }
 }
 
@@ -1595,6 +1603,10 @@ svg {
   .quote-lead {
     grid-column: 1 / -1;
   }
+
+  .quote-lead + .quote {
+    grid-row: span 2;
+  }
 }
 
 .rating {
@@ -1969,6 +1981,9 @@ textarea.input {
   font-size: var(--text-xs);
   line-height: 1.85;
   color: var(--fg-muted);
+}
+
+.colophon address {
   max-width: 75ch;
 }
 

@@ -102,6 +102,13 @@ export function ServiceTemplate({ slug }: { slug: ServiceSlug }) {
             </li>
           ))}
         </ul>
+        {slug === "cybersecurity" ? (
+          <div className="actions mt-10">
+            <ButtonLink href="/secureai" variant="secondary" arrow>
+              See SecureAI plans
+            </ButtonLink>
+          </div>
+        ) : null}
       </Section>
 
       {slug === "managed-it" ? <Tiers /> : null}

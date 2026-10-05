@@ -13,7 +13,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
         {children}
       </main>
       <Footer />
-      <div className="mobile-bar surface-ink">
+      <nav className="mobile-bar surface-ink" aria-label="Quick actions">
         <Link href={consultHref} className="btn btn-primary">
           {consultLabel}
         </Link>
@@ -21,7 +21,7 @@ export function SiteShell({ children }: { children: ReactNode }) {
           <Glyph name="call" size={16} />
           Call
         </a>
-      </div>
+      </nav>
     </>
   );
 }

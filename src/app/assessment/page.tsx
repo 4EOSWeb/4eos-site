@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Page } from "@/components/layout/Page";
 import { BackLink } from "@/components/ui/BackLink";
-import { Breath, Sheet } from "@/components/layout/Sheet";
+import { Sheet } from "@/components/layout/Sheet";
 import { RiskQuiz } from "@/components/forms/RiskQuiz";
 import { withCanonical } from "@/lib/metadata";
 
@@ -14,7 +14,7 @@ export const metadata: Metadata = withCanonical("/assessment", {
 export default function AssessmentPage() {
   return (
     <Page phase="discovery">
-      <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
+      <section className="px-[var(--sheet-inset)] pb-6 pt-[6vh]">
         <BackLink href="/" label="Home" />
         <p className="micro mt-6">
           <span className="field-copy">Free IT assessment</span>
@@ -32,7 +32,6 @@ export default function AssessmentPage() {
           </span>
         </p>
       </section>
-      <Breath size="md" />
       <Sheet tone="ink">
         <div className="sheet-pad sheet-y">
           <RiskQuiz />

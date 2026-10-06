@@ -19,6 +19,7 @@ export function InnerPage({
   backHref,
   backLabel,
   visual,
+  note,
 }: {
   phase: Phase;
   kicker?: string;
@@ -36,6 +37,8 @@ export function InnerPage({
   backLabel?: string;
   /** A centerpiece beside the hero copy. Stacks under it on a phone. */
   visual?: ReactNode;
+  /** A short line under the lede, kept with the copy rather than the visual. */
+  note?: string;
 }) {
   const copy = (
     <>
@@ -52,6 +55,7 @@ export function InnerPage({
           <span className="field-copy">{lede}</span>
         </p>
       ) : null}
+      {note ? <p className="micro mt-6 text-fg-muted">{note}</p> : null}
     </>
   );
   return (
@@ -66,9 +70,11 @@ export function InnerPage({
       <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
         <BackLink href={backHref ?? "/"} label={backLabel ?? "Home"} />
         {visual ? (
-          <div className="flex flex-col items-start gap-10 lg:flex-row lg:items-center lg:gap-20">
-            <div className="min-w-0 max-w-[40rem]">{copy}</div>
-            <div className="w-full max-w-[18rem] shrink-0 sm:max-w-[20rem]">{visual}</div>
+          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,34rem)_minmax(0,1fr)] lg:gap-x-12">
+            <div className="min-w-0">{copy}</div>
+            <div className="w-full max-w-[18rem] lg:mx-auto lg:max-w-none lg:w-[min(100%,calc(100svh-var(--nav-h)-12rem))]">
+              {visual}
+            </div>
           </div>
         ) : (
           copy

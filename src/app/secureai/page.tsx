@@ -38,7 +38,8 @@ export default function SecureAIPage() {
       kicker="SecureAI"
       title="Give the whole team AI. Without the risk."
       lede="Sixty-plus models, including GPT-4 and Claude, on one secure platform. No individual subscriptions. No per-user fees stacking up month after month."
-      visual={<AiCoreMount caption="Models inside the perimeter. The data stays yours." />}
+      note="Models inside the perimeter. The data stays yours."
+      visual={<AiCoreMount />}
     >
       <ul className="divide-y divide-hairline border-y border-hairline">
         {points.map((p) => (

@@ -34,6 +34,7 @@ type Report = {
   journeys: { place: string; steps: string[] }[];
   support: { visits: number; unique: number; repeat: number; tickets: number; avgEngagementMs: number; sources: Pair[]; actions: Pair[] };
   leads: { total: number };
+  quiz: { starts: number; completions: number; completionRate: number; avgScore: number; categories: Pair[]; leads: number; leadRate: number };
   funnels: { name: string; steps: { label: string; count: number }[] }[];
   ai: {
     referrals: Pair[];
@@ -349,6 +350,22 @@ export function CommandRoom() {
             </Panel>
           ) : (
             <p className="command-note">Support tracking is on. No support visits in this period.</p>
+          )}
+
+          {current.quiz.starts > 0 ? (
+            <Panel title="Risk quiz">
+              <dl>
+                <div><dt>Started</dt><dd>{current.quiz.starts}</dd></div>
+                <div><dt>Completed</dt><dd>{current.quiz.completions}</dd></div>
+                <div><dt>Completion</dt><dd>{current.quiz.completionRate}%</dd></div>
+                <div><dt>Average score</dt><dd>{current.quiz.completions ? `${current.quiz.avgScore} / 100` : "—"}</dd></div>
+                <div><dt>Leads</dt><dd>{current.quiz.leads}</dd></div>
+                <div><dt>Lead rate</dt><dd>{current.quiz.leadRate}%</dd></div>
+              </dl>
+              <Bars rows={current.quiz.categories.filter((row) => row.count > 0)} empty="No completed quizzes in this period." />
+            </Panel>
+          ) : (
+            <p className="command-note">Risk quiz tracking is on. No quiz starts in this period.</p>
           )}
 
           {leads > 0 ? (

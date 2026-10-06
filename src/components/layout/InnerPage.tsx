@@ -18,6 +18,7 @@ export function InnerPage({
   settleFromCube = false,
   backHref,
   backLabel,
+  visual,
 }: {
   phase: Phase;
   kicker?: string;
@@ -33,7 +34,26 @@ export function InnerPage({
   settleFromCube?: boolean;
   backHref?: string;
   backLabel?: string;
+  /** A centerpiece beside the hero copy. Stacks under it on a phone. */
+  visual?: ReactNode;
 }) {
+  const copy = (
+    <>
+      {brand ? (
+        <div className="mt-6 text-fg">{brand}</div>
+      ) : kicker ? (
+        <p className="micro mt-6">
+          <span className="field-copy">{kicker}</span>
+        </p>
+      ) : null}
+      <h1 className="display page-display mt-5 max-w-[18ch]">{title}</h1>
+      {lede ? (
+        <p className="lede mt-6 max-w-[46ch]">
+          <span className="field-copy">{lede}</span>
+        </p>
+      ) : null}
+    </>
+  );
   return (
     <Page
       phase={phase}
@@ -45,19 +65,14 @@ export function InnerPage({
     >
       <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
         <BackLink href={backHref ?? "/"} label={backLabel ?? "Home"} />
-        {brand ? (
-          <div className="mt-6 text-fg">{brand}</div>
-        ) : kicker ? (
-          <p className="micro mt-6">
-            <span className="field-copy">{kicker}</span>
-          </p>
-        ) : null}
-        <h1 className="display page-display mt-5 max-w-[18ch]">{title}</h1>
-        {lede ? (
-          <p className="lede mt-6 max-w-[46ch]">
-            <span className="field-copy">{lede}</span>
-          </p>
-        ) : null}
+        {visual ? (
+          <div className="grid gap-12 md:grid-cols-12 md:items-center">
+            <div className="md:col-span-7">{copy}</div>
+            <div className="md:col-span-5 md:justify-self-end">{visual}</div>
+          </div>
+        ) : (
+          copy
+        )}
       </section>
       {children ? (
         <>

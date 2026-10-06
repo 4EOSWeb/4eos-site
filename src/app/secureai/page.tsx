@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { InnerPage } from "@/components/layout/InnerPage";
+import { AiCoreMount } from "@/components/secureai/AiCoreMount";
 import { withCanonical } from "@/lib/metadata";
 
 export const metadata: Metadata = withCanonical("/secureai", {
@@ -37,6 +38,7 @@ export default function SecureAIPage() {
       kicker="SecureAI"
       title="Give the whole team AI. Without the risk."
       lede="Sixty-plus models, including GPT-4 and Claude, on one secure platform. No individual subscriptions. No per-user fees stacking up month after month."
+      visual={<AiCoreMount caption="Models inside the perimeter. The data stays yours." />}
     >
       <ul className="divide-y divide-hairline border-y border-hairline">
         {points.map((p) => (

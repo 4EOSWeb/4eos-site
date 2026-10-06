@@ -3,6 +3,7 @@ import { Page } from "@/components/layout/Page";
 import { BackLink } from "@/components/ui/BackLink";
 import { Breath, Sheet } from "@/components/layout/Sheet";
 import { PhaseLink } from "@/components/ui/PhaseLink";
+import { ServiceTitle } from "@/components/ui/ServiceTitle";
 import { services } from "@/lib/content";
 import { withCanonical } from "@/lib/metadata";
 
@@ -40,7 +41,7 @@ export default function ServicesPage() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="display text-[clamp(1.4rem,2.6vw,2rem)] md:col-span-5 group-hover:text-gold">
-                  {s.title}
+                  <ServiceTitle title={s.title} />
                 </span>
                 <span className="lede md:col-span-6">{s.statement}</span>
               </PhaseLink>

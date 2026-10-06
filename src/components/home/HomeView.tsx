@@ -27,6 +27,7 @@ import { SnapTarget } from "@/components/motion/SnapTarget";
 import { registerSnapEl } from "@/lib/snap";
 import { Accordion } from "@/components/ui/Accordion";
 import { PhaseLink } from "@/components/ui/PhaseLink";
+import { ServiceTitle } from "@/components/ui/ServiceTitle";
 import { industries, services, tiers } from "@/lib/content";
 import { site } from "@/lib/site";
 
@@ -362,7 +363,7 @@ function Strategy() {
       items={services.map((s, i) => ({
         id: s.slug,
         index: String(i + 1).padStart(2, "0"),
-        title: s.title,
+        title: <ServiceTitle title={s.title} />,
         statement: s.statement,
         children: (
           <>

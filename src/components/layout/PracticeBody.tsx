@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ServiceTitle } from "@/components/ui/ServiceTitle";
 import type { Related } from "@/lib/content";
 
 export function PracticeBody({
@@ -14,7 +15,9 @@ export function PracticeBody({
 }) {
   return (
     <>
-      <h2 className="display text-[clamp(1.4rem,2.6vw,2rem)]">{title}</h2>
+      <h2 className="display text-[clamp(1.4rem,2.6vw,2rem)]">
+        <ServiceTitle title={title} />
+      </h2>
       <div className="mt-10 grid gap-10 md:grid-cols-12">
         <div className="md:col-span-6">
           <p className="micro text-fg-faint">How it shows up</p>

@@ -455,6 +455,7 @@ export function pageName(path: string) {
     "/industries/private-equity": "Private Equity",
     "/support": "Support",
     "/contact": "Contact",
+    "/assessment": "Risk quiz",
     "/about": "About",
     "/why-4eos": "Why 4EOS",
     "/faq": "FAQ",

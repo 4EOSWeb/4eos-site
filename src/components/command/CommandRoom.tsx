@@ -549,6 +549,7 @@ function pageLabel(path: string | undefined) {
     "/secureai": "SecureAI",
     "/support": "Support",
     "/contact": "Contact",
+    "/assessment": "Risk quiz",
   };
   return names[path] ?? path;
 }

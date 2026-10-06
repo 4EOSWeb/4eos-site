@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
 import { BackLink } from "@/components/ui/BackLink";
+import { ServiceTitle } from "@/components/ui/ServiceTitle";
 import { Page } from "./Page";
-import { Breath, Sheet } from "./Sheet";
+import { Sheet } from "./Sheet";
 import type { Phase } from "@/components/signal/formations";
 
 export function InnerPage({
@@ -49,7 +50,9 @@ export function InnerPage({
           <span className="field-copy">{kicker}</span>
         </p>
       ) : null}
-      <h1 className="display page-display mt-5 max-w-[18ch]">{title}</h1>
+      <h1 className="display page-display mt-5 max-w-[18ch]">
+        <ServiceTitle title={title} />
+      </h1>
       {lede ? (
         <p className="lede mt-6 max-w-[46ch]">
           <span className="field-copy">{lede}</span>
@@ -84,12 +87,9 @@ export function InnerPage({
         )}
       </section>
       {children ? (
-        <>
-          {visual ? null : <Breath size="md" />}
-          <Sheet tone="ink">
-            <div className="sheet-pad sheet-y">{children}</div>
-          </Sheet>
-        </>
+        <Sheet tone="ink">
+          <div className="sheet-pad sheet-y">{children}</div>
+        </Sheet>
       ) : null}
     </Page>
   );

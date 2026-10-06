@@ -366,8 +366,8 @@ function Strategy() {
       items={services.map((s, i) => ({
         id: s.slug,
         index: String(i + 1).padStart(2, "0"),
-        title: <ServiceTitle title={s.title} />,
-        statement: s.statement,
+        title: s.title,
+        statement: <ServiceTitle title={s.statement} />,
         children: (
           <>
             <p className="body-sm">{s.lede}</p>

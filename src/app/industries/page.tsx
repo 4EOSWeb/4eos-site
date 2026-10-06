@@ -3,7 +3,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 import { Page } from "@/components/layout/Page";
 import { BackLink } from "@/components/ui/BackLink";
-import { Breath, Sheet } from "@/components/layout/Sheet";
+import { Sheet } from "@/components/layout/Sheet";
 import { industries } from "@/lib/content";
 import { withCanonical } from "@/lib/metadata";
 
@@ -20,7 +20,7 @@ export const metadata: Metadata = withCanonical("/industries", {
 export default function IndustriesPage() {
   return (
     <Page phase="discovery">
-      <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
+      <section className="px-[var(--sheet-inset)] pb-8 pt-[6vh]">
         <BackLink href="/" label="Home" />
         <p className="micro mt-6 text-fg-muted">
           <span className="field-copy">Industries</span>
@@ -33,7 +33,6 @@ export default function IndustriesPage() {
           before.
         </h1>
       </section>
-      <Breath size="md" />
       <Sheet tone="ink">
         <ol className="reveal-rows sheet-pad flex flex-col items-start gap-8 py-8">
           {industries.map((ind, i) => (

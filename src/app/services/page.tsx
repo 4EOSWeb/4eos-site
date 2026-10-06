@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Page } from "@/components/layout/Page";
 import { BackLink } from "@/components/ui/BackLink";
-import { Breath, Sheet } from "@/components/layout/Sheet";
+import { Sheet } from "@/components/layout/Sheet";
 import { PhaseLink } from "@/components/ui/PhaseLink";
 import { ServiceTitle } from "@/components/ui/ServiceTitle";
 import { services } from "@/lib/content";
@@ -16,7 +16,7 @@ export const metadata: Metadata = withCanonical("/services", {
 export default function ServicesPage() {
   return (
     <Page phase="unmanaged">
-      <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
+      <section className="px-[var(--sheet-inset)] pb-8 pt-[6vh]">
         <BackLink href="/" label="Home" />
         <p className="micro mt-6 text-fg-muted">
           <span className="field-copy">Practice</span>
@@ -27,7 +27,6 @@ export default function ServicesPage() {
           and the data center.
         </h1>
       </section>
-      <Breath size="md" />
       <Sheet tone="ink">
         <ol className="sheet-pad divide-y divide-hairline py-4">
           {services.map((s, i) => (
@@ -41,9 +40,11 @@ export default function ServicesPage() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <span className="display text-[clamp(1.4rem,2.6vw,2rem)] md:col-span-5 group-hover:text-gold">
-                  <ServiceTitle title={s.title} />
+                  {s.title}
                 </span>
-                <span className="lede md:col-span-6">{s.statement}</span>
+                <span className="lede md:col-span-6">
+                  <ServiceTitle title={s.statement} />
+                </span>
               </PhaseLink>
             </li>
           ))}

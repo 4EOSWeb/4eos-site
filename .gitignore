@@ -49,6 +49,9 @@ next-env.d.ts
 # analytics database and backups
 /data
 
+# caddy.exe downloaded by start-site.bat
+/tools/caddy.exe
+
 # local debug / server logs
 .cursor/
 dev.log

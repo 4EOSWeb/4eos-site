@@ -67,14 +67,16 @@ export function InnerPage({
       scene={scene}
       settleFromCube={settleFromCube}
     >
-      <section className={`px-[var(--sheet-inset)] pt-[6vh] ${visual ? "relative pb-8" : "pb-10"}`}>
+      <section className={`px-[var(--sheet-inset)] pt-[6vh] ${visual ? "pb-8" : "pb-10"}`}>
         <BackLink href={backHref ?? "/"} label={backLabel ?? "Home"} />
         {visual ? (
           <>
-            <div className="max-w-[40rem]">{copy}</div>
-            {/* Sits in the open field to the right. Out of flow, so the sheet stays up. */}
-            <div className="mt-8 w-full max-w-[16rem] lg:absolute lg:inset-y-8 lg:right-[var(--sheet-inset)] lg:mt-0 lg:flex lg:w-auto lg:max-w-none lg:items-center">
-              <div className="aspect-square w-full lg:h-[min(100%,24rem)] lg:w-auto">{visual}</div>
+            <div className="lg:grid lg:grid-cols-[minmax(0,max-content)_minmax(0,1fr)] lg:items-center">
+              <div className="max-w-[40rem]">{copy}</div>
+              {/* Centered in the open field beside the copy. */}
+              <div className="mt-8 flex w-full max-w-[16rem] lg:mt-0 lg:max-w-none lg:justify-center">
+                <div className="aspect-square w-full lg:w-[min(24rem,80%)]">{visual}</div>
+              </div>
             </div>
           </>
         ) : (

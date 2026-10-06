@@ -52,6 +52,7 @@ next-env.d.ts
 # Windows caddy.exe downloaded by start-site.bat
 /tools/caddy.exe
 /tools/caddy.exe.download
+/tools/Caddyfile
 
 # local debug / server logs
 .cursor/

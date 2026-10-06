@@ -176,7 +176,60 @@ if (-not $caddy) {
   }
 }
 
-$caddyConfig = Join-Path $root 'Caddyfile'
+function Get-ProxyNames {
+  $names = New-Object System.Collections.Generic.List[string]
+  foreach ($name in @('localhost', '127.0.0.1')) { $names.Add($name) }
+  try {
+    Get-NetIPAddress -AddressFamily IPv4 -ErrorAction Stop | ForEach-Object {
+      $ip = $_.IPAddress
+      if ($ip -and $ip -notlike '127.*' -and $ip -notlike '169.254.*' -and $ip -ne '0.0.0.0') {
+        $names.Add($ip)
+      }
+    }
+  } catch {
+    Write-Host 'Could not list LAN addresses. HTTPS will be available on localhost.'
+  }
+  return @($names | Select-Object -Unique)
+}
+
+$proxyNames = @(Get-ProxyNames)
+$tools = Join-Path $root 'tools'
+New-Item -ItemType Directory -Force -Path $tools | Out-Null
+$caddyConfig = Join-Path $tools 'Caddyfile'
+$httpSites = (($proxyNames | ForEach-Object { "http://$_" }) -join ', ')
+$httpsSites = (($proxyNames | ForEach-Object { "https://$_" }) -join ', ')
+@(
+  '{'
+  "`tlocal_certs"
+  "`tdefault_sni localhost"
+  "`tauto_https disable_redirects"
+  '}'
+  ''
+  "$httpSites {"
+  "`tredir https://{host}{uri}"
+  '}'
+  ''
+  "$httpsSites {"
+  "`treverse_proxy 127.0.0.1:3000"
+  '}'
+) | Set-Content -LiteralPath $caddyConfig -Encoding ascii
+
+Write-Host 'Trusting the local HTTPS certificate. Windows may ask for approval.'
+& $caddy trust
+if ($LASTEXITCODE -ne 0) {
+  Write-Host 'The certificate was not added. The site still opens, and the browser will warn until an Administrator window runs: caddy trust'
+}
+
+$nextBin = Join-Path $root 'node_modules\next\dist\bin\next'
+if (-not (Test-Path -LiteralPath $nextBin)) {
+  Write-Host 'Install dependencies first: npm install'
+  exit 1
+}
+$serverCommand = "Set-Location -LiteralPath '$root'; node '$nextBin' dev --hostname 127.0.0.1 --port 3000"
 Start-Process -FilePath $caddy -WorkingDirectory $root -ArgumentList @('run', '--config', $caddyConfig)
-Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -WorkingDirectory $root -ArgumentList @('-NoExit', '-NoProfile', '-Command', 'npm run dev')
-Write-Host 'Opened Caddy and the 4EOS server. Site: http://localhost:8080'
+Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -WorkingDirectory $root -ArgumentList @('-NoExit', '-NoProfile', '-Command', $serverCommand)
+Write-Host 'Opened Caddy and the 4EOS server.'
+Write-Host 'HTTPS (port 443) forwards to port 3000, and HTTP (port 80) forwards to HTTPS.'
+foreach ($name in $proxyNames) {
+  Write-Host "  https://$name"
+}

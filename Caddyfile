@@ -1,3 +1,17 @@
-:8080 {
+# HTTP on port 80 is forwarded to HTTPS.
+# HTTPS on port 443 is forwarded to the Next.js server on port 3000.
+# The server's reply goes back out over HTTPS.
+# start-site.ps1 rewrites tools\Caddyfile with this machine's LAN addresses.
+{
+	local_certs
+	default_sni localhost
+	auto_https disable_redirects
+}
+
+http://localhost, http://127.0.0.1 {
+	redir https://{host}{uri}
+}
+
+https://localhost, https://127.0.0.1 {
 	reverse_proxy 127.0.0.1:3000
 }

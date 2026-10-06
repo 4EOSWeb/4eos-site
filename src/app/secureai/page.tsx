@@ -27,7 +27,7 @@ const points = [
   },
   {
     title: "The whole team",
-    lede: "Not just for power users. Easy onboarding, credits that reset monthly, no stacked per-user fees.",
+    lede: "Onboarding is straightforward, credits reset monthly, and there is no per-user fee stacked on top.",
   },
 ];
 

@@ -184,7 +184,7 @@ export const CATEGORY_COPY: Record<QuizCategory, string> = {
   "Elevated Risk":
     "Several areas depend on luck or on one person. A single incident could stop work for days. The gaps are known and fixable, but they need an owner and a plan.",
   "Critical Risk":
-    "The environment is exposed in more than one area at once. Recovery, security, and support are not yet reliable. This is the point where a structured assessment pays for itself.",
+    "The environment is exposed in more than one area at once. Recovery, security, and support are not yet reliable enough to count on.",
 };
 
 export const AREA_NOTE: Record<QuizArea, string> = {

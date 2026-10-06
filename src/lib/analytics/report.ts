@@ -689,8 +689,8 @@ function monthCards() {
       label: new Date(start).toLocaleString("en-US", { month: "long", year: "numeric", timeZone: "UTC" }),
       visitors: sessions.length,
       leads,
-      topIndustry: industries[0]?.label ?? "—",
-      topService: services[0]?.label ?? "—",
+      topIndustry: industries[0]?.label ?? "None",
+      topService: services[0]?.label ?? "None",
     });
   }
   return cards;

@@ -90,13 +90,11 @@ function Hero() {
           <span className="field-copy">Fort Wayne · Since {site.founded}</span>
         </p>
         <h1 className="display hero-display mt-[clamp(0.75rem,2vh,1.5rem)]">
-          Modern IT
+          Managed IT
           <br />
-          leadership
+          for Indiana
           <br />
           <span className="text-gold">
-            for growing
-            <br />
             businesses
           </span>
         </h1>
@@ -124,7 +122,7 @@ function Discovery() {
           <p className="lede mt-6 max-w-[42ch]">
             <span className="field-copy">
               We start by seeing what is actually there. Then the field resolves
-              onto a lattice — the same endpoints, finally accounted for.
+              onto a lattice. The same endpoints, finally accounted for.
             </span>
           </p>
       </section>
@@ -167,8 +165,9 @@ function Ownership() {
           </h2>
           <p className="lede mt-4 shrink-0">
             <span className="field-copy">
-              More than a help desk. Proactive management, continuous
-              monitoring, and live U.S.-based support, in three levels.
+              Help desk through fully managed infrastructure. Proactive
+              management, continuous monitoring, and live U.S.-based support,
+              in three levels.
             </span>
           </p>
           <div className="phone-list-glass mt-6 min-h-0">
@@ -315,8 +314,8 @@ function Response() {
           <p className="lede mt-6 max-w-[42ch]">
             <span className="field-copy">
               Continuous monitoring. Live U.S.-based support. Eyes On Site
-              when the work still needs someone in the room. Existing client
-              with an issue — the help desk picks it up.
+              when the work still needs someone in the room. An existing client
+              with an issue goes to the help desk.
             </span>
           </p>
           <div className="chapter-phone-actions mt-8 flex flex-wrap gap-8">

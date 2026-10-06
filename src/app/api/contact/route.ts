@@ -86,7 +86,7 @@ export async function POST(request: Request) {
       from,
       to,
       replyTo: email,
-      subject: `${intent} — ${name}`,
+      subject: `${intent}: ${name}`,
       text,
     });
     emailOk = !error;

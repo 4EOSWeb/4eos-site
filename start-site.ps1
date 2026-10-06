@@ -237,6 +237,7 @@ function Add-WanForward([int]$Port, [string]$LanIp) {
   return $true
 }
 
+$publicHost = 'testsite.4eos.com'
 $proxyNames = @(Get-ProxyNames)
 $lanIp = Get-DefaultLanIPv4
 if (-not $lanIp) {
@@ -246,23 +247,23 @@ $publicIp = Get-PublicIPv4
 if ($publicIp -and $proxyNames -notcontains $publicIp) {
   $proxyNames += $publicIp
 }
+$internalNames = @($proxyNames | Where-Object { $_ -and $_ -ne $publicHost })
 $tools = Join-Path $root 'tools'
 New-Item -ItemType Directory -Force -Path $tools | Out-Null
 $caddyConfig = Join-Path $tools 'Caddyfile'
-$httpSites = (($proxyNames | ForEach-Object { "http://$_" }) -join ', ')
-$httpsSites = (($proxyNames | ForEach-Object { "https://$_" }) -join ', ')
+$internalSites = ($internalNames -join ', ')
 @(
   '{'
-  "`tlocal_certs"
-  "`tdefault_sni localhost"
-  "`tauto_https disable_redirects"
+  "`temail helpdesk@4eos.com"
+  "`tdefault_sni $publicHost"
   '}'
   ''
-  "$httpSites {"
-  "`tredir https://{host}{uri}"
+  "$publicHost {"
+  "`treverse_proxy 127.0.0.1:3000"
   '}'
   ''
-  "$httpsSites {"
+  "$internalSites {"
+  "`ttls internal"
   "`treverse_proxy 127.0.0.1:3000"
   '}'
 ) | Set-Content -LiteralPath $caddyConfig -Encoding ascii
@@ -299,16 +300,14 @@ if ($lanIp) {
 }
 
 Write-Host 'Opened Caddy and the 4EOS server.'
+Write-Host "Public site: https://$publicHost"
 Write-Host 'On this network:'
 if ($lanIp) { Write-Host "  https://$lanIp" }
 Write-Host '  https://localhost'
-if ($publicIp) {
-  Write-Host "From the internet: https://$publicIp"
-  Write-Host 'Turn Wi-Fi off on a phone and open that address. The public address usually fails from inside this network.'
+if ($lanIp) {
+  Write-Host "The router must forward external TCP 80 to ${lanIp}:80 and external TCP 443 to ${lanIp}:443."
+  Write-Host 'Do not forward those ports to port 3000. Port 3000 is only the app behind HTTPS.'
 }
 if ($wanReady) {
-  Write-Host "The router is forwarding internet ports 80 and 443 to $lanIp."
-} elseif ($lanIp) {
-  Write-Host "The router did not open the ports. Forward external TCP 80 and TCP 443 to $lanIp."
+  Write-Host "Asked the router to forward internet ports 80 and 443 to $lanIp."
 }
-Write-Host 'HTTPS on port 443 forwards to port 3000. HTTP on port 80 forwards to HTTPS.'

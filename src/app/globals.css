@@ -514,6 +514,30 @@ html.signal-live .signal-poster {
   }
 }
 
+/* Index pages: rows settle in one after another. Content only; the
+   field and camera stay where the page pinned them. */
+.reveal-rows > * {
+  animation: row-in 520ms var(--ease-out-quint) both;
+  animation-delay: calc(120ms + var(--row, 0) * 70ms);
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-rows > * {
+    animation: none;
+  }
+}
+
 /* Ascension-style still grain. Never animated; reduced-motion keeps it. */
 .film-grain {
   pointer-events: none;

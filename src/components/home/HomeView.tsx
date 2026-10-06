@@ -6,6 +6,7 @@ import { SignalBackdrop } from "@/components/signal/SignalBackdrop";
 import { SignalChapter } from "@/components/signal/SignalChapter";
 import { PHASE_INDEX } from "@/components/signal/formations";
 import {
+  disarmCubeZoom,
   getChapterIndex,
   getFocus,
   releasePhaseHold,
@@ -38,6 +39,7 @@ const CHAPTER =
 export function HomeView() {
   useEffect(() => {
     releasePhaseHold();
+    disarmCubeZoom();
     setCloud(0, true);
     setZoom(0);
     signal.zoomR = 0;
@@ -274,6 +276,7 @@ function Industries() {
                     href={`/industries/${ind.slug}`}
                     phase="industries"
                     focus={i}
+                    armZoom
                     className="flex h-full w-full flex-col justify-center py-[clamp(0.2rem,0.6vh,0.45rem)] transition-colors hover:text-gold"
                   >
                     <span className="flex items-baseline gap-[3vw]">

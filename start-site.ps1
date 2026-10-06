@@ -279,7 +279,7 @@ if (-not (Test-Path -LiteralPath $nextBin)) {
   Write-Host 'Install dependencies first: npm install'
   exit 1
 }
-$serverCommand = "Set-Location -LiteralPath '$root'; node '$nextBin' dev --hostname 127.0.0.1 --port 3000"
+$serverCommand = "Set-Location -LiteralPath '$root'; npm run build; if (`$LASTEXITCODE -ne 0) { Write-Host 'Production build failed.'; exit `$LASTEXITCODE }; npm run start"
 Start-Process -FilePath $caddy -WorkingDirectory $root -ArgumentList @('run', '--config', $caddyConfig)
 Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -WorkingDirectory $root -ArgumentList @('-NoExit', '-NoProfile', '-Command', $serverCommand)
 $httpOpen = Enable-InboundPort 80 '4EOS HTTP'

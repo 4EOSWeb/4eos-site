@@ -178,12 +178,12 @@ if (-not $caddy) {
 
 function Get-ProxyNames {
   $names = New-Object System.Collections.Generic.List[string]
-  foreach ($name in @('localhost', '127.0.0.1')) { $names.Add($name) }
+  foreach ($name in @('localhost', '127.0.0.1')) { [void]$names.Add($name) }
   try {
     Get-NetIPAddress -AddressFamily IPv4 -ErrorAction Stop | ForEach-Object {
       $ip = $_.IPAddress
       if ($ip -and $ip -notlike '127.*' -and $ip -notlike '169.254.*' -and $ip -ne '0.0.0.0') {
-        $names.Add($ip)
+        [void]$names.Add($ip)
       }
     }
   } catch {
@@ -192,7 +192,60 @@ function Get-ProxyNames {
   return @($names | Select-Object -Unique)
 }
 
+function Get-DefaultLanIPv4 {
+  try {
+    $configs = @(Get-NetIPConfiguration -ErrorAction Stop | Where-Object {
+      $_.IPv4DefaultGateway -and $_.NetAdapter.Status -eq 'Up'
+    })
+    foreach ($cfg in $configs) {
+      $addr = @($cfg.IPv4Address) | Where-Object {
+        $_.IPAddress -and $_.IPAddress -notlike '127.*' -and $_.IPAddress -notlike '169.254.*'
+      } | Select-Object -First 1
+      if ($addr) { return $addr.IPAddress }
+    }
+  } catch {
+  }
+  return $null
+}
+
+function Get-PublicIPv4 {
+  $curl = Join-Path $env:SystemRoot 'System32\curl.exe'
+  if (-not (Test-Path -LiteralPath $curl)) { return $null }
+  try {
+    $ip = (& $curl -4 -fsS --max-time 8 'https://api.ipify.org').Trim()
+  } catch {
+    return $null
+  }
+  if ($ip -match '^\d{1,3}(\.\d{1,3}){3}$') { return $ip }
+  return $null
+}
+
+function Enable-InboundPort([int]$Port, [string]$Name) {
+  $listed = netsh advfirewall firewall show rule name="$Name" 2>$null
+  if ($LASTEXITCODE -eq 0 -and $listed -match 'Enabled:\s+Yes') { return $true }
+  netsh advfirewall firewall delete rule name="$Name" | Out-Null
+  netsh advfirewall firewall add rule name="$Name" dir=in action=allow protocol=TCP localport=$Port profile=any remoteip=any | Out-Null
+  return ($LASTEXITCODE -eq 0)
+}
+
+function Add-WanForward([int]$Port, [string]$LanIp) {
+  $nat = New-Object -ComObject HNetCfg.NATUPnP
+  $maps = $nat.StaticPortMappingCollection
+  if (-not $maps) { return $false }
+  try { [void]$maps.Remove($Port, 'TCP') } catch {}
+  [void]$maps.Add($Port, 'TCP', $Port, $LanIp, $true, "4EOS $Port")
+  return $true
+}
+
 $proxyNames = @(Get-ProxyNames)
+$lanIp = Get-DefaultLanIPv4
+if (-not $lanIp) {
+  $lanIp = @($proxyNames | Where-Object { $_ -like '*.*.*.*' -and $_ -notlike '127.*' }) | Select-Object -First 1
+}
+$publicIp = Get-PublicIPv4
+if ($publicIp -and $proxyNames -notcontains $publicIp) {
+  $proxyNames += $publicIp
+}
 $tools = Join-Path $root 'tools'
 New-Item -ItemType Directory -Force -Path $tools | Out-Null
 $caddyConfig = Join-Path $tools 'Caddyfile'
@@ -228,8 +281,34 @@ if (-not (Test-Path -LiteralPath $nextBin)) {
 $serverCommand = "Set-Location -LiteralPath '$root'; node '$nextBin' dev --hostname 127.0.0.1 --port 3000"
 Start-Process -FilePath $caddy -WorkingDirectory $root -ArgumentList @('run', '--config', $caddyConfig)
 Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -WorkingDirectory $root -ArgumentList @('-NoExit', '-NoProfile', '-Command', $serverCommand)
-Write-Host 'Opened Caddy and the 4EOS server.'
-Write-Host 'HTTPS (port 443) forwards to port 3000, and HTTP (port 80) forwards to HTTPS.'
-foreach ($name in $proxyNames) {
-  Write-Host "  https://$name"
+$httpOpen = Enable-InboundPort 80 '4EOS HTTP'
+$httpsOpen = Enable-InboundPort 443 '4EOS HTTPS'
+if (-not $httpOpen -or -not $httpsOpen) {
+  Write-Host 'Windows Firewall did not allow ports 80 and 443. Close this window, right-click start-site.bat, and choose Run as administrator.'
 }
+
+$wanReady = $false
+if ($lanIp) {
+  try {
+    $httpForward = Add-WanForward 80 $lanIp
+    $httpsForward = Add-WanForward 443 $lanIp
+    $wanReady = $httpForward -and $httpsForward
+  } catch {
+    $wanReady = $false
+  }
+}
+
+Write-Host 'Opened Caddy and the 4EOS server.'
+Write-Host 'On this network:'
+if ($lanIp) { Write-Host "  https://$lanIp" }
+Write-Host '  https://localhost'
+if ($publicIp) {
+  Write-Host "From the internet: https://$publicIp"
+  Write-Host 'Turn Wi-Fi off on a phone and open that address. The public address usually fails from inside this network.'
+}
+if ($wanReady) {
+  Write-Host "The router is forwarding internet ports 80 and 443 to $lanIp."
+} elseif ($lanIp) {
+  Write-Host "The router did not open the ports. Forward external TCP 80 and TCP 443 to $lanIp."
+}
+Write-Host 'HTTPS on port 443 forwards to port 3000. HTTP on port 80 forwards to HTTPS.'

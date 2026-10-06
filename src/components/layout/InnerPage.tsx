@@ -67,22 +67,36 @@ export function InnerPage({
       scene={scene}
       settleFromCube={settleFromCube}
     >
-      <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
+      <section className={`px-[var(--sheet-inset)] pt-[6vh] ${visual ? "pb-8" : "pb-10"}`}>
         <BackLink href={backHref ?? "/"} label={backLabel ?? "Home"} />
         {visual ? (
-          <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,34rem)_minmax(0,1fr)] lg:gap-x-12">
-            <div className="min-w-0">{copy}</div>
-            <div className="w-full max-w-[18rem] lg:mx-auto lg:max-w-none lg:w-[min(100%,calc(100svh-var(--nav-h)-12rem))]">
-              {visual}
+          <>
+            {brand ? (
+              <div className="mt-6 text-fg">{brand}</div>
+            ) : kicker ? (
+              <p className="micro mt-6">
+                <span className="field-copy">{kicker}</span>
+              </p>
+            ) : null}
+            <div className="mt-5 grid items-stretch gap-8 lg:grid-cols-[minmax(0,18ch)_auto] lg:justify-start lg:gap-x-16">
+              <h1 className="display page-display max-w-[18ch]">{title}</h1>
+              {/* The row is the title. The cube takes that height and stays square. */}
+              <div className="aspect-square w-full max-w-[14rem] lg:h-full lg:w-auto lg:max-w-none">{visual}</div>
             </div>
-          </div>
+            {lede ? (
+              <p className="lede mt-6 max-w-[46ch]">
+                <span className="field-copy">{lede}</span>
+              </p>
+            ) : null}
+            {note ? <p className="micro mt-6 text-fg-muted">{note}</p> : null}
+          </>
         ) : (
           copy
         )}
       </section>
       {children ? (
         <>
-          <Breath size="md" />
+          {visual ? null : <Breath size="md" />}
           <Sheet tone="ink">
             <div className="sheet-pad sheet-y">{children}</div>
           </Sheet>

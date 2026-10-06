@@ -406,7 +406,7 @@ export default function AiCore({
         alpha: true,
         powerPreference: mobile ? "low-power" : "high-performance",
       }}
-      camera={{ fov: 32, position: [0, 0, 6.6], near: 0.1, far: 40 }}
+      camera={{ fov: 32, position: [0, 0, 9.6], near: 0.1, far: 40 }}
       onCreated={() => onReady?.()}
     >
       <Scene key={tier} tier={tier} still={still} />

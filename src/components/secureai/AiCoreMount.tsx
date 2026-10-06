@@ -58,7 +58,7 @@ export function AiCoreMount({ caption }: { caption?: string }) {
   const frameloop = !awake ? "never" : still || !visible ? "demand" : "always";
 
   return (
-    <figure className="ai-core-figure m-0 w-full max-w-[30rem] md:ml-auto">
+      <figure className="ai-core-figure m-0 w-full">
       <div ref={host} className="ai-core" data-live={live ? "true" : "false"} aria-hidden="true">
         <AiCorePoster className="ai-core-poster" />
         {canvas ? (

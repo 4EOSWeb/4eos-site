@@ -544,6 +544,7 @@ html.signal-live .signal-poster {
   position: relative;
   aspect-ratio: 1;
   width: 100%;
+  overflow: hidden;
 }
 
 .ai-core-poster,

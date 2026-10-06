@@ -66,9 +66,9 @@ export function InnerPage({
       <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
         <BackLink href={backHref ?? "/"} label={backLabel ?? "Home"} />
         {visual ? (
-          <div className="grid gap-12 md:grid-cols-12 md:items-center">
-            <div className="md:col-span-7">{copy}</div>
-            <div className="md:col-span-5">{visual}</div>
+          <div className="flex flex-col items-start gap-10 lg:flex-row lg:items-center lg:gap-20">
+            <div className="min-w-0 max-w-[40rem]">{copy}</div>
+            <div className="w-full max-w-[18rem] shrink-0 sm:max-w-[20rem]">{visual}</div>
           </div>
         ) : (
           copy

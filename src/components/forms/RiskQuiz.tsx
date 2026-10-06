@@ -45,6 +45,7 @@ export function RiskQuiz() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<QuizAnswers>({});
   const [restored, setRestored] = useState(false);
+  const [ticketOpen, setTicketOpen] = useState(false);
   const started = useRef(false);
   const completed = useRef(false);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -120,6 +121,14 @@ export function RiskQuiz() {
     setStage("quiz");
   };
 
+  if (ticketOpen) {
+    return (
+      <div className="quiz-card">
+        <TicketForm onBack={() => setTicketOpen(false)} />
+      </div>
+    );
+  }
+
   if (stage === "intro") {
     return (
       <div className="quiz-card">
@@ -129,9 +138,14 @@ export function RiskQuiz() {
           You get a risk score and a short read on each area. Nothing is sent to us unless you
           choose to ask for the full assessment at the end.
         </p>
-        <button type="button" onClick={begin} className="bar-btn bar-btn-fill mt-8 inline-flex">
-          Start the self-check <span aria-hidden>→</span>
-        </button>
+        <div className="mt-8 flex flex-wrap items-center gap-4">
+          <button type="button" onClick={begin} className="bar-btn bar-btn-fill inline-flex">
+            Start the self-check <span aria-hidden>→</span>
+          </button>
+          <button type="button" onClick={() => setTicketOpen(true)} className="bar-btn bar-btn-line inline-flex">
+            Submit a ticket
+          </button>
+        </div>
       </div>
     );
   }
@@ -184,6 +198,9 @@ export function RiskQuiz() {
           className="bar-btn bar-btn-line inline-flex"
         >
           <span aria-hidden>←</span>&nbsp;Back
+        </button>
+        <button type="button" onClick={() => setTicketOpen(true)} className="micro text-fg-faint hover:text-gold">
+          Submit a ticket instead
         </button>
         <button
           type="button"
@@ -288,6 +305,28 @@ function Scorecard({ result, onRestart }: { result: QuizResult; onRestart: () =>
         )}
       </div>
     </div>
+  );
+}
+
+function TicketForm({ onBack }: { onBack: () => void }) {
+  return (
+    <>
+      <p className="micro text-fg-faint">Ticket</p>
+      <p className="lede mt-4 max-w-[48ch]">
+        Skip the self-check. Tell us what you need and a ticket goes straight to the team.
+      </p>
+      <div className="mt-6 max-w-[40rem]">
+        <IntakeForm
+          endpoint="/api/contact"
+          intent="assessment"
+          submitLabel="Submit the ticket"
+          messageLabel="What should we look at"
+        />
+      </div>
+      <button type="button" onClick={onBack} className="bar-btn bar-btn-line mt-8 inline-flex">
+        <span aria-hidden>←</span>&nbsp;Back to the self-check
+      </button>
+    </>
   );
 }
 

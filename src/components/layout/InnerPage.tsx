@@ -70,7 +70,7 @@ export function InnerPage({
       <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
         <BackLink href={backHref ?? "/"} label={backLabel ?? "Home"} />
         {visual ? (
-          <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,34rem)_minmax(0,1fr)] lg:gap-x-12">
+          <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,34rem)_minmax(0,1fr)] lg:gap-x-12">
             <div className="min-w-0">{copy}</div>
             <div className="w-full max-w-[18rem] lg:mx-auto lg:max-w-none lg:w-[min(100%,calc(100svh-var(--nav-h)-12rem))]">
               {visual}

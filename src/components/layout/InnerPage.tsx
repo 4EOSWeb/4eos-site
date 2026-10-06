@@ -68,7 +68,7 @@ export function InnerPage({
         {visual ? (
           <div className="grid gap-12 md:grid-cols-12 md:items-center">
             <div className="md:col-span-7">{copy}</div>
-            <div className="md:col-span-5 md:justify-self-end">{visual}</div>
+            <div className="md:col-span-5">{visual}</div>
           </div>
         ) : (
           copy

@@ -540,10 +540,6 @@ html.signal-live .signal-poster {
 
 /* SecureAI centerpiece. The poster is the first paint; the canvas fades
    over it once it has drawn a frame. */
-.ai-core-figure {
-  width: min(100%, 30rem);
-}
-
 .ai-core {
   position: relative;
   aspect-ratio: 1;

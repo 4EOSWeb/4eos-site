@@ -17,7 +17,7 @@ import type { DeviceTier } from "@/lib/env";
 const BASE = new THREE.Color("#4f86b4");
 const GOLD = new THREE.Color("#f5b700");
 const HALF = 1.25;
-const LATTICE_RADIUS = 0.98;
+const LATTICE_RADIUS = 1.08;
 
 type Budget = { nodes: number; edges: number };
 const BUDGET: Record<DeviceTier, Budget> = {
@@ -135,7 +135,7 @@ const NODE_VERT = /* glsl */ `
     float pulse = 0.5 + 0.5 * sin(uTime * 1.4 + aSeed * 6.2831);
     vHot = aHot;
     vPulse = pulse;
-    gl_PointSize = aSize * (1.0 + 0.35 * pulse * aHot) * uPixelRatio * (6.5 / -mv.z);
+    gl_PointSize = aSize * (1.0 + 0.35 * pulse * aHot) * uPixelRatio * (6.0 / -mv.z);
     gl_Position = projectionMatrix * mv;
   }
 `;
@@ -184,7 +184,7 @@ const EDGE_FRAG = /* glsl */ `
     float head = fract(uTime * (0.16 + 0.22 * vSeed) + vSeed * 3.0);
     float pulse = smoothstep(0.22, 0.0, abs(vT - head));
     vec3 col = mix(uBase, uGold, pulse * (0.35 + 0.65 * vHot));
-    float a = 0.14 + 0.5 * pulse;
+    float a = 0.18 + 0.55 * pulse;
     gl_FragColor = vec4(col, a);
   }
 `;
@@ -271,7 +271,7 @@ function buildAssets(tier: DeviceTier) {
     depthWrite: false,
     side: THREE.DoubleSide,
   });
-  const frameMat = new THREE.LineBasicMaterial({ color: BASE, transparent: true, opacity: 0.6 });
+  const frameMat = new THREE.LineBasicMaterial({ color: BASE, transparent: true, opacity: 0.7 });
   // Gold marks on the eight corners: the perimeter is the point.
   const corners = new Float32Array(8 * 3);
   let n = 0;
@@ -406,7 +406,7 @@ export default function AiCore({
         alpha: true,
         powerPreference: mobile ? "low-power" : "high-performance",
       }}
-      camera={{ fov: 32, position: [0, 0, 7.2], near: 0.1, far: 40 }}
+      camera={{ fov: 32, position: [0, 0, 6.6], near: 0.1, far: 40 }}
       onCreated={() => onReady?.()}
     >
       <Scene key={tier} tier={tier} still={still} />

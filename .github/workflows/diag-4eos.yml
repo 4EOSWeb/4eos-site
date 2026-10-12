@@ -1,0 +1,51 @@
+# Temporary: collects startup logs and config for the 4eos web app.
+# Prints app setting NAMES only, never values. Safe to delete when done.
+name: Diagnose 4eos web app
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_2ECDF9345DEC4B1783E4FFE4FFD79A67 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A846694AED6943C6AEA675739436E0B8 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_A76087D31C5A42338D6A98863B7DE35F }}
+
+      - name: Collect diagnostics
+        run: |
+          set +e
+          RG=$(az webapp list --query "[?name=='4eos'].resourceGroup | [0]" -o tsv)
+          {
+            echo "== config"
+            az webapp config show -g "$RG" -n 4eos \
+              --query "{linuxFxVersion:linuxFxVersion, appCommandLine:appCommandLine, alwaysOn:alwaysOn}" -o json
+            echo "== app setting names"
+            az webapp config appsettings list -g "$RG" -n 4eos --query "[].name" -o tsv | sort
+            echo "== state"
+            az webapp show -g "$RG" -n 4eos --query "{state:state, sku:sku}" -o json 2>/dev/null \
+              || az webapp show -g "$RG" -n 4eos --query "state" -o tsv
+          } > diag.txt 2>&1
+
+          az webapp log download -g "$RG" -n 4eos --log-file logs.zip >/dev/null 2>&1
+          mkdir -p logs && unzip -qo logs.zip -d logs 2>/dev/null
+          {
+            for f in $(ls -t $(find logs -iname '*docker*.log') 2>/dev/null | head -2); do
+              echo "== $(basename "$f")"
+              tail -n 45 "$f" | cut -c1-260
+            done
+          } > logs.txt 2>&1
+
+          # Emit as annotations so they can be read through the GitHub API.
+          for file in diag.txt logs.txt; do
+            body=$(sed -e 's/%/%25/g' "$file" | head -c 60000 | awk '{printf "%s%%0A", $0}')
+            echo "::notice title=$file::$body"
+          done

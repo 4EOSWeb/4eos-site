@@ -2,7 +2,9 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSyn
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
 
-const DIR = path.join(process.cwd(), "data", "analytics");
+// On Azure App Service, set ANALYTICS_DIR=/home/data/analytics so the
+// database survives deploys and restarts. Locally it stays under ./data.
+const DIR = process.env.ANALYTICS_DIR?.trim() || path.join(process.cwd(), "data", "analytics");
 const FILE = path.join(DIR, "analytics.db");
 const BACKUP_DIR = path.join(DIR, "backups");
 const STAMP = path.join(DIR, "maintenance.json");

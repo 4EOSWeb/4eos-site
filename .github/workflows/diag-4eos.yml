@@ -24,6 +24,10 @@ jobs:
         run: |
           set +e
           RG=$(az webapp list --query "[?name=='4eos'].resourceGroup | [0]" -o tsv)
+          # One-time, non-secret settings for the 4eos web app.
+          az webapp config appsettings set -g "$RG" -n 4eos \
+            --settings ANALYTICS_DIR=/home/data/analytics -o none
+          az webapp config set -g "$RG" -n 4eos --always-on true -o none
           {
             echo "== config"
             az webapp config show -g "$RG" -n 4eos \

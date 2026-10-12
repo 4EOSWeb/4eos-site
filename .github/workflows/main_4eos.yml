@@ -38,7 +38,7 @@ jobs:
       # Zip so the upload/download moves one file instead of tens of thousands.
       - name: Package app
         run: |
-          zip -qr release.zip . \
+          zip -qry release.zip . \
             -x '.git/*' '.github/*' 'scripts/*' 'data/*' '.env*' \
                'CHAT-HISTORY.txt' 'Caddyfile' 'start-site.*'
 

@@ -38,9 +38,10 @@ jobs:
           az webapp log download -g "$RG" -n 4eos --log-file logs.zip >/dev/null 2>&1
           mkdir -p logs && unzip -qo logs.zip -d logs 2>/dev/null
           {
-            for f in $(ls -t $(find logs -iname '*docker*.log') 2>/dev/null | head -2); do
+            echo "== files"; find logs -iname '*.log' | sed 's|.*/||' | sort | tail -n 15
+            for f in $(ls -t $(find logs -iname '*default_docker.log') 2>/dev/null | head -1); do
               echo "== $(basename "$f")"
-              tail -n 45 "$f" | cut -c1-260
+              grep -v '^\s*$' "$f" | tail -n 70 | cut -c1-300
             done
           } > logs.txt 2>&1
 

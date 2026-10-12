@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Instrument_Sans, Geist_Mono } from "next/font/google";
+import { orgGraph } from "@/lib/discovery";
 import { site, addressLine } from "@/lib/site";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { SignalClient } from "@/components/signal/SignalClient";
@@ -43,31 +44,16 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
   robots: { index: true, follow: true },
   icons: { icon: "/icon.png", apple: "/apple-icon.png" },
+  alternates: {
+    types: {
+      "application/rss+xml": "/feed.xml",
+    },
+  },
 };
 
 export const viewport: Viewport = {
   themeColor: "#05070A",
   colorScheme: "dark",
-};
-
-const orgSchema = {
-  "@context": "https://schema.org",
-  "@type": "ProfessionalService",
-  name: site.name,
-  description: site.description,
-  url: site.url,
-  telephone: site.phone,
-  email: site.helpdesk,
-  foundingDate: String(site.founded),
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: site.address.street,
-    addressLocality: site.address.city,
-    addressRegion: site.address.region,
-    postalCode: site.address.postal,
-    addressCountry: site.address.country,
-  },
-  areaServed: "Indiana",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -80,7 +66,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgGraph()) }}
         />
         <a
           href="#main"

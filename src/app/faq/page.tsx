@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { InnerPage } from "@/components/layout/InnerPage";
 import { faqs } from "@/lib/content";
+import { faqPageSchema } from "@/lib/discovery";
 
 export const metadata: Metadata = {
   title: "FAQ",
@@ -9,12 +10,18 @@ export const metadata: Metadata = {
 
 export default function FAQPage() {
   return (
-    <InnerPage
-      phase="discovery"
-      kicker="Questions"
-      title="Straight answers."
-      lede="From choosing a provider to what VoIP should include."
-    >
+    <>
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageSchema()) }}
+      />
+      <InnerPage
+        phase="discovery"
+        kicker="Questions"
+        title="Straight answers."
+        lede="From choosing a provider to what VoIP should include."
+      >
       <dl>
         {faqs.map((f, i) => (
           <div key={f.q} className="border-t border-hairline py-8 last:border-b">
@@ -30,6 +37,7 @@ export default function FAQPage() {
           </div>
         ))}
       </dl>
-    </InnerPage>
+      </InnerPage>
+    </>
   );
 }

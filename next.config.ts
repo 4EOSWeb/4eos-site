@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async rewrites() {
+    return [
+      { source: "/summary.json", destination: "/ai/summary.json" },
+      { source: "/faq.json", destination: "/ai/faq.json" },
+    ];
+  },
   async redirects() {
     return [
       {

@@ -1,26 +1,30 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Page } from "@/components/layout/Page";
-import { Breath, Sheet } from "@/components/layout/Sheet";
+import { BackLink } from "@/components/ui/BackLink";
+import { Sheet } from "@/components/layout/Sheet";
 import { getPosts } from "@/lib/posts";
+import { withCanonical } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonical("/blog", {
   title: "Journal",
   description: "Notes on managed IT, security, and running a business in Fort Wayne.",
-};
+});
 
 export default function BlogIndex() {
   const posts = getPosts();
 
   return (
     <Page phase="discovery">
-      <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
-        <p className="micro text-fg-muted">Journal</p>
+      <section className="px-[var(--sheet-inset)] pb-8 pt-[6vh]">
+        <BackLink href="/" label="Home" />
+        <p className="micro mt-6 text-fg-muted">
+          <span className="field-copy">Journal</span>
+        </p>
         <h1 className="display page-display mt-5 max-w-[14ch]">
           Notes from the work.
         </h1>
       </section>
-      <Breath size="md" />
       <Sheet tone="ink">
         <ol className="sheet-pad divide-y divide-hairline py-4">
           {posts.map((post) => (

@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import { InnerPage } from "@/components/layout/InnerPage";
 import { values } from "@/lib/content";
 import { site } from "@/lib/site";
+import { withCanonical } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonical("/why-4eos", {
   title: "Why 4EOS",
   description:
     "Founded in Fort Wayne in 2002. A partner, not a vendor. Eyes On Site, one family of companies.",
-};
+});
 
 const claims = [
   {
@@ -27,10 +28,10 @@ const claims = [
 export default function WhyPage() {
   return (
     <InnerPage
-      phase="strategy"
+      phase="discovery"
       kicker={`Fort Wayne · ${site.founded}`}
       title="A partner, not a vendor."
-      lede="We do not just manage the IT. We take ownership of it. Local support is not a promise in an ad. It is how the work has been done for over two decades."
+      lede="We take ownership of the IT. Local support is how the work has been done here for over two decades."
     >
       <ul className="divide-y divide-hairline border-y border-hairline">
         {claims.map((c) => (

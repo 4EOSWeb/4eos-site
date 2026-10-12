@@ -1,8 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { Archivo, Instrument_Sans, Geist_Mono } from "next/font/google";
-import { orgGraph } from "@/lib/discovery";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { organizationSchema } from "@/lib/schema";
 import { site, addressLine } from "@/lib/site";
+import { ChapterRail } from "@/components/layout/ChapterRail";
+import { Trail } from "@/components/layout/Trail";
+import { GlassGlow } from "@/components/layout/GlassGlow";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
+import { Beacon } from "@/components/analytics/Beacon";
 import { SignalClient } from "@/components/signal/SignalClient";
 import "./globals.css";
 
@@ -30,24 +35,22 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name} — Managed IT, Cybersecurity and Compliance in Fort Wayne`,
-    template: `%s — ${site.name}`,
+    default: `${site.name} | Managed IT, cybersecurity, and compliance in Fort Wayne`,
+    template: `%s | ${site.name}`,
   },
   description: site.description,
   openGraph: {
     type: "website",
     siteName: site.name,
-    title: `${site.name} — ${site.tagline}`,
+    title: `${site.name} | Managed IT, cybersecurity, and compliance in Fort Wayne`,
     description: site.description,
     locale: "en_US",
   },
   twitter: { card: "summary_large_image" },
   robots: { index: true, follow: true },
-  icons: { icon: "/icon.png", apple: "/apple-icon.png" },
-  alternates: {
-    types: {
-      "application/rss+xml": "/feed.xml",
-    },
+  icons: {
+    icon: "/brand/4eos-icon.svg",
+    apple: "/brand/4eos-icon.svg",
   },
 };
 
@@ -63,19 +66,19 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${archivo.variable} ${instrument.variable} ${geistMono.variable}`}
     >
       <body>
-        <script
-          type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgGraph()) }}
-        />
+        <JsonLd data={organizationSchema()} />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:bg-gold focus:px-4 focus:py-2 focus:text-ink focus:micro"
         >
           Skip to content
         </a>
+        <Beacon />
         <SmoothScroll />
+        <Trail />
         <SignalClient />
+        <GlassGlow />
+        <ChapterRail />
         <div aria-hidden="true" className="film-grain" />
         {children}
         <span className="sr-only">{addressLine}</span>

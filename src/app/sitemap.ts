@@ -14,14 +14,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/faq",
     "/support",
     "/contact",
+    "/assessment",
     "/blog",
+    "/privacy",
+    "/terms",
+    "/accessibility",
   ];
 
   const now = new Date();
 
   return [
     ...staticRoutes.map((path) => ({
-      url: `${site.url}${path || "/"}`,
+      url: path ? `${site.url}${path}` : site.url,
       lastModified: now,
     })),
     ...services.map((s) => ({

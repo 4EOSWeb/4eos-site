@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { InnerPage } from "@/components/layout/InnerPage";
 import { site } from "@/lib/site";
+import { withCanonical } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonical("/about", {
   title: "About",
   description:
     "Founded in Fort Wayne in 2002. Largest Dell reseller in Northeast Indiana. Microsoft and Cisco partner.",
-};
+});
 
 const facts = [
   { label: "Founded", value: String(site.founded) },
@@ -20,16 +21,15 @@ const facts = [
 export default function AboutPage() {
   return (
     <InnerPage
-      phase="strategy"
+      phase="discovery"
       kicker="About"
       title="Fort Wayne born. Business first."
-      lede={`Founded in ${site.founded} in Fort Wayne, Indiana. Managed IT, cybersecurity, cloud, and data center operations — designed so the business runs smarter, safer, and more efficiently.`}
+      lede={`Founded in ${site.founded} in Fort Wayne, Indiana. Managed IT, cybersecurity, cloud, and data center work, so the business can keep running.`}
     >
       <p className="lede max-w-[52ch]">
-        Certified professionals with a proactive mindset. We do not just solve
-        problems. We anticipate them. Through partnerships with Dell, Microsoft,
-        Cisco, and other leading providers, we offer enterprise-grade hardware
-        and software at competitive pricing.
+        Certified engineers, watching for problems before they stop the work.
+        Dell, Microsoft, Cisco, and other providers supply the hardware and
+        software, priced for the size of the company.
       </p>
       <dl className="mt-16 divide-y divide-hairline border-y border-hairline">
         {facts.map((f) => (

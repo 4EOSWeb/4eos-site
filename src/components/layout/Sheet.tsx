@@ -65,7 +65,7 @@ export function Breath({
 
   return (
     <div
-      className={`relative flex items-center justify-center ${height} ${className}`}
+      className={`breath relative flex items-center justify-center ${height} ${className}`}
     >
       {children}
     </div>

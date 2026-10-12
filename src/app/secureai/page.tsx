@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { InnerPage } from "@/components/layout/InnerPage";
+import { AiCoreMount } from "@/components/secureai/AiCoreMount";
+import { withCanonical } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonical("/secureai", {
   title: "SecureAI",
   description:
     "Sixty-plus AI models on one secure platform. No per-user fees. The data stays yours.",
-};
+});
 
 const plans = [
   { name: "Starter", price: "$500", credits: "100,000 credits monthly" },
@@ -25,17 +27,19 @@ const points = [
   },
   {
     title: "The whole team",
-    lede: "Not just for power users. Easy onboarding, credits that reset monthly, no stacked per-user fees.",
+    lede: "Onboarding is straightforward, credits reset monthly, and there is no per-user fee stacked on top.",
   },
 ];
 
 export default function SecureAIPage() {
   return (
     <InnerPage
-      phase="security"
+      phase="unmanaged"
       kicker="SecureAI"
       title="Give the whole team AI. Without the risk."
       lede="Sixty-plus models, including GPT-4 and Claude, on one secure platform. No individual subscriptions. No per-user fees stacking up month after month."
+      note="Models inside the perimeter. The data stays yours."
+      visual={<AiCoreMount />}
     >
       <ul className="divide-y divide-hairline border-y border-hairline">
         {points.map((p) => (
@@ -63,8 +67,8 @@ export default function SecureAIPage() {
         Need more than 1,500,000 credits? Enterprise pricing is sized to the
         organization.
       </p>
-      <Link href="/contact" className="micro mt-10 inline-flex text-gold">
-        Talk about SecureAI →
+      <Link href="/contact" className="bar-btn bar-btn-line mt-10 inline-flex">
+        Talk about SecureAI <span aria-hidden>→</span>
       </Link>
     </InnerPage>
   );

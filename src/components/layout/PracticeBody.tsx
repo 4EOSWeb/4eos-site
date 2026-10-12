@@ -53,15 +53,15 @@ export function PracticeBody({
         <ul className="mt-12 flex flex-wrap gap-6 border-t border-hairline pt-8">
           {related.map((item) => (
             <li key={item.href}>
-              <Link href={item.href} className="micro text-gold">
-                {item.label} →
+              <Link href={item.href} className="bar-btn bar-btn-line inline-flex">
+                {item.label} <span aria-hidden>→</span>
               </Link>
             </li>
           ))}
         </ul>
       ) : null}
-      <Link href="/contact" className="micro mt-10 inline-flex text-gold">
-        Request an assessment →
+      <Link href="/assessment" className="bar-btn bar-btn-line mt-10 inline-flex">
+        Request an assessment <span aria-hidden>→</span>
       </Link>
     </>
   );

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
 import { InnerPage } from "@/components/layout/InnerPage";
 import { Mdx } from "@/components/blog/Mdx";
+import { withCanonical } from "@/lib/metadata";
 import { getPost, getPosts } from "@/lib/posts";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = getPost(slug);
   if (!post) return {};
-  return { title: post.title, description: post.description };
+  return withCanonical(`/blog/${post.slug}`, { title: post.title, description: post.description });
 }
 
 export default async function PostPage({ params }: Props) {
@@ -29,11 +29,10 @@ export default async function PostPage({ params }: Props) {
       kicker={`${formatDate(post.date)} · ${post.author}`}
       title={post.title}
       lede={post.description}
+      backHref="/blog"
+      backLabel="Journal"
     >
       <Mdx source={post.body} />
-      <Link href="/blog" className="micro mt-16 inline-flex text-gold">
-        ← Journal
-      </Link>
     </InnerPage>
   );
 }

@@ -5,7 +5,9 @@ import { FocusPin } from "./FocusPin";
 import { Footer } from "./Footer";
 import { Nav } from "./Nav";
 import { PageFade } from "./PageFade";
+import { IndustrySettle } from "./IndustrySettle";
 import { PhasePin } from "./PhasePin";
+import { ScenePin } from "./ScenePin";
 
 /**
  * Every public page is a Signal, a nav, a content column, and a footer.
@@ -18,25 +20,35 @@ export function Page({
   tone = "light",
   focus,
   zoom = false,
+  scene,
+  settleFromCube = false,
 }: {
   phase: Phase;
   children: ReactNode;
   tone?: "light" | "dark";
   focus?: number;
   zoom?: boolean;
+  /** Strategy-row picture. Null keeps the chapter formation. */
+  scene?: number | null;
+  /** Play the industry zoom, then return to this page's formation. */
+  settleFromCube?: boolean;
 }) {
   return (
     <>
-      <PhasePin phase={phase} />
+      <PhasePin phase={phase} settleFromCube={settleFromCube} />
+      <ScenePin scene={scene ?? null} />
       <FocusPin focus={focus} zoom={zoom} />
-      <SignalBackdrop phase={phase} />
+      {settleFromCube ? <IndustrySettle /> : null}
+      <SignalBackdrop phase={phase} scene={scene ?? undefined} />
       <Nav tone={tone} />
       <PageFade>
-        <main id="main" tabIndex={-1} className="relative z-10 pt-[var(--nav-h)] outline-none">
-          {children}
-        </main>
+        <div className="mobile-glass">
+          <main id="main" tabIndex={-1} className="relative z-10 pt-[var(--nav-h)] pb-24 outline-none">
+            {children}
+          </main>
+          <Footer />
+        </div>
       </PageFade>
-      <Footer />
     </>
   );
 }

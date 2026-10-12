@@ -60,18 +60,22 @@ export function GoldReveal({
     };
   }, []);
 
-  const nodes = text.split(/(\s+)/).map((token, i) => {
-    if (/^\s+$/.test(token)) return token;
-    const clean = token.replace(/[^\w]/g, "").toLowerCase();
-    if (set.has(clean)) {
-      return (
-        <span key={i} data-mark>
-          {token}
-        </span>
-      );
-    }
-    return <span key={i}>{token}</span>;
-  });
+  const nodes = text.split("\n").map((line, lineIndex) => (
+    <span key={lineIndex} className="block">
+      {line.split(/(\s+)/).map((token, i) => {
+        if (/^\s+$/.test(token)) return token;
+        const clean = token.replace(/[^\w]/g, "").toLowerCase();
+        if (set.has(clean)) {
+          return (
+            <span key={i} data-mark>
+              {token}
+            </span>
+          );
+        }
+        return <span key={i}>{token}</span>;
+      })}
+    </span>
+  ));
 
   return (
     <Tag ref={ref as never} className={className}>

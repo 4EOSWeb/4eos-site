@@ -1,25 +1,32 @@
 import type { Metadata } from "next";
 import { Page } from "@/components/layout/Page";
-import { Breath, Sheet } from "@/components/layout/Sheet";
+import { BackLink } from "@/components/ui/BackLink";
+import { Sheet } from "@/components/layout/Sheet";
 import { PhaseLink } from "@/components/ui/PhaseLink";
+import { ServiceTitle } from "@/components/ui/ServiceTitle";
 import { services } from "@/lib/content";
+import { withCanonical } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = withCanonical("/services", {
   title: "Services",
   description:
     "CompleteCare managed IT, cybersecurity, cloud, VoIP, data center, and hardware procurement.",
-};
+});
 
 export default function ServicesPage() {
   return (
-    <Page phase="ownership">
-      <section className="px-[var(--sheet-inset)] pb-10 pt-[6vh]">
-        <p className="micro text-fg-muted">Practice</p>
-        <h1 className="display page-display mt-5 max-w-[16ch]">
-          Six practices. One accountable family.
+    <Page phase="unmanaged">
+      <section className="px-[var(--sheet-inset)] pb-8 pt-[6vh]">
+        <BackLink href="/" label="Home" />
+        <p className="micro mt-6 text-fg-muted">
+          <span className="field-copy">Practice</span>
+        </p>
+        <h1 className="display page-display mt-5 [text-wrap:wrap]">
+          IT, phones,
+          <br />
+          and the data center.
         </h1>
       </section>
-      <Breath size="md" />
       <Sheet tone="ink">
         <ol className="sheet-pad divide-y divide-hairline py-4">
           {services.map((s, i) => (
@@ -35,7 +42,9 @@ export default function ServicesPage() {
                 <span className="display text-[clamp(1.4rem,2.6vw,2rem)] md:col-span-5 group-hover:text-gold">
                   {s.title}
                 </span>
-                <span className="lede md:col-span-6">{s.statement}</span>
+                <span className="lede md:col-span-6">
+                  <ServiceTitle title={s.statement} />
+                </span>
               </PhaseLink>
             </li>
           ))}

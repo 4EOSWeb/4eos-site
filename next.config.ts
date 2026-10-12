@@ -1,12 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async rewrites() {
-    return [
-      { source: "/summary.json", destination: "/ai/summary.json" },
-      { source: "/faq.json", destination: "/ai/faq.json" },
-    ];
-  },
+  serverExternalPackages: ["node:sqlite", "geoip-lite"],
+  // Dev-only. Next already allows localhost. These patterns allow every
+  // other host: any IPv4 address, and any hostname that contains a dot.
+  // Restart `next dev` after changing this.
+  allowedDevOrigins: ["*.*.*.*", "**.*"],
+  devIndicators: false,
   async redirects() {
     return [
       {
@@ -28,6 +28,16 @@ const nextConfig: NextConfig = {
         source: "/new-page",
         destination: "/",
         permanent: true,
+      },
+      {
+        source: "/command",
+        destination: "/analytics",
+        permanent: false,
+      },
+      {
+        source: "/command/:path*",
+        destination: "/analytics/:path*",
+        permanent: false,
       },
     ];
   },

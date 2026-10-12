@@ -56,21 +56,38 @@ export function SignalChapter({
     // last wins, which at the top of the page is the final chapter.
     const apply = (self: ScrollTrigger) => {
       if (!self.isActive) return;
+      const top = el.getBoundingClientRect().top;
+      const vh = window.innerHeight;
+      // Still mostly below the fold: the chapter on screen keeps its scene.
+      if (top > vh * 0.72) return;
+      if (top <= vh * 0.04) {
+        setPhase(index);
+        return;
+      }
       setPhase(from + (index - from) * self.progress);
     };
 
     let live = true;
     const trigger = ScrollTrigger.create({
       trigger: el,
-      start: "top bottom",
-      end: "center center",
+      // The blend runs while the chapter is entering. It is finished
+      // before the chapter locks to the top, and the next chapter does
+      // not start until it has actually crossed into the viewport.
+      start: "top 80%",
+      end: "top 20%",
       onUpdate: apply,
-      onRefresh: apply,
       onLeave: () => {
         if (live) setPhase(index);
       },
       onLeaveBack: () => {
         if (live) setPhase(from);
+      },
+      onRefresh: () => {
+        if (!live) return;
+        const top = el.getBoundingClientRect().top;
+        if (top <= window.innerHeight * 0.2 && top > -window.innerHeight * 0.45) {
+          setPhase(index);
+        }
       },
     });
 
@@ -82,7 +99,13 @@ export function SignalChapter({
   }, [index]);
 
   return (
-    <div ref={ref} id={id} data-snap className={className}>
+    <div
+      ref={ref}
+      id={id}
+      data-snap
+      data-phase={index}
+      className={`h-dvh overflow-hidden ${className}`}
+    >
       {children}
     </div>
   );

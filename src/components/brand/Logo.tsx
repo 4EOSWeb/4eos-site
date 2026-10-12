@@ -1,14 +1,19 @@
 import type { CSSProperties } from "react";
 
 /**
- * The wordmark was redrawn as vector from the only asset that existed — a
- * 480x246 raster. The single-colour variant is applied as a CSS mask so it
- * inherits currentColor instead of needing a separate file per tone.
+ * Wordmarks are the supplied drawings, used as masks so they take the
+ * text color. The solid mark is the bar. The line mark is the footer.
  */
 
 const RATIO = {
-  mark: 464.17 / 169.5,
+  solid: 1476 / 553,
+  line: 1478 / 548,
   lockup: 464.17 / 230.67,
+} as const;
+
+const WORDMARK = {
+  solid: "/brand/4eos-wordmark.png",
+  line: "/brand/4eos-wordmark-line.png",
 } as const;
 
 const MASK = {
@@ -21,26 +26,32 @@ const BRAND_SRC = {
   lockup: "/brand/4eos-lockup.svg",
 } as const;
 
-type Variant = keyof typeof RATIO;
-
 type LogoProps = {
-  variant?: Variant;
-  /** "mono" inherits currentColor; "brand" keeps navy and gold. */
+  /** Solid wordmark, or the double-line wordmark. */
+  mark?: keyof typeof WORDMARK;
+  variant?: "mark" | "lockup";
+  /** "brand" keeps the navy and gold lockup. */
   tone?: "mono" | "brand";
-  /** Rendered height in pixels; width follows the aspect ratio. */
+  /** Rendered height in pixels. Omit it to use the fluid --logo-h token. */
   height?: number;
   className?: string;
   title?: string;
 };
 
 export function Logo({
+  mark = "solid",
   variant = "mark",
   tone = "mono",
-  height = 28,
+  height,
   className = "",
   title = "4EOS",
 }: LogoProps) {
-  const width = Math.round(height * RATIO[variant] * 100) / 100;
+  const ratio = variant === "lockup" ? RATIO.lockup : RATIO[mark];
+  const width = height != null ? Math.round(height * ratio * 100) / 100 : undefined;
+  const box: CSSProperties =
+    height != null
+      ? { height, width }
+      : { height: "var(--logo-h)", width: "auto", aspectRatio: `${ratio}` };
 
   if (tone === "brand") {
     return (
@@ -51,24 +62,24 @@ export function Logo({
         width={width}
         height={height}
         className={className}
-        style={{ height, width }}
+        style={box}
       />
     );
   }
 
+  const src = variant === "mark" ? WORDMARK[mark] : MASK[variant];
   const style: CSSProperties = {
     display: "inline-block",
-    height,
-    width,
     backgroundColor: "currentColor",
-    WebkitMaskImage: `url(${MASK[variant]})`,
-    maskImage: `url(${MASK[variant]})`,
+    WebkitMaskImage: `url(${src})`,
+    maskImage: `url(${src})`,
     WebkitMaskSize: "contain",
     maskSize: "contain",
     WebkitMaskRepeat: "no-repeat",
     maskRepeat: "no-repeat",
     WebkitMaskPosition: "center",
     maskPosition: "center",
+    ...box,
   };
 
   return <span role="img" aria-label={title} className={className} style={style} />;

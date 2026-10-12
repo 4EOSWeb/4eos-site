@@ -1,5 +1,7 @@
-import { llmsTxt, textHeaders } from "@/lib/discovery";
+import { llmsTxt } from "@/lib/llms";
 
 export function GET() {
-  return new Response(llmsTxt(), { headers: textHeaders });
+  return new Response(llmsTxt(), {
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  });
 }

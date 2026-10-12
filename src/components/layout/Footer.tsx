@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
+import { MidwestLogo } from "@/components/brand/MidwestLogo";
 import { addressLine, nav, site, utilityNav } from "@/lib/site";
+import { SocialMarks } from "./SocialMarks";
 import { Rule } from "./Sheet";
 
 export function Footer() {
@@ -9,9 +11,14 @@ export function Footer() {
       <div className="sheet-pad py-16 md:py-20">
         <div className="grid gap-16 md:grid-cols-12 md:gap-8">
           <div className="md:col-span-5">
-            <Link href="/" aria-label="4EOS home" className="inline-flex">
-              <Logo height={28} />
-            </Link>
+            <div className="flex flex-wrap items-center gap-5">
+              <Link href="/" aria-label="4EOS home" className="inline-flex">
+                <Logo mark="line" height={36} />
+              </Link>
+              <Link href="/services/voip" aria-label="Midwest VoIP" className="inline-flex text-inherit">
+                <MidwestLogo height={36} />
+              </Link>
+            </div>
             <p className="lede mt-8 max-w-sm">
               {site.tagline}
             </p>
@@ -79,9 +86,23 @@ export function Footer() {
         <Rule className="my-10" />
 
         <div className="flex flex-wrap items-center justify-between gap-4">
-          <p className="micro text-fg-faint">
-            © 2026 {site.name}. Fort Wayne, Indiana.
-          </p>
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <p className="micro text-fg-faint">
+              © 2026 {site.name}. Fort Wayne, Indiana.
+            </p>
+            <nav aria-label="Legal" className="flex flex-wrap gap-x-4 gap-y-1">
+              <Link href="/privacy" className="micro text-fg-faint transition-colors hover:text-gold">
+                Privacy
+              </Link>
+              <Link href="/terms" className="micro text-fg-faint transition-colors hover:text-gold">
+                Terms
+              </Link>
+              <Link href="/accessibility" className="micro text-fg-faint transition-colors hover:text-gold">
+                Accessibility
+              </Link>
+            </nav>
+          </div>
+          <SocialMarks />
           <p className="micro text-fg-faint">{addressLine}</p>
         </div>
       </div>

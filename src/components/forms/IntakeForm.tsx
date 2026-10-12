@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { setResolve } from "@/components/signal/store";
 
@@ -27,15 +28,24 @@ export function IntakeForm({
   endpoint,
   intent,
   submitLabel = "Send",
+  topic,
+  detail,
+  messageLabel,
 }: {
   endpoint: "/api/contact" | "/api/support";
   intent: "assessment" | "support";
   submitLabel?: string;
+  /** Short context that is prepended to the ticket, such as a quiz result. */
+  topic?: string;
+  /** Lead source recorded in analytics. Defaults to the intent. */
+  detail?: "quiz";
+  messageLabel?: string;
 }) {
   const [fields, setFields] = useState<Fields>(EMPTY);
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
     "idle",
   );
+  const [ticketId, setTicketId] = useState<string | null>(null);
 
   const complete = useMemo(() => {
     const filled = REQUIRED.filter((k) => fields[k].trim().length > 0).length;
@@ -62,9 +72,11 @@ export function IntakeForm({
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...fields, intent }),
+        body: JSON.stringify({ ...fields, intent, ...(topic ? { topic } : {}), ...(detail ? { detail } : {}) }),
       });
       if (!res.ok) throw new Error("send failed");
+      const data = (await res.json().catch(() => null)) as { ticketId?: unknown } | null;
+      setTicketId(typeof data?.ticketId === "string" ? data.ticketId : null);
       setStatus("sent");
       setResolve(1);
     } catch {
@@ -75,7 +87,7 @@ export function IntakeForm({
   if (status === "sent") {
     return (
       <p className="lede" role="status">
-        Received. We will follow up within one business day.
+        Received.{ticketId ? ` Ticket ${ticketId}.` : ""} We will follow up within one business day.
       </p>
     );
   }
@@ -111,7 +123,7 @@ export function IntakeForm({
         onChange={(v) => update("phone", v)}
       />
       <Field
-        label={intent === "support" ? "What is happening" : "What should we know"}
+        label={messageLabel ?? (intent === "support" ? "What is happening" : "What should we know")}
         name="message"
         value={fields.message}
         onChange={(v) => update("message", v)}
@@ -138,6 +150,16 @@ export function IntakeForm({
       >
         {status === "sending" ? "Sending" : `→ ${submitLabel}`}
       </button>
+      <p className="body-sm text-fg-faint">
+        Sending this opens a ticket with {intent === "assessment" ? "sales" : "the help desk"} so we can reply. We do not sell what you type.{" "}
+        <Link href="/privacy" className="underline decoration-hairline-strong underline-offset-4 hover:text-gold">
+          Privacy
+        </Link>
+        {" · "}
+        <Link href="/terms" className="underline decoration-hairline-strong underline-offset-4 hover:text-gold">
+          Terms
+        </Link>
+      </p>
       {status === "error" ? (
         <p className="body-sm" role="alert">
           The message did not go through. Call {`(260) 490-7740`} or try again.
@@ -178,7 +200,7 @@ function Field({
     ) => onChange(e.target.value),
     onFocus: () => setResolve(Math.max(0.08, value ? 0.4 : 0.15)),
     className:
-      "peer h-14 w-full rounded-[4px] border border-bone bg-white px-4 text-[15px] tracking-tight text-ink placeholder:text-bone-muted focus:border-ink focus:outline-none",
+      "peer h-14 w-full rounded-[4px] border border-hairline-strong bg-bone/14 px-4 text-[15px] tracking-tight text-fg placeholder:text-fg-faint focus:border-gold focus:outline-none",
   };
 
   return (

@@ -39,7 +39,7 @@ jobs:
           mkdir -p logs && unzip -qo logs.zip -d logs 2>/dev/null
           {
             echo "== files"; find logs -iname '*.log' | sed 's|.*/||' | sort | tail -n 15
-            for f in $(ls -t $(find logs -iname '*default_docker.log') 2>/dev/null | head -1); do
+            for f in $(ls -t $(find logs \( -iname '*containerStream.log' -o -iname '*failure.log' \)) 2>/dev/null | head -2); do
               echo "== $(basename "$f")"
               grep -v '^\s*$' "$f" | tail -n 70 | cut -c1-300
             done

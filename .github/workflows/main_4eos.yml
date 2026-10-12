@@ -19,21 +19,34 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up Node.js version
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '22.x'
+          cache: 'npm'
 
-      - name: npm install, build, and test
+      - name: Install, build, and test
         run: |
-          npm install
+          npm ci
           npm run build --if-present
           npm run test --if-present
+
+      # Dev-only packages (playwright, sharp, potrace, eslint, ...) are not
+      # needed at runtime. Pruning them keeps the deploy small and fast.
+      - name: Remove dev dependencies
+        run: npm prune --omit=dev
+
+      # Zip so the upload/download moves one file instead of tens of thousands.
+      - name: Package app
+        run: |
+          zip -qr release.zip . \
+            -x '.git/*' '.github/*' 'scripts/*' 'data/*' '.env*' \
+               'CHAT-HISTORY.txt' 'Caddyfile' 'start-site.*'
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: .
+          path: release.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -47,7 +60,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: node-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -61,5 +74,25 @@ jobs:
         with:
           app-name: '4eos'
           slot-name: 'Production'
-          package: .
-          
+          package: release.zip
+
+      # Fails the run if the site isn't actually serving after the deploy,
+      # so a broken release shows up as a red X instead of a silent outage.
+      - name: Check the live site
+        env:
+          SITE: https://4eos-hdcccqcqauc2b8hm.northcentralus-01.azurewebsites.net
+        run: |
+          for path in / /services /llms.txt /feed.xml; do
+            for attempt in $(seq 1 12); do
+              code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "$SITE$path" || true)
+              [ "$code" = "200" ] && break
+              echo "$path returned $code, retrying in 15s ($attempt/12)"
+              sleep 15
+            done
+            echo "$path -> $code"
+            [ "$code" = "200" ] || { echo "::error::$path returned $code"; exit 1; }
+          done
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 60 "$SITE/analytics")
+          echo "/analytics -> $code (307 = login is configured, 404 = ANALYTICS_USER/PASSWORD not set)"
+          [ "$code" = "404" ] && echo "::warning::/analytics returned 404 - set ANALYTICS_USER and ANALYTICS_PASSWORD on the 4eos web app"
+          exit 0

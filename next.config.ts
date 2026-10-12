@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
   // Restart `next dev` after changing this.
   allowedDevOrigins: ["*.*.*.*", "**.*"],
   devIndicators: false,
+  async rewrites() {
+    return [{ source: "/faq.json", destination: "/ai/faq.json" }];
+  },
   async redirects() {
     return [
       {

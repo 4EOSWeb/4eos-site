@@ -119,16 +119,14 @@ export function ChapterRail() {
   }, []);
 
   const story = targets >= 2;
-  const current = story ? PHASES[active] : undefined;
 
   if (pathname.startsWith("/analytics") || menuOpen || (!story && !more)) return null;
 
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[35] flex items-end justify-between gap-6 px-[var(--sheet-inset)] pb-4">
-      {story && current ? (
+      {story ? (
         <nav aria-label="Chapters" className="pointer-events-auto min-w-0">
-          <p className="micro text-fg">{label(current)}</p>
-          <ol className="mt-1 flex items-center">
+          <ol className="flex items-center">
             {PHASES.map((name, i) => {
               const here = i === active;
               return (

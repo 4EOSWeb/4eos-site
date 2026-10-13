@@ -3,6 +3,7 @@ import { addressLine, site } from "@/lib/site";
 export function GET() {
   return Response.json({
     name: site.name,
+    legalName: site.legalName,
     title: site.name,
     description: site.description,
     url: site.url,
@@ -18,6 +19,7 @@ export function GET() {
     sameAs: [
       site.social.linkedin,
       site.social.facebook,
+      site.social.google,
       site.social.x,
     ],
   });

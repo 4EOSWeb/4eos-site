@@ -28,6 +28,7 @@ export const rssHeaders = {
 export function aiSummary() {
   return {
     name: site.name,
+    legalName: site.legalName,
     title: site.name,
     description: site.description,
     url: site.url,
@@ -90,7 +91,7 @@ export function orgGraph() {
         "@type": "Organization",
         "@id": orgId,
         name: site.name,
-        legalName: site.name,
+        legalName: site.legalName,
         url: site.url,
         description: site.description,
         foundingDate: String(site.founded),

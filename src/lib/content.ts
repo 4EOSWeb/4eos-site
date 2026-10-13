@@ -4,7 +4,7 @@
  * already published.
  */
 
-import { site } from "./site";
+import aeoFaq from "./aeo-faq.json";
 
 export type Related = { href: string; label: string };
 
@@ -409,27 +409,12 @@ export const industries = [
   },
 ] as const;
 
+/**
+ * The live site's FAQPage, in that order. These are the answers published
+ * for citation. Practice questions below cover pages that schema does not.
+ */
 export const faqs = [
-  {
-    q: "How do I choose a managed IT provider?",
-    a: "Ask how they connect the technology to the work, and how fast they close tickets. Ask about response times and SLAs, cybersecurity, monitoring, industry experience, local and remote support, and whether they plan ahead or only fix what is already broken.",
-  },
-  {
-    q: "What should a business VoIP system include?",
-    a: "More than calls. Reliability, mobile and remote support, auto attendant and call routing, voicemail transcription, CRM integration, recording and analytics, and the ability to grow without a forklift.",
-  },
-  {
-    q: "Why outsource IT for a mid-sized company?",
-    a: "Lower cost than staffing the same coverage internally, access to a broader bench, stronger cybersecurity, 24/7 monitoring, and the ability to scale without hiring for every new system.",
-  },
-  {
-    q: "What should I look for in a cybersecurity partner?",
-    a: "24/7 threat monitoring, managed detection and response, endpoint protection, security awareness training, incident response planning, compliance expertise, backup and disaster recovery, and someone who can actually show up.",
-  },
-  {
-    q: "Why 4EOS?",
-    a: "Founded in 2002. Managed IT, cybersecurity, cloud, and strategic consulting for Indiana organizations. Proactive support, dedicated engineers, and regular onsite engagement through Eyes On Site.",
-  },
+  ...aeoFaq,
   {
     q: "What is CompleteCare?",
     a: "CompleteCare is 4EOS managed IT: proactive management, continuous monitoring, and live U.S.-based support. It runs from the help desk through fully managed infrastructure, in three levels: Base, Pro, and Premium.",
@@ -462,7 +447,7 @@ export const faqs = [
     q: "Is 4EOS a hardware reseller?",
     a: "4EOS is the largest Dell reseller in Northeast Indiana, with Microsoft and Cisco partnerships. Hardware is sized to the work, not the catalog.",
   },
-] as const;
+];
 
 export const values = [
   {
@@ -480,9 +465,58 @@ export const values = [
 ] as const;
 
 export const leadership = [
-  { name: "Tyson Howard", jobTitle: "Chief Executive Officer" },
-  { name: "Adam Steury", jobTitle: "Chief Revenue Officer" },
-  { name: null, jobTitle: "Lead Engineer" },
+  {
+    name: "Tyson Howard",
+    jobTitle: "Chief Executive Officer",
+    sameAs: "https://www.linkedin.com/in/tyson-howard-mba-9186227b/",
+    knowsAbout: ["IT strategy", "Managed services", "Business operations"],
+  },
+  {
+    name: "Adam Steury",
+    jobTitle: "Chief Revenue Officer",
+    sameAs: "https://www.linkedin.com/in/steury/",
+    knowsAbout: ["Managed IT services", "Client partnerships", "Business growth"],
+  },
+  {
+    name: "Connor Heminger",
+    jobTitle: "Director, Ops & Sales",
+    sameAs: "https://www.linkedin.com/in/connor-heminger-00265a181/",
+    knowsAbout: ["Service operations", "Client onboarding", "Support delivery"],
+  },
+  {
+    name: "Rhett Godwin",
+    jobTitle: "Lead Engineer",
+    sameAs: "https://www.linkedin.com/in/rhett-godwin-b88520264/",
+    knowsAbout: ["Network engineering", "Cybersecurity", "IT infrastructure"],
+  },
+  {
+    name: "Sam King",
+    jobTitle: "vCIO",
+    sameAs: "https://www.linkedin.com/in/sam-king-937831199/",
+    knowsAbout: ["IT strategy", "Technology roadmaps", "Virtual CIO services"],
+  },
+] as const;
+
+/** Google rating and the four reviews published on the live homepage. */
+export const rating = { value: "4.8", count: 16 } as const;
+
+export const reviews = [
+  {
+    name: "Ken B",
+    body: "Extraordinary IT service that keeps business running - always - and puts your mind at ease that your mission-critical data is stored safely in your own private cloud where a real person is available to help anytime, although you'll not need it! Rock Solid - cannot say enough about 4EOS - highly recommend them for all your Managed Service Provider needs as well as your Managed Security Service Provider needs.",
+  },
+  {
+    name: "Steve B",
+    body: "Our company has used 4EOS for a long time. Excellent Service and Support.",
+  },
+  {
+    name: "David M",
+    body: "Great company with great people. I would like to say, they are always available to fix problems, but with 4EOS as a business partner, I do not have problems. I can concentrate on running my business and let 4EOS keep my business running.",
+  },
+  {
+    name: "Josh G",
+    body: "We use them where I work, excellent IT shop!",
+  },
 ] as const;
 
 export const hours = "Monday to Friday, 8:00 AM to 5:00 PM ET";

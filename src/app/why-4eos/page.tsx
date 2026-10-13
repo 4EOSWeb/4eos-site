@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { InnerPage } from "@/components/layout/InnerPage";
-import { leadership, values } from "@/lib/content";
+import { leadership, rating, reviews, values } from "@/lib/content";
 import { site } from "@/lib/site";
 import { withCanonical } from "@/lib/metadata";
 
@@ -65,11 +65,24 @@ export default function WhyPage() {
               className="grid gap-2 py-8 md:grid-cols-12 md:items-baseline"
             >
               <p className="display text-[clamp(1.3rem,2.2vw,1.8rem)] md:col-span-5">
-                {person.name ?? person.jobTitle}
+                {person.name}
               </p>
-              {person.name ? (
-                <p className="lede md:col-span-7">{person.jobTitle}</p>
-              ) : null}
+              <p className="lede md:col-span-7">{person.jobTitle}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="mt-16 border-t border-hairline pt-16">
+        <p className="micro text-fg-faint">Rated {rating.value} on Google</p>
+        <h2 className="display mt-4 text-[clamp(1.5rem,2.6vw,2.2rem)]">
+          Indiana businesses that made the switch
+        </h2>
+        <ul className="mt-10 divide-y divide-hairline border-y border-hairline">
+          {reviews.map((review) => (
+            <li key={review.name} className="py-8">
+              <blockquote className="lede max-w-[62ch]">“{review.body}”</blockquote>
+              <p className="micro mt-4 text-fg-faint">{review.name}</p>
             </li>
           ))}
         </ul>

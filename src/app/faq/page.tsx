@@ -19,6 +19,7 @@ export default function FAQPage() {
       kicker="Questions"
       title="Straight answers."
       lede="CompleteCare, Eyes On Site, SecureAI, cybersecurity, VoIP, and how the work is done."
+      note="Answers reviewed by Rhett Godwin, Lead Engineer. Last updated October 1, 2026."
     >
       <JsonLd data={graphSchema([faqSchema(faqs)])} />
       <FaqList items={faqs} />

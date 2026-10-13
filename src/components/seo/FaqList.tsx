@@ -1,8 +1,16 @@
+function anchor(question: string) {
+  return question
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .slice(0, 72);
+}
+
 export function FaqList({ items }: { items: readonly { q: string; a: string }[] }) {
   return (
     <dl>
       {items.map((item, i) => (
-        <div key={item.q} className="border-t border-hairline py-8 last:border-b">
+        <div id={anchor(item.q)} key={item.q} className="border-t border-hairline py-8 last:border-b">
           <dt className="flex gap-[3vw]">
             <span className="micro text-fg-faint">{String(i + 1).padStart(2, "0")}</span>
             <span className="display text-[clamp(1.4rem,2.6vw,2.2rem)]">{item.q}</span>

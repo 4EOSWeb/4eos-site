@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { InnerPage } from "@/components/layout/InnerPage";
 import { AiCoreMount } from "@/components/secureai/AiCoreMount";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { withCanonical } from "@/lib/metadata";
+import { graphSchema, secureAiSchema } from "@/lib/schema";
 
 export const metadata: Metadata = withCanonical("/secureai", {
   title: "SecureAI",
@@ -41,6 +43,7 @@ export default function SecureAIPage() {
       note="Models inside the perimeter. The data stays yours."
       visual={<AiCoreMount />}
     >
+      <JsonLd data={graphSchema([secureAiSchema()])} />
       <ul className="divide-y divide-hairline border-y border-hairline">
         {points.map((p) => (
           <li key={p.title} className="grid gap-4 py-8 md:grid-cols-12">

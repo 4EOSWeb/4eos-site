@@ -16,8 +16,13 @@ import {
   subscribeSnapTargets,
 } from "@/lib/snap";
 
+/** Visitor-facing names. The field still calls the first scene unmanaged. */
+const CHAPTER_LABEL: Record<string, string> = {
+  unmanaged: "Home",
+};
+
 function label(name: string) {
-  return name.charAt(0).toUpperCase() + name.slice(1);
+  return CHAPTER_LABEL[name] ?? name.charAt(0).toUpperCase() + name.slice(1);
 }
 
 /** How long the page must sit untouched before the down cue appears. */

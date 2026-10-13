@@ -6,6 +6,7 @@
 
 export const site = {
   name: "4EOS",
+  legalName: "Experienced Office Solutions",
   tagline: "Modern IT Leadership for Growing Businesses",
   description:
     "Managed IT, cybersecurity, and compliance for Indiana businesses. Founded in Fort Wayne in 2002.",
@@ -26,6 +27,7 @@ export const site = {
     facebook: "https://www.facebook.com/4EOSOfficial",
     linkedin: "https://www.linkedin.com/company/28155015",
     x: "https://x.com/4eosoffical",
+    google: "https://g.page/r/CbgYFdrdDa0rEAI/review",
   },
 } as const;
 

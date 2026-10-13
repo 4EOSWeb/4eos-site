@@ -1,4 +1,4 @@
-import { hours, leadership } from "@/lib/content";
+import { fax, hours, leadership, rating, reviews } from "@/lib/content";
 import { site } from "@/lib/site";
 
 type Qa = { q: string; a: string };
@@ -27,6 +27,56 @@ export function breadcrumbSchema(items: { name: string; path: string }[]) {
       name: item.name,
       item: `${site.url}${item.path}`,
     })),
+  };
+}
+
+/** CompleteCare, as published on the live homepage Service node. */
+export function completeCareSchema() {
+  return {
+    "@type": "Service",
+    serviceType: "Managed IT Services",
+    name: "CompleteCare Managed IT",
+    provider: { "@id": orgId },
+    areaServed: { "@type": "City", name: "Fort Wayne, IN" },
+    description:
+      "Proactive managed IT services with built-in cybersecurity, live U.S.-based support, and continuous system monitoring, from help desk coverage to fully managed infrastructure.",
+    url: `${site.url}/services/completecare`,
+  };
+}
+
+/** SecureAI plans, matching the prices shown on /secureai. */
+export function secureAiSchema() {
+  return {
+    "@type": "Product",
+    name: "SecureAI by 4EOS",
+    description:
+      "A secure, managed AI platform giving every employee access to 60+ AI models, including GPT-4 and Claude, with enterprise-grade security, privacy, and no per-user subscription fees.",
+    provider: { "@id": orgId },
+    brand: { "@type": "Brand", name: site.name },
+    url: `${site.url}/secureai`,
+    offers: [
+      {
+        "@type": "Offer",
+        name: "Starter",
+        price: "500",
+        priceCurrency: "USD",
+        description: "100,000 AI credits per month, reset monthly.",
+      },
+      {
+        "@type": "Offer",
+        name: "Small Business",
+        price: "1000",
+        priceCurrency: "USD",
+        description: "250,000 AI credits per month, reset monthly.",
+      },
+      {
+        "@type": "Offer",
+        name: "Business",
+        price: "2250",
+        priceCurrency: "USD",
+        description: "750,000 AI credits per month, reset monthly. Enterprise pricing available above 1,500,000 credits.",
+      },
+    ],
   };
 }
 
@@ -96,6 +146,8 @@ export function organizationSchema() {
         name: person.name,
         jobTitle: person.jobTitle,
         worksFor: { "@id": orgId },
+        sameAs: person.sameAs,
+        knowsAbout: [...person.knowsAbout],
       },
     ];
   });
@@ -104,20 +156,50 @@ export function organizationSchema() {
     "@context": "https://schema.org",
     "@graph": [
       {
-        "@type": ["Organization", "ProfessionalService"],
+        "@type": ["Organization", "ProfessionalService", "LocalBusiness"],
         "@id": orgId,
         name: site.name,
-        legalName: site.name,
+        legalName: site.legalName,
         description: site.description,
         url: site.url,
         telephone: site.phone,
+        faxNumber: fax,
         email: site.helpdesk,
         foundingDate: String(site.founded),
         dateModified: site.updated,
-        areaServed: "Indiana",
+        areaServed: [
+          { "@type": "City", name: "Fort Wayne" },
+          { "@type": "AdministrativeArea", name: "Northeast Indiana" },
+        ],
+        knowsAbout: [
+          "Managed IT services",
+          "Cybersecurity",
+          "NIST Cybersecurity Framework",
+          "Cloud migration",
+          "Business VoIP",
+          "Data center operations",
+          "Disaster recovery",
+          "IT strategy and vCIO services",
+          "Microsoft 365",
+          "Hardware procurement",
+          "Secure AI platforms",
+        ],
         logo: `${site.url}/brand/4eos-icon.svg`,
         image: `${site.url}/brand/4eos-icon.svg`,
-        sameAs: [site.social.facebook, site.social.linkedin, site.social.x],
+        sameAs: [site.social.facebook, site.social.linkedin, site.social.google, site.social.x],
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: rating.value,
+          reviewCount: rating.count,
+          bestRating: "5",
+          worstRating: "1",
+        },
+        review: reviews.map((item) => ({
+          "@type": "Review",
+          reviewRating: { "@type": "Rating", ratingValue: "5", bestRating: "5" },
+          author: { "@type": "Person", name: item.name },
+          reviewBody: item.body,
+        })),
         address: {
           "@type": "PostalAddress",
           streetAddress: site.address.street,

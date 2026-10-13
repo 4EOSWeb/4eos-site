@@ -7,8 +7,32 @@ const nextConfig: NextConfig = {
   // Restart `next dev` after changing this.
   allowedDevOrigins: ["*.*.*.*", "**.*"],
   devIndicators: false,
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+          {
+            key: "Content-Security-Policy",
+            value:
+              "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; worker-src 'self' blob:; frame-ancestors 'self'; base-uri 'self'; form-action 'self'",
+          },
+        ],
+      },
+    ];
+  },
   async rewrites() {
-    return [{ source: "/faq.json", destination: "/ai/faq.json" }];
+    return [
+      { source: "/faq.json", destination: "/ai/faq.json" },
+      { source: "/service.json", destination: "/ai/service.json" },
+    ];
   },
   async redirects() {
     return [

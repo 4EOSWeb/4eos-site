@@ -93,7 +93,16 @@ export function IntakeForm({
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="space-y-3">
+    <form
+      onSubmit={onSubmit}
+      noValidate
+      className="space-y-3"
+      aria-label={
+        intent === "support"
+          ? "Open a support ticket"
+          : "Request a free IT assessment"
+      }
+    >
       <Field
         label="Name"
         name="name"
@@ -205,7 +214,7 @@ function Field({
 
   return (
     <div>
-      <label htmlFor={name} className="sr-only">
+      <label htmlFor={name} className="micro mb-2 block text-fg-faint">
         {label}
         {required ? " (required)" : ""}
       </label>

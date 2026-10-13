@@ -8,7 +8,8 @@ import { withCanonical } from "@/lib/metadata";
 
 export const metadata: Metadata = withCanonical("/faq", {
   title: "FAQ",
-  description: "Straight answers on choosing a provider, VoIP, outsourcing, and cybersecurity.",
+  description:
+    "Answers on CompleteCare, Eyes On Site, SecureAI, cybersecurity, VoIP, and how 4EOS works with Indiana businesses.",
 });
 
 export default function FAQPage() {
@@ -17,7 +18,7 @@ export default function FAQPage() {
       phase="discovery"
       kicker="Questions"
       title="Straight answers."
-      lede="From choosing a provider to what VoIP should include."
+      lede="CompleteCare, Eyes On Site, SecureAI, cybersecurity, VoIP, and how the work is done."
     >
       <JsonLd data={graphSchema([faqSchema(faqs)])} />
       <FaqList items={faqs} />

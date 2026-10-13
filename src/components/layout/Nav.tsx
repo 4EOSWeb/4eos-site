@@ -4,25 +4,22 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/brand/Logo";
-import { MidwestLogo } from "@/components/brand/MidwestLogo";
 import { SocialMarks } from "@/components/layout/SocialMarks";
 import { addressLine, headerNav, site } from "@/lib/site";
 import { setMenuOpen } from "@/lib/menu";
 import { lockScroll, unlockScroll } from "@/lib/scroll";
 import { snapToEl } from "@/lib/snap";
 
-/** Both wordmarks need the row this wide before Services and the social icons keep their padding. */
-const FULL_BAR = "(min-width: 1440px)";
+const FULL_BAR = "(min-width: 1280px)";
 
 const menuNav = [
   ...headerNav,
   { label: "About", href: "/about" },
-  { label: "Journal", href: "/blog" },
 ] as const;
 
 function isCurrent(href: string, pathname: string) {
-  if (href === "/services/completecare") {
-    return pathname === href || pathname.startsWith(`${href}/`);
+  if (href === "/#chapter-ownership") {
+    return pathname === "/services/completecare";
   }
   if (href === "/services") {
     return (
@@ -114,7 +111,7 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
         className={`site-bar fixed inset-x-0 top-0 z-50 ${ink ? "site-bar-bone" : ""}`}
       >
         <div className="flex h-[var(--nav-h)] items-center gap-[clamp(0.75rem,1.5vw,1.75rem)] px-[var(--sheet-inset)]">
-          <div className="brand-pair flex shrink-0 items-center gap-[clamp(0.7rem,1.15vw,1.15rem)]">
+          <div className="brand-pair flex shrink-0 items-center">
             <Link
               href="/#chapter-unmanaged"
               aria-label="4EOS home"
@@ -132,18 +129,11 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
             >
               <Logo />
             </Link>
-            <Link
-              href="/services/voip"
-              aria-label="Midwest VoIP"
-              className="inline-flex items-center text-inherit transition-opacity hover:opacity-80"
-            >
-              <MidwestLogo />
-            </Link>
           </div>
 
           <nav
             aria-label="Primary"
-            className="hidden min-w-0 min-[1440px]:flex min-[1440px]:flex-1 min-[1440px]:justify-center"
+            className="hidden min-w-0 min-[1280px]:flex min-[1280px]:flex-1 min-[1280px]:justify-center"
           >
             <ul className="flex items-center gap-[clamp(0.35rem,calc(2.2vw-1.15rem),1.35rem)]">
               {headerNav.map((item) => {
@@ -154,6 +144,18 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
                       href={item.href}
                       aria-current={current ? "page" : undefined}
                       className="bar-link inline-flex py-2"
+                      onClick={(event) => {
+                        if (!item.href.startsWith("/#")) return;
+                        if (pathname !== "/") return;
+                        event.preventDefault();
+                        const id = item.href.slice(2);
+                        if (window.location.hash !== `#${id}`) {
+                          window.location.hash = id;
+                          return;
+                        }
+                        const chapter = document.getElementById(id);
+                        if (chapter) snapToEl(chapter);
+                      }}
                     >
                       {item.label}
                     </Link>
@@ -164,7 +166,7 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
           </nav>
 
           <div className="ml-auto flex shrink-0 items-center gap-[clamp(0.5rem,1vw,0.9rem)]">
-            <SocialMarks className="ml-4 hidden min-[1440px]:flex" />
+            <SocialMarks className="ml-4 hidden min-[1280px]:flex" />
             <a
               href={site.phoneHref}
               className="bar-link hidden py-2 opacity-80 hover:opacity-100 min-[760px]:inline-flex"
@@ -189,7 +191,7 @@ export function Nav({ tone = "light" }: { tone?: "light" | "dark" }) {
               onClick={() => setOpen((v) => !v)}
               aria-expanded={open}
               aria-controls="site-menu"
-              className="bar-btn bar-btn-line inline-flex min-[1440px]:hidden"
+              className="bar-btn bar-btn-line inline-flex min-[1280px]:hidden"
             >
               {open ? "Close" : "Menu"}
             </button>

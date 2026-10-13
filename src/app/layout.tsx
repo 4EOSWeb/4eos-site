@@ -48,6 +48,11 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image" },
   robots: { index: true, follow: true },
+  alternates: {
+    types: {
+      "application/rss+xml": `${site.url}/feed.xml`,
+    },
+  },
   icons: {
     icon: "/brand/4eos-icon.svg",
     apple: "/brand/4eos-icon.svg",

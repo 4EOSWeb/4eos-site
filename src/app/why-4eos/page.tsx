@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { InnerPage } from "@/components/layout/InnerPage";
-import { values } from "@/lib/content";
+import { leadership, values } from "@/lib/content";
 import { site } from "@/lib/site";
 import { withCanonical } from "@/lib/metadata";
 
@@ -26,6 +26,11 @@ const claims = [
 ];
 
 export default function WhyPage() {
+  const rows = [
+    ...claims,
+    ...values.map((v) => ({ title: v.title, lede: v.lede })),
+  ];
+
   return (
     <InnerPage
       phase="discovery"
@@ -34,7 +39,7 @@ export default function WhyPage() {
       lede="We take ownership of the IT. Local support is how the work has been done here for over two decades."
     >
       <ul className="divide-y divide-hairline border-y border-hairline">
-        {claims.map((c) => (
+        {rows.map((c) => (
           <li key={c.title} className="grid gap-4 py-10 md:grid-cols-12">
             <h2 className="display text-[clamp(1.5rem,2.6vw,2.2rem)] md:col-span-5">
               {c.title}
@@ -43,16 +48,32 @@ export default function WhyPage() {
           </li>
         ))}
       </ul>
-      <ul className="mt-16 divide-y divide-hairline border-y border-hairline">
-        {values.map((v) => (
-          <li key={v.title} className="grid gap-4 py-8 md:grid-cols-12">
-            <h3 className="display text-[clamp(1.3rem,2.2vw,1.8rem)] md:col-span-5">
-              {v.title}
-            </h3>
-            <p className="lede md:col-span-7">{v.lede}</p>
-          </li>
-        ))}
-      </ul>
+
+      <section className="mt-16 border-t border-hairline pt-16">
+        <p className="micro text-fg-faint">Leadership</p>
+        <h2 className="display mt-4 text-[clamp(1.5rem,2.6vw,2.2rem)]">
+          The team behind 4EOS
+        </h2>
+        <p className="lede mt-4 max-w-[46ch]">
+          Dedicated engineers and leadership you can reach. Regular onsite
+          engagement through Eyes On Site.
+        </p>
+        <ul className="mt-10 divide-y divide-hairline border-y border-hairline">
+          {leadership.map((person) => (
+            <li
+              key={person.jobTitle}
+              className="grid gap-2 py-8 md:grid-cols-12 md:items-baseline"
+            >
+              <p className="display text-[clamp(1.3rem,2.2vw,1.8rem)] md:col-span-5">
+                {person.name ?? person.jobTitle}
+              </p>
+              {person.name ? (
+                <p className="lede md:col-span-7">{person.jobTitle}</p>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      </section>
     </InnerPage>
   );
 }

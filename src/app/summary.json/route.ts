@@ -9,7 +9,7 @@ export function GET() {
     tagline: site.tagline,
     docs: `${site.url}/llms.txt`,
     source: site.url,
-    lastModified: new Date().toISOString(),
+    lastModified: site.updated,
     foundingDate: String(site.founded),
     areaServed: "Indiana",
     telephone: site.phone,

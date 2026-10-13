@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
-import { MidwestLogo } from "@/components/brand/MidwestLogo";
 import { addressLine, nav, site, utilityNav } from "@/lib/site";
 import { SocialMarks } from "./SocialMarks";
 import { Rule } from "./Sheet";
@@ -11,14 +10,9 @@ export function Footer() {
       <div className="sheet-pad py-16 md:py-20">
         <div className="grid gap-16 md:grid-cols-12 md:gap-8">
           <div className="md:col-span-5">
-            <div className="flex flex-wrap items-center gap-5">
-              <Link href="/" aria-label="4EOS home" className="inline-flex">
-                <Logo mark="line" height={36} />
-              </Link>
-              <Link href="/services/voip" aria-label="Midwest VoIP" className="inline-flex text-inherit">
-                <MidwestLogo height={36} />
-              </Link>
-            </div>
+            <Link href="/" aria-label="4EOS home" className="inline-flex">
+              <Logo height={36} />
+            </Link>
             <p className="lede mt-8 max-w-sm">
               {site.tagline}
             </p>

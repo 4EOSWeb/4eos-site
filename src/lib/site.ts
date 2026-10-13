@@ -6,7 +6,7 @@
 
 export const site = {
   name: "4EOS",
-  tagline: "IT That Works for You. Not the Other Way Around.",
+  tagline: "Modern IT Leadership for Growing Businesses",
   description:
     "Managed IT, cybersecurity, and compliance for Indiana businesses. Founded in Fort Wayne in 2002.",
   url: "https://www.4eos.com",
@@ -21,6 +21,7 @@ export const site = {
     postal: "46825",
     country: "US",
   },
+  updated: "2026-10-13",
   social: {
     facebook: "https://www.facebook.com/4EOSOfficial",
     linkedin: "https://www.linkedin.com/company/28155015",
@@ -36,13 +37,12 @@ export const nav = [
   { label: "Industries", href: "/industries" },
   { label: "Why 4EOS", href: "/why-4eos" },
   { label: "About", href: "/about" },
-  { label: "Journal", href: "/blog" },
 ] as const;
 
-/** The live 4eos.com bar, in that order. About and Journal stay in the menu. */
+/** The live 4eos.com bar, in that order. About stays in the menu. */
 export const headerNav = [
   { label: "Services", href: "/services" },
-  { label: "CompleteCare", href: "/services/completecare" },
+  { label: "CompleteCare", href: "/#chapter-ownership" },
   { label: "SecureAI", href: "/secureai" },
   { label: "Industries", href: "/industries" },
   { label: "Why 4EOS", href: "/why-4eos" },

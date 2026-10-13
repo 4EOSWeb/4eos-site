@@ -430,6 +430,38 @@ export const faqs = [
     q: "Why 4EOS?",
     a: "Founded in 2002. Managed IT, cybersecurity, cloud, and strategic consulting for Indiana organizations. Proactive support, dedicated engineers, and regular onsite engagement through Eyes On Site.",
   },
+  {
+    q: "What is CompleteCare?",
+    a: "CompleteCare is 4EOS managed IT: proactive management, continuous monitoring, and live U.S.-based support. It runs from the help desk through fully managed infrastructure, in three levels: Base, Pro, and Premium.",
+  },
+  {
+    q: "What is Eyes On Site?",
+    a: "Technology went remote-first, and so did 4EOS. Engineers still show up. Regular onsite engagement means the office, the team, and the setup are known in person.",
+  },
+  {
+    q: "What is SecureAI?",
+    a: "Sixty-plus models on one secure platform, with the data staying yours. No stacked per-user fees. Access controls and usage policies leadership can enforce. 4EOS does not train on company data.",
+  },
+  {
+    q: "Which industries does 4EOS work with?",
+    a: "Legal, insurance, healthcare, construction, manufacturing, and private equity. The work is not generic, and neither is the environment.",
+  },
+  {
+    q: "Where is 4EOS based?",
+    a: "Fort Wayne, Indiana, since 2002. The office is at 9815 Dawson's Creek Blvd. Hours are Monday to Friday, 8:00 AM to 5:00 PM ET. CompleteCare monitoring runs 24/7.",
+  },
+  {
+    q: "Does 4EOS follow a security framework?",
+    a: "Yes. Cybersecurity is built on the NIST Cybersecurity Framework, with HIPAA, PCI, and SEC compliance support, and audit-ready documentation.",
+  },
+  {
+    q: "How do I get support?",
+    a: "Existing clients email helpdesk@4eos.com or use the support form. That opens a ticket with the help desk. If the environment is down completely, call (260) 490-7740. New clients start with a free IT assessment.",
+  },
+  {
+    q: "Is 4EOS a hardware reseller?",
+    a: "4EOS is the largest Dell reseller in Northeast Indiana, with Microsoft and Cisco partnerships. Hardware is sized to the work, not the catalog.",
+  },
 ] as const;
 
 export const values = [
@@ -445,6 +477,12 @@ export const values = [
     title: "Client success",
     lede: "We support the IT, and we sit in on the decisions that depend on it.",
   },
+] as const;
+
+export const leadership = [
+  { name: "Tyson Howard", jobTitle: "Chief Executive Officer" },
+  { name: "Adam Steury", jobTitle: "Chief Revenue Officer" },
+  { name: null, jobTitle: "Lead Engineer" },
 ] as const;
 
 export const hours = "Monday to Friday, 8:00 AM to 5:00 PM ET";

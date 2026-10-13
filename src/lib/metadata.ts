@@ -10,6 +10,11 @@ export function withCanonical(path: string, metadata: Metadata = {}): Metadata {
   const canonical = path === "/" ? site.url : `${site.url}${path}`;
   return {
     ...metadata,
-    alternates: { canonical },
+    alternates: {
+      canonical,
+      types: {
+        "application/rss+xml": `${site.url}/feed.xml`,
+      },
+    },
   };
 }

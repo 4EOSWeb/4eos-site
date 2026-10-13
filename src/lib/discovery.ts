@@ -34,7 +34,7 @@ export function aiSummary() {
     tagline: site.tagline,
     docs: `${site.url}/llms.txt`,
     source: site.url,
-    lastModified: new Date().toISOString(),
+    lastModified: site.updated,
     foundingDate: String(site.founded),
     areaServed: "Indiana",
     telephone: site.phone,
@@ -97,7 +97,7 @@ export function orgGraph() {
         telephone: site.phone,
         email: site.helpdesk,
         logo: `${site.url}/icon.png`,
-        sameAs: [site.social.linkedin, site.social.facebook],
+        sameAs: [site.social.linkedin, site.social.facebook, site.social.x],
         address: {
           "@type": "PostalAddress",
           streetAddress: site.address.street,
@@ -176,7 +176,7 @@ export function aiTxt() {
     `Sitemap: ${site.url}/sitemap.xml`,
     `Feed: ${site.url}/feed.xml`,
     "",
-    `Last-Modified: ${new Date().toISOString().slice(0, 10)}`,
+    `Last-Modified: ${site.updated}`,
   ];
   return `${lines.join("\n")}\n`;
 }
@@ -226,7 +226,8 @@ ${posts || link("/blog", "Journal", "Notes on managed IT, security, and running 
 
 ${link("/ai/summary.json", "summary.json", "Short site identity for AI crawlers.")}
 ${link("/ai/faq.json", "faq.json", "The FAQ as question and answer pairs.")}
-${link("/feed.xml", "RSS feed", "Journal updates.")}
+${link("/ai/service.json", "service.json", "Capabilities and industries.")}
+${link("/feed.xml", "RSS feed", "Site updates.")}
 `;
 }
 
@@ -240,28 +241,44 @@ function escapeXml(value: string) {
 }
 
 export function rssXml() {
-  const items = getPosts()
-    .map((post) => {
-      const url = `${site.url}/blog/${post.slug}`;
-      return `    <item>
+  const built = new Date(`${site.updated}T12:00:00Z`).toUTCString();
+  const pages = [
+    { title: site.tagline, path: "/", description: site.description },
+    { title: "FAQ", path: "/faq", description: "Answers on CompleteCare, Eyes On Site, SecureAI, cybersecurity, and how 4EOS works." },
+    { title: "Why 4EOS", path: "/why-4eos", description: "A partner, not a vendor. Eyes On Site, one family of companies." },
+    { title: "CompleteCare Managed IT", path: "/services/completecare", description: "Proactive management, continuous monitoring, and live U.S.-based support." },
+    { title: "SecureAI", path: "/secureai", description: "Sixty-plus models on one platform, with the data staying yours." },
+  ];
+  const pageItems = pages.map((page) => {
+    const url = page.path === "/" ? site.url : `${site.url}${page.path}`;
+    return `    <item>
+      <title>${escapeXml(page.title)}</title>
+      <link>${url}</link>
+      <guid>${url}</guid>
+      <pubDate>${built}</pubDate>
+      <description>${escapeXml(page.description)}</description>
+    </item>`;
+  });
+  const postItems = getPosts().map((post) => {
+    const url = `${site.url}/blog/${post.slug}`;
+    return `    <item>
       <title>${escapeXml(post.title)}</title>
       <link>${url}</link>
       <guid>${url}</guid>
       <pubDate>${new Date(post.date).toUTCString()}</pubDate>
       <description>${escapeXml(post.description)}</description>
     </item>`;
-    })
-    .join("\n");
+  });
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <title>${escapeXml(site.name)} Journal</title>
-    <link>${site.url}/blog</link>
-    <description>${escapeXml("Notes on managed IT, security, and running a business in Fort Wayne.")}</description>
+    <title>${escapeXml(site.name)}</title>
+    <link>${site.url}</link>
+    <description>${escapeXml(site.description)}</description>
     <language>en-us</language>
-    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-${items}
+    <lastBuildDate>${built}</lastBuildDate>
+${[...pageItems, ...postItems].join("\n")}
   </channel>
 </rss>
 `;

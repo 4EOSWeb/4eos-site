@@ -21,20 +21,20 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/accessibility",
   ];
 
-  const now = new Date();
+  const updated = new Date(`${site.updated}T12:00:00Z`);
 
   return [
     ...staticRoutes.map((path) => ({
       url: path ? `${site.url}${path}` : site.url,
-      lastModified: now,
+      lastModified: updated,
     })),
     ...services.map((s) => ({
       url: `${site.url}/services/${s.slug}`,
-      lastModified: now,
+      lastModified: updated,
     })),
     ...industries.map((i) => ({
       url: `${site.url}/industries/${i.slug}`,
-      lastModified: now,
+      lastModified: updated,
     })),
     ...getPosts().map((p) => ({
       url: `${site.url}/blog/${p.slug}`,

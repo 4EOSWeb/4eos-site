@@ -218,6 +218,7 @@ ${link("/why-4eos", "Why 4EOS", "A partner, not a vendor.")}
 ${link("/faq", "FAQ", "Straight answers on choosing a provider, VoIP, outsourcing, and cybersecurity.")}
 ${link("/contact", "Contact", "New client intake. A senior engineer follows up.")}
 ${link("/support", "Support", "Existing client with an issue.")}
+${link("/master-services-agreement", "Master Services Agreement", "MSA version 2026.04, effective April 30, 2026.")}
 
 ## Journal
 

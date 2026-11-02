@@ -1,0 +1,1037 @@
+[
+  [
+    {
+      "t": "Master Service Agreement"
+    }
+  ],
+  [
+    {
+      "t": "MSA Version 2026.04"
+    }
+  ],
+  [
+    {
+      "t": "Effective April 30, 2026"
+    }
+  ],
+  [
+    {
+      "t": "This Managed Services Agreement (this “Agreement”) is made and entered into as of date of acceptance. (“Effective Date”), by and between "
+    },
+    {
+      "t": "[Client.Company] ",
+      "strong": true
+    },
+    {
+      "t": "having its principal place of business a"
+    },
+    {
+      "t": "t [Client.StreetAddress] [Client.City], [Client.State] [Client.PostalCode] ",
+      "strong": true
+    },
+    {
+      "t": "(“"
+    },
+    {
+      "t": "Client",
+      "strong": true
+    },
+    {
+      "t": "”) and "
+    },
+    {
+      "t": "4EOS ",
+      "strong": true
+    },
+    {
+      "t": "having its principal place of business at "
+    },
+    {
+      "t": "9815 Dawson’s Creek Blvd, Fort Wayne, IN 46825",
+      "strong": true
+    },
+    {
+      "t": " (“"
+    },
+    {
+      "t": "Provider",
+      "strong": true
+    },
+    {
+      "t": "”). Each of the foregoing persons and entities individually is referred to herein as a “Party” and collectively as the “"
+    },
+    {
+      "t": "Parties",
+      "strong": true
+    },
+    {
+      "t": ".” Each statement of work, quotation, and/or agreement is expressly limited to the terms contained in the statement of work, quotation, and this agreement. 4EOS rejects any terms and conditions contained in Client’s forms that are additional to or different from those set forth in 4EOS statements of work, quotes, and/or this agreement. This agreement shall be effective as of the first time Client submits a purchase order to 4EOS, signs a 4EOS statement of work, or otherwise accepts a 4EOS quote or agreement."
+    }
+  ],
+  [
+    {
+      "t": "In the event of any inconsistencies between the terms of this Agreement and the terms of any Statement of Work, the terms of this Agreement shall control. The Parties may specify in the applicable SOW that a particular provision of the Statement of Work is to supersede a provision of this Agreement, in which case the superseding Statement of Work provisions shall be applicable only to such Statement of Work and shall be effective for such Statement of Work only if such provision expressly references the applicable Section of this Agreement that is to be modified and clearly states that such provision supersedes the conflicting or inconsistent provision in this Agreement."
+    }
+  ],
+  [
+    {
+      "t": "NOW, THEREFORE,",
+      "strong": true
+    },
+    {
+      "t": " in consideration of the foregoing and the mutual covenants and agreements set forth in this Agreement, and for other good and valuable consideration, the receipt and legal sufficiency of which are hereby acknowledged, the Parties, intending to be legally bound hereby, agree as follows:"
+    }
+  ],
+  [
+    {
+      "t": "1. Services."
+    }
+  ],
+  [
+    {
+      "t": "1.1 Provision of Services.",
+      "strong": true
+    },
+    {
+      "t": " Provider will provide, as an independent contractor, its services (the “"
+    },
+    {
+      "t": "Services",
+      "strong": true
+    },
+    {
+      "t": "”) and any related products, goods and/or equipment (the “"
+    },
+    {
+      "t": "Products",
+      "strong": true
+    },
+    {
+      "t": "”) to Client to complete the projects or tasks described and attached to this Agreement in: (a) the statement of work attached as "
+    },
+    {
+      "t": "Exhibit A",
+      "strong": true
+    },
+    {
+      "t": ", (b) any subsequent statements of work approved in writing by both Parties, and (c) any Change Orders, as defined below (collectively, the “"
+    },
+    {
+      "t": "SOWs",
+      "strong": true
+    },
+    {
+      "t": "” and, each a “"
+    },
+    {
+      "t": "SOW",
+      "strong": true
+    },
+    {
+      "t": "”). The Services provided pursuant to each SOW will be subject to this Agreement and each applicable SOW."
+    }
+  ],
+  [
+    {
+      "t": "1.2 Change Orders.",
+      "strong": true
+    },
+    {
+      "t": " Any material modifications to a SOW shall be made by written change order, executed by both Parties (a “"
+    },
+    {
+      "t": "Change Order",
+      "strong": true,
+      "em": true
+    },
+    {
+      "t": "”)."
+    }
+  ],
+  [
+    {
+      "t": "2. Term."
+    }
+  ],
+  [
+    {
+      "t": "2.1 Term.",
+      "strong": true
+    },
+    {
+      "t": "  This Agreement shall continue for an initial term of thirty-six (36) months (the “"
+    },
+    {
+      "t": "Initial Term",
+      "strong": true
+    },
+    {
+      "t": "”). At the end of the Initial Term, this Agreement will automatically renew for a successive period equal in length to the Initial Term (the “"
+    },
+    {
+      "t": "Renewal Term",
+      "strong": true
+    },
+    {
+      "t": "”) unless Client provides Provider with written notice of Client’s intent not to renew the services at least 90 days prior to the expiration of the Initial Term. At the end of any Renewal Term or Additional Renewal Term, this Agreement will automatically renew for a successive period equal in length to the original Renewal Term (an “"
+    },
+    {
+      "t": "Additional Renewal Term",
+      "strong": true
+    },
+    {
+      "t": "” and together with the Renewal Term and the Initial Term, the “"
+    },
+    {
+      "t": "Term",
+      "strong": true
+    },
+    {
+      "t": "”) unless Client provides Provider with written notice of Client’s intent not to renew the services at least 90 days prior to the expiration of the then-current Renewal Term, or Additional Renewal Term, as the case may be."
+    }
+  ],
+  [
+    {
+      "t": "2.2 Termination.",
+      "strong": true
+    },
+    {
+      "t": " Provider may terminate this Agreement at any time upon 90 days’ written notice to Client or upon any failure of Client to pay the Fees (as defined below) within thirty (30) days of receiving any invoice. In the event of any termination of this Agreement, any equipment provided to Client by Provider shall be returned to Provider upon termination. In the event that Client fails to return Provider’s equipment after 30 days from the date of termination, Client will be required to compensate Provider for any such equipment retained by Client. In the event of an occurrence of Provider Cause (as defined below), Client may terminate this Agreement immediately without penalty or payment of the Early Termination Fee (as defined below). In the event of any termination other than a termination due to Provider Cause (as defined below), Client will be responsible for compensating Provider for all services provided by Provider to move Client’s Services to another provider or to move Client’s data from Provider’s system to another system."
+    }
+  ],
+  [
+    {
+      "t": "2.3 Early Termination Fee.",
+      "strong": true
+    },
+    {
+      "t": " In no event may Client terminate this Agreement prior to the expiration of the then-current Initial Term, Renewal Term or Additional Renewal Term absent “Provider Cause” as defined below. In the event that Client terminates this Agreement without Provider Cause prior to the expiration of the then-current Initial Term, Renewal Term or Additional Renewal Term, as the case may be, Client shall pay Provider an early termination fee (the “"
+    },
+    {
+      "t": "Early Termination Fee",
+      "strong": true
+    },
+    {
+      "t": "”). The Parties agree that the Early Termination Fee is a fair representation of the damages anticipated to be suffered by Provider in the event of an early termination by Client and that the Early Termination Fee is not a penalty. For purposes of this Agreement, the Early Termination Fee shall be calculated as:"
+    }
+  ],
+  [
+    {
+      "t": "2.3.1 ",
+      "strong": true
+    },
+    {
+      "t": "100% of Client’s monthly recurring charges for all Services covered by this Agreement multiplied by the remaining months in Client’s then-current Initial Term, Renewal Term or Additional Renewal Term, as the case may be;"
+    }
+  ],
+  [
+    {
+      "t": "2.3.2 ",
+      "strong": true
+    },
+    {
+      "t": "Plus, all costs incurred by Provider in processing the Services;"
+    }
+  ],
+  [
+    {
+      "t": "2.3.3 ",
+      "strong": true
+    },
+    {
+      "t": "Plus, all provisioning related and/or installation-related costs incurred for the required equipment and facilities up to the date of termination (including without limitation any termination, cancellation or other charges that Provider may be required to pay to any third party as a result of the termination);"
+    }
+  ],
+  [
+    {
+      "t": "2.3.4 ",
+      "strong": true
+    },
+    {
+      "t": "Plus, the amount of any non-recurring charges previously waived."
+    }
+  ],
+  [
+    {
+      "t": "2.4 Repayment of Discounted Fees",
+      "strong": true
+    },
+    {
+      "t": ". If Provider gives Client a discount under a SOW based on Client’s commitment to retain Provider’s Services for a minimum term and, under that scenario, Provider terminates the SOW for cause or Client terminates the SOW without Provider Cause, then in addition to any other remedy available to Provider, Client agrees to immediately pay Provider the difference between the discounted rates and the non-discounted rates under that SOW, calculated from the effective date of the SOW through the date of termination."
+    }
+  ],
+  [
+    {
+      "t": "2.5 Provider Cause. ",
+      "strong": true
+    },
+    {
+      "t": "As used herein, the term “Provider Cause” shall only occur in the event that Provider fails to perform a material obligation under this Agreement for more than 30 days after written notice and opportunity to cure are given by Client to Provider."
+    }
+  ],
+  [
+    {
+      "t": "3. ",
+      "strong": true
+    },
+    {
+      "t": "Limitation of Liability."
+    }
+  ],
+  [
+    {
+      "t": "3.1 ",
+      "strong": true
+    },
+    {
+      "t": "PROVIDER SHALL NOT BE LIABLE FOR ANY AND ALL DIRECT OR INDIRECT, INCIDENTAL, GENERAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO, LOSS OF PROFITS, LOSS OF BUSINESS OR BUSINESS OPPORTUNITY, LOSS OF INFORMATION KEPT ON A DRIVE OWNED OR MAINTAINED BY PROVIDER, OR LOSS OF USE, EVEN IF CLIENT IS ADVISED OF THE POSSIBILITY OF SUCH DAMAGES, TO CLIENT FOR A BREACH OF THESE POLICIES, BREACH OF A STATEMENT OF WORK, OR BREACH OF THIS AGREEMENT BY PROVIDER. IN THE EVENT OF A BREACH OF AN OBLIGATION BY PROVIDER, CLIENT’S DAMAGES SHALL BE LIMITED TO A MAXIMUM OF THE AMOUNT ACTUALLY PAID BY CLIENT TO PROVIDER IN THE THREE MONTHS PRECEDING THE BREACH BY PROVIDER, BUT IN NO CASE SHALL CLIENT’S DAMAGES EXCEED $1,000."
+    }
+  ],
+  [
+    {
+      "t": "3.2 ",
+      "strong": true
+    },
+    {
+      "t": "CLIENT RECOGNIZES THAT THE INTERNET CONSISTS OF MULTIPLE PARTICIPATING NETWORKS THAT ARE SEPARATELY OWNED AND NOT SUBJECT TO PROVIDER’S CONTROL. CLIENT AGREES THAT PROVIDER SHALL NOT BE LIABLE FOR DAMAGES INCURRED OR SUMS PAID WHEN THE SERVICES ARE TEMPORARILY OR PERMANENTLY UNAVAILABLE DUE TO MALFUNCTION OF, OR CESSATION OF, INTERNET SERVICES BY NETWORK(S) OR INTERNET SERVICE PROVIDERS NOT SUBJECT TO PROVIDER’S CONTROL, OR FOR TRANSMISSION ERRORS IN, CORRUPTION OF, OR THE SECURITY OF CLIENT’S INFORMATION CARRIED ON SUCH NETWORKS OR INTERNET SERVICE PROVIDERS. PROVIDER SHALL HAVE NO LIABILITY HEREUNDER FOR DAMAGES INCURRED OR SUMS PAID DUE TO ANY FAULT OF CLIENT OR ANY THIRD PARTY, OR BY ANY HARMFUL COMPONENTS (SUCH AS COMPUTER VIRUSES, WORMS, COMPUTER SABOTAGE, AND ‘DENIAL OF SERVICE’ ATTACKS). PROVIDER IS NOT LIABLE FOR ANY BREACH OF SECURITY ON CLIENT’S NETWORK, REGARDLESS OF WHETHER ANY REMEDY PROVIDED IN THIS AGREEMENT FAILS OF ITS ESSENTIAL PURPOSE. CLIENT AGREES THAT CLIENT WILL NOT HOLD PROVIDER RESPONSIBLE FOR ANY SELECTION OR RETENTION OF, OR THE ACTS OR OMISSIONS OF, THIRD PARTIES IN CONNECTION WITH THE SERVICES (INCLUDING THOSE WITH WHOM PROVIDER MAY CONTRACT TO OPERATE THE SERVICES), OR HOLD A THIRD PARTY RESPONSIBLE FOR ANY SELECTION OR RETENTION OF, OR THE ACTS OR OMISSIONS OF, PROVIDER IN CONNECTION WITH THE SERVICES. WITHOUT LIMITING THE FOREGOING, CLIENT AGREES THAT CLIENT WILL NOT HOLD PROVIDER RESPONSIBLE FOR (A) THIRD PARTY CLAIMS AGAINST CLIENT FOR DAMAGES, (B) LOSS OF OR DAMAGE TO CLIENT’S RECORDS OR DATA OR SOFTWARE MAINTAINED OR STORED BY PROVIDER, OR (C) LOSS OR DAMAGE TO CLIENT ASSOCIATED WITH THE INOPERABILITY OF CLIENT’S EQUIPMENT OR APPLICATIONS WITH ANY COMPONENT OF THE SERVICES OF THE PROVIDER NETWORK. CLIENT AGREES TO MAKE ALL CLAIMS RELATED TO THE SERVICES DIRECTLY AGAINST PROVIDER, AND WAIVE ANY RIGHT TO RECOVER DAMAGES (DIRECTLY OR BY INDEMNITY) RELATED TO THE SERVICES BY CLAIMING AGAINST OR THROUGH A THIRD PARTY TO THIS AGREEMENT."
+    }
+  ],
+  [
+    {
+      "t": "4. Disclaimer and Limitation of Warranties; Indemnification.",
+      "strong": true
+    },
+    {
+      "t": ""
+    }
+  ],
+  [
+    {
+      "t": "4.1 ",
+      "strong": true
+    },
+    {
+      "t": "NOTWITHSTANDING ANYTHING HEREIN TO THE CONTRARY, CLIENT AGREES TO ACCEPT THE SERVICES ON AN “AS-IS” NON-WARRANTABLE BASIS. PROVIDER EXPRESSLY DISCLAIMS THE WARRANTIES OF MERCHANTABILITY, TITLE, AND FITNESS FOR A PARTICULAR PURPOSE REGARDING THE PROVIDING OF SERVICES AND PRODUCTS TO CLIENT."
+    }
+  ],
+  [
+    {
+      "t": "4.2 ",
+      "strong": true
+    },
+    {
+      "t": "Provider does not and cannot warrant any Services or work it performs for Client's systems or use, or in loading data or software onto, or off, its equipment or systems used internally or externally. Consequently, Provider is not liable for any time loss, data loss, system configuration issues, or any other damages the Client or others may claim or suffer because of problems with Client's systems or software. Additionally, Provider is not responsible for communication line(s) charges of any kind, including misconfigurations or any other issue."
+    }
+  ],
+  [
+    {
+      "t": "4.3 ",
+      "strong": true
+    },
+    {
+      "t": "Any Products sold by Provider that carry a manufacturer’s warranty shall be subject to the manufacturer’s terms and conditions unless otherwise stated. Due to low manufacturer warranty reimbursement rates, Client may be required to pay Provider additional fees to process warranty claims with the manufacturer. Provider shall not be liable for any delays resulting from the execution or any denial of such warranty. The manufacturers’ warranties (if any) are in lieu of, and client waives, all other warranties in connection with any goods or equipment provided under this Agreement."
+    }
+  ],
+  [
+    {
+      "t": "4.4 Indemnification. ",
+      "strong": true
+    },
+    {
+      "t": "Client agrees to indemnify, defend, and hold Provider harmless, as well as its subsidiaries, affiliates, officers, directors, employees, agents, licensors, consultants, suppliers, and any third-party Web site provider, from and against all claims, demands, actions, liabilities, losses, expenses, damages, judgments and costs, including attorneys' fees, resulting from Client’s violation of this Agreement, misuse or abuse of the Services, violation of State or Federal law, or infringement thereof by Client or users of Client’s account. Provider reserves the right, at its own expense, to assume the exclusive defense and control of any matter otherwise subject to indemnification by Client. Client must not in any event accept a settlement of any dispute relating to this Agreement without prior written consent of Provider."
+    }
+  ],
+  [
+    {
+      "t": "5. Payment Terms.",
+      "strong": true
+    }
+  ],
+  [
+    {
+      "t": "5.1 Fees.",
+      "strong": true
+    },
+    {
+      "t": " Client agrees to pay Provider for the Services and the Products, if any, according to the base fee (the “"
+    },
+    {
+      "t": "Base Fee",
+      "strong": true
+    },
+    {
+      "t": "”) and other pricing terms, fee schedule, rates, fees, incidental charges (including third-party Products purchased through Provider, shipping fees, sales tax where applicable and other expenses) and other terms set forth in the SOWs (collectively, the “"
+    },
+    {
+      "t": "Other Fees",
+      "strong": true
+    },
+    {
+      "t": "” and together with the Base Fee, the “"
+    },
+    {
+      "t": "Fees",
+      "strong": true
+    },
+    {
+      "t": "”)."
+    }
+  ],
+  [
+    {
+      "t": "5.2 Billing; Invoice.",
+      "strong": true
+    },
+    {
+      "t": " The Base Fee will be billed automatically on the 5th day of each month by Automated Clearing House (“"
+    },
+    {
+      "t": "ACH",
+      "strong": true
+    },
+    {
+      "t": "”) transfer, initiated by Provider, which reflect monthly Base Fees one (1) month in advance of when they are incurred. The Other Fees will be documented in invoice(s) reflecting such charges, which Provider may issue in writing or electronically, which shall also generally reflect monthly Other Fees one (1) month in advance of when they are incurred. Client will pay Provider pursuant to ACH transfer, upon receipt of an invoice, on or before the due date specified in the invoice. Client agrees to provide bank information to Provider by filling out a secure ACH Authorization Form on the Effective Date. Secure ACH Authorization Forms will be provided to Client by Provider. Client agrees to promptly inform Provider about bank information changes."
+    }
+  ],
+  [
+    {
+      "t": "5.3 Interest. ",
+      "strong": true
+    },
+    {
+      "t": "If payment for any Fees is not received by Provider on or before an invoice due date or the automatic billing date stated in Section 5.2, interest shall begin to accrue and be payable at the lesser of the maximum rate permitted under applicable law or at the rate of one and one-half percent (1.5%) per month from the date due, until paid in full."
+    }
+  ],
+  [
+    {
+      "t": "5.4 ",
+      "strong": true
+    },
+    {
+      "t": "All of the Fees are payable in U.S. dollars. ACH transfer fees are included in Client’s Fees. In the case of non-payment, Provider reserves the right to leverage collection agencies, fees will be passed on to Client."
+    }
+  ],
+  [
+    {
+      "t": "6. Price and Scope Increase.",
+      "strong": true
+    }
+  ],
+  [
+    {
+      "t": "6.1 ",
+      "strong": true
+    },
+    {
+      "t": "Unless specifically and expressly stated in a SOW, any services required to remediate issues caused by Client’s failure to follow Provider’s advice or directions, or Client’s unauthorized modification of the system, as well as any services required to bring the system up to or maintain the minimum requirements, are not covered under any SOW and will be out-of-scope."
+    }
+  ],
+  [
+    {
+      "t": "6.2 ",
+      "strong": true
+    },
+    {
+      "t": "Provider reserves the right to modify the Fees from time to time, in its sole discretion, upon thirty (30) days written notice to Client prior to the effective date of any such adjustment; or effective upon any renewal of the Term. Throughout the Term, Client agrees to promptly inform Provider whenever it hires/terminates employees or authorizes additional users. In addition, Provider implements automated auditing and reporting procedures to identify such changes, and Provider reserves the right to automatically adjust Client’s monthly Fee as necessary to accurately reflect all current users. If a prior Service location remains installed after a new Service location is installed, Client will be responsible for Service charges for both Service locations until terminated as provided for each Service. New services or upgrades/relocations will result in additional Fees."
+    }
+  ],
+  [
+    {
+      "t": "6.3 ",
+      "strong": true
+    },
+    {
+      "t": "In addition to any adjustments related to additions or subtractions for specific users or devices, the Base Fee will increase by the greater of either the percent change in the Consumer Price Index statistics published by the United States Bureau of Labor or 5% annually on each anniversary date of the Effective Date to accommodate general market increases anticipated."
+    }
+  ],
+  [
+    {
+      "t": "6.4 Taxes. ",
+      "strong": true
+    },
+    {
+      "t": "Fees are on the SOW and do not include applicable taxes and regulatory fees unless so indicated. In the event that Provider is required by a governmental authority to pay any tax on Client’s behalf, Provider will have the right to be reimbursed by Client for such amount. Client must reimburse Provider within 30 days of written notice that a tax has been paid on Client’s behalf by Provider."
+    }
+  ],
+  [
+    {
+      "t": "7. General Product Terms.",
+      "strong": true
+    }
+  ],
+  [
+    {
+      "t": "7.1 Refunds / Returns. ",
+      "strong": true
+    },
+    {
+      "t": "Provider does not accept returns of Products provided under this Agreement. Any requests for an exception to this policy must be made in writing within fifteen (15) days of the invoice date and if approved by Provider’s distributor via a Return Manufacturers’ Authorization (“"
+    },
+    {
+      "t": "RMA",
+      "strong": true
+    },
+    {
+      "t": "”), Client will be charged a twenty percent (20%) restocking fee by Provider. Any exceptions approved beyond fifteen (15) days will be charged a restocking fee of 40%. Any credit memo for service must be accompanied with an approved RMA from Provider."
+    }
+  ],
+  [
+    {
+      "t": "7.2 Freight. ",
+      "strong": true
+    },
+    {
+      "t": "All Products to be delivered to Client by Provider under this Agreement are “FOB point of origin.” Where Client has not specified method of shipment, Provider will ship in the most economical way consistent with applicable requirements of this Agreement, unless previously specified in writing in advance by Client and approved by Provider in its sole discretion. The Client must make any claim for damage, loss, or delay in shipment against the common carrier. Provider's responsibility for such damages or loss ceases upon the acceptance of the shipment by the carrier. In the event of shipment delay allowed under this Agreement and requested in writing by Client, Provider will store all material affected thereby at Client’s sole risk and expense. Provider will invoice Client at the full price for the material, including an additional storage fee. Except as otherwise set forth in this Agreement, Provider will have unrestricted access to Client’s site and any other locations at which Services are to be performed at all times."
+    }
+  ],
+  [
+    {
+      "t": "7.3  Hardware-as-a-Service (HaaS) Ownership Terms ",
+      "strong": true
+    },
+    {
+      "t": "For clients subscribed to the 4EOS CompleteCare Pro or 4EOS CompleteCare Premium service offerings, the following Hardware‑as‑a‑Service (HaaS) terms apply:"
+    }
+  ],
+  [
+    {
+      "t": "7.3.1.",
+      "strong": true
+    },
+    {
+      "t": " "
+    },
+    {
+      "t": "Ownership of Equipment",
+      "strong": true
+    }
+  ],
+  [
+    {
+      "t": "All HaaS equipment provided under the Pro or Premium service tiers remains the sole property of 4EOS for the duration of the agreement term. This includes:"
+    }
+  ],
+  [
+    {
+      "t": "Pro Offering HaaS Equipment"
+    }
+  ],
+  [
+    {
+      "t": "-Firewall"
+    }
+  ],
+  [
+    {
+      "t": "-Access points"
+    }
+  ],
+  [
+    {
+      "t": "-Network switch"
+    }
+  ],
+  [
+    {
+      "t": "Premium Offering HaaS Equipment"
+    }
+  ],
+  [
+    {
+      "t": "-End-user compute devices (desktop or laptop)"
+    }
+  ],
+  [
+    {
+      "t": "-Up to three (3) 24-inch monitors per user"
+    }
+  ],
+  [
+    {
+      "t": "-Webcam"
+    }
+  ],
+  [
+    {
+      "t": "-Keyboard"
+    }
+  ],
+  [
+    {
+      "t": "-Mouse"
+    }
+  ],
+  [
+    {
+      "t": "Clients are granted the right to use this equipment exclusively during the active term of their CompleteCare agreement."
+    }
+  ],
+  [
+    {
+      "t": "7.3.2.",
+      "strong": true
+    },
+    {
+      "t": " "
+    },
+    {
+      "t": "Obligation Upon Early Termination",
+      "strong": true
+    }
+  ],
+  [
+    {
+      "t": "If the client terminates the agreement before the end of the contracted term, the following conditions apply:"
+    }
+  ],
+  [
+    {
+      "t": "The client must either:"
+    }
+  ],
+  [
+    {
+      "t": "(a) return all 4EOS-owned HaaS equipment in good working condition within 10 business days of termination, and"
+    }
+  ],
+  [
+    {
+      "t": "(b) pay the remaining equipment balance as described below."
+    }
+  ],
+  [
+    {
+      "t": "The remaining balance owed will equal the unamortized equipment cost, calculated by 4EOS based on the MSRP of the equipment provided, prorated across the full term of the agreement."
+    }
+  ],
+  [
+    {
+      "t": "4EOS will provide the client with a final equipment balance statement that includes:"
+    }
+  ],
+  [
+    {
+      "t": "Itemized MSRP values of all deployed HaaS devices"
+    }
+  ],
+  [
+    {
+      "t": "Remaining prorated amount due for each item"
+    }
+  ],
+  [
+    {
+      "t": "Total equipment payoff required to exit the agreement"
+    }
+  ],
+  [
+    {
+      "t": "7.3.3. Failure to Return Equipment",
+      "strong": true
+    }
+  ],
+  [
+    {
+      "t": "If equipment is not returned within the stated period, or is returned damaged beyond normal wear:"
+    }
+  ],
+  [
+    {
+      "t": "The client will be invoiced 100% of the remaining MSRP value, regardless of term, for each unreturned or damaged device."
+    }
+  ],
+  [
+    {
+      "t": "7.3.4. Transfer of Ownership at Term Completion",
+      "strong": true
+    }
+  ],
+  [
+    {
+      "t": "If the client completes the full agreement term with no outstanding balance:"
+    }
+  ],
+  [
+    {
+      "t": "4EOS may, at its discretion, transfer ownership of HaaS devices to the client for $0 or for a nominal buyout value."
+    }
+  ],
+  [
+    {
+      "t": "8. Client Responsibilities and Representations.",
+      "strong": true
+    }
+  ],
+  [
+    {
+      "t": "8.1 Provider Right",
+      "strong": true
+    },
+    {
+      "t": ". If at any time during this Agreement, Provider determines that the customer repeatedly fails in its obligations hereunder; Provider reserves the right to revert to a billable time and materials arrangement. In such case, Provider will advise the customer in writing."
+    }
+  ],
+  [
+    {
+      "t": "8.2 Technical Contacts",
+      "strong": true
+    },
+    {
+      "t": ". Client shall identify in writing and make available at least one qualified Client employee (“"
+    },
+    {
+      "t": "Client Relationship Manager",
+      "strong": true
+    },
+    {
+      "t": "”) and an alternate with authority to (i) advise Provider of Client’s requirements or criteria for any Services, which must not be inconsistent with this Agreement; (ii) provide information and give data with respect to the requested Service; and (iii) act and make binding decisions on behalf of Client. Until a different employee is identified by Client, the person signing this Agreement on behalf of Client will be the Client Relationship Manager."
+    }
+  ],
+  [
+    {
+      "t": "8.3 Administrative Resources",
+      "strong": true
+    },
+    {
+      "t": ". Client shall provide the administrative resources to complete the implementation of Services (i.e. copying, phones, existing application information, Internet access information, authorized user lists, etc.). Client shall also provide the necessary documentation, if required, to complete any installations, including locally defined LAN addresses, naming conventions, administrator passwords, etc. Client will also be responsible for providing access to user workstation areas and the name, phone number, e-mail address and title for each authorized user. Every user on the network must be listed as an authorized helpdesk caller. Client shall provide media for any existing software licenses that Provider will be supporting or installing and appropriate communication line(s) for “event monitoring.”"
+    },
+    {
+      "t": "",
+      "strong": true
+    }
+  ],
+  [
+    {
+      "t": "8.4 Information and Technology. ",
+      "strong": true
+    },
+    {
+      "t": "Client shall provide accurate information to Provider in connection with the Services. Client shall maintain current software, hardware and operating systems necessary for the provision of the Services. Client understands that the Services, Products and system are subject to the influence of external events which are not within the control of Provider. Client shall ensure that its internet connection is secure. Client shall obtain all necessary software licenses, hardware warranties, data file storage, backups and other support necessary for Provider to provide the Services."
+    }
+  ],
+  [
+    {
+      "t": "8.5 EULAs",
+      "strong": true
+    },
+    {
+      "t": ". Portions of the Services may require Client to accept the terms of one or more third party end user license agreements (“EULAs”). If the acceptance of a EULA is required in order to provide the Services to Client, then Client hereby grants Provider permission to accept the EULA on Client’s behalf. EULAs may contain service levels, warranties and/or liability limitations that are different than those contained in this Agreement. Client agrees to be bound by the terms of such EULAs, and will look only to the applicable third party provider for the enforcement of the terms of such EULAs. If, while providing the Services, Provider is required to comply with a third-party EULA and the third party EULA is modified or amended, Provider reserves the right to modify or amend any applicable SOW with Client to ensure Provider’s continued compliance with the terms of the third party EULA."
+    },
+    {
+      "t": "",
+      "strong": true
+    }
+  ],
+  [
+    {
+      "t": "8.6 BYOD",
+      "strong": true
+    },
+    {
+      "t": ". Client hereby represents and warrants that Provider is authorized to access all devices, peripherals and/or computer processing units, including mobile devices (such as notebook computers, smart phones and tablet computers) that are connected to the system, regardless of whether such device(s) are owned, leased or otherwise controlled by Client. Provider will not be obligated to provide the Services to any mobile device or temporarily-connected device unless that obligation is specifically stated in an applicable SOW. Further, unless otherwise stated in a SOW, devices will not receive or benefit from the Services while the devices are detached from, or unconnected to, the System."
+    }
+  ],
+  [
+    {
+      "t": "8.7 Risk of Loss; Insurance.",
+      "strong": true
+    },
+    {
+      "t": " At all times, Client will bear the risk of any loss, damage or destruction of Client’s assets, equipment or property provided or maintained by Provider, from: fire, water damage, theft or other casualty. Client will be solely responsible for insuring Client’s property and filing insurance claims for losses associated therewith. If Provider is aware of loss or casualty to Client’s property, Provider will immediately notify Client, stating the extent of loss or damage incurred and the cause, if known."
+    },
+    {
+      "t": "",
+      "strong": true
+    }
+  ],
+  [
+    {
+      "t": "8.8 Data Backup",
+      "strong": true
+    },
+    {
+      "t": ". Client agrees to back up all data, files and information prior to the performance of any Services and hereby assumes sole responsibility for any lost or altered data, files or information."
+    }
+  ],
+  [
+    {
+      "t": "9. Intellectual Property; Technology. ",
+      "strong": true
+    },
+    {
+      "t": ""
+    }
+  ],
+  [
+    {
+      "t": "9.1 Intellectual Property Rights.",
+      "strong": true
+    },
+    {
+      "t": " Provider will have and retain full and exclusive ownership of all intellectual property rights associated with any design, data, specification, know-how, software, device, technique, algorithm, method, discovery or invention, whether or not reduced to practice relating to any (a) Service including any Provider work product, (b) result of a Service,(c) joint development, and/or (d) enhancement or improvement to or derivative of any of the foregoing (collectively, “"
+    },
+    {
+      "t": "Provider Property",
+      "strong": true
+    },
+    {
+      "t": "”). The intellectual property rights associated with Provider Property are referred to collectively as “"
+    },
+    {
+      "t": "Provider IP",
+      "strong": true
+    },
+    {
+      "t": "”. Except as provided in any SOW, Client receives no right, title or interest in or license to use any Provider IP. However, Client does receive a non-exclusive, nontransferable, terminable license to use such of the Provider IP that is necessary for Client to exercise its rights hereunder, but solely in connection with and only for the term of the applicable Services and subject to the terms of the applicable SOW. Client will not allow access to Provider Property, including without limitation, software and systems, by anybody other than Client’s employees and subcontractors who (i) are bound by law or written agreement to comply with Client’s duties under this Agreement with respect to Provider Property and Confidential Information, and (ii) require such access to assist Client in its permitted use thereof. Client will not directly or indirectly reverse engineer, decompile, disassemble or copy any Provider Property. Client will return all Provider Property to Provider at the conclusion of the applicable Services. Client will cooperate to take such actions reasonably requested to vest ownership of Provider IP and Provider Property in Provider."
+    }
+  ],
+  [
+    {
+      "t": "9.2 Property Destruction",
+      "strong": true
+    },
+    {
+      "t": ". At all times, Client is to respect the rights, property and technical work of Provider. If Client or any employees or contractors of Client destroy or tamper with Provider’s property (tangible or intangible), including its network systems, the Client will be monetarily responsible for the remediation involved and technical hardware required to correct the issue. This may include, but not be limited to, time spent researching and auditing the problem, correcting the problem, and replacing any technical hardware, cabling, etc., to fix the issue. System problems at the Client site caused by conditions of the environment often require remediation. When this happens, as determined at the sole discretion of Provider, remediation will be charged to the Client at current time and materials rates. Provider is to similarly respect the rights, property, and technical work of Client and perform all Services in a manner so as not to destroy or tamper with Client’s property, including its network systems."
+    }
+  ],
+  [
+    {
+      "t": "9.3 Data Loss",
+      "strong": true
+    },
+    {
+      "t": ". Under no circumstances will Provider be responsible for any data lost, corrupted or rendered unreadable due to (i) communication and/or transmissions errors or related failures, (ii) equipment failures (including but not limited to silent hardware corruption-related issues), or (iii) Provider’s failure to backup or secure data from portions of the system that were not expressly designated in the applicable SOW as requiring backup or recovery services. Unless expressly stated in a SOW, Provider does not warrant or guarantee that any maintained storage device or functionality, data backup device or functionality, or load balancing functionality will operate in an error-free manner."
+    }
+  ],
+  [
+    {
+      "t": "9.4 Third Party Services",
+      "strong": true
+    },
+    {
+      "t": ". Portions of the Services may be acquired from, or rely upon the services of, third party manufacturers or providers, such as data hosting services, domain registration services, and data backup/recovery services (“"
+    },
+    {
+      "t": "Third Party Service",
+      "strong": true
+    },
+    {
+      "t": "”). Not all Third Party Services may be expressly identified as such in a SOW, and at all times Provider reserves the right to utilize the services of any third party provider or to change third party providers in its sole discretion as long as the change does not materially diminish the Services to be provided to Client under a SOW. Provider will not be responsible, and will be held harmless by Client, for the failure of any third-party provider or manufacturer to provide Third Party Services to Provider or to Client."
+    }
+  ],
+  [
+    {
+      "t": "9.5 Software Licenses. ",
+      "strong": true
+    },
+    {
+      "t": "Client is responsible for payment or reimbursement to Provider for all necessary software licenses or software charges associated with software benefitting Client or necessary for provision of Services. Provider will undertake reasonable efforts to procure the appropriate and necessary software licenses related to the Services provided, and Client will be responsible for payment or reimbursement to Provider for the costs of such licenses. Client acknowledges that at times software vendors may later claim that different or additional licenses are needed. Client understands and agrees that it will be responsible for payment or reimbursement for any different or additional licenses that are subsequently required by a software vendor."
+    }
+  ],
+  [
+    {
+      "t": "9.6 Data Security.",
+      "strong": true
+    },
+    {
+      "t": " Provider shall use commercially reasonable efforts to protect all information that Client provides to Provider, including all electronic data (“"
+    },
+    {
+      "t": "Client Data",
+      "strong": true
+    },
+    {
+      "t": "”); provided, however, that Provider is not responsible or liable for any unauthorized disclosure or security breach of any Client Data. Each Party shall notify the Other Party of any unauthorized disclosure or security breach so that such Other Party may take actions to isolate and safeguard the Client Data."
+    }
+  ],
+  [
+    {
+      "t": "10. Restrictive Covenants.",
+      "strong": true
+    }
+  ],
+  [
+    {
+      "t": "10.1 Privacy and Confidentiality. ",
+      "strong": true
+    },
+    {
+      "t": " Provider acknowledges that in the course of providing Services, Provider may be supplied with or come into possession of information of Client, or Client’s customers, which Provider knows Client considers to be confidential and proprietary, and which Client discloses to Provider pursuant to this Agreement (“"
+    },
+    {
+      "t": "Client Confidential Information",
+      "strong": true
+    },
+    {
+      "t": "”). Examples may include, but are not limited to: customer lists, pricing, purchase records, financial records, tax records, medical records, legal records. Provider hereby agrees that it will use commercially reasonable efforts to maintain confidentiality of Client Confidential Information, and will not use it for Provider’s own benefit or disclose Client Confidential Information to third parties without the prior written consent of Client, except as expressly permitted herein. Provider may disclose Client Confidential Information to its employees, consultants, or others in order to perform Services for Client. Provider agrees to take such commercially reasonable action as may be necessary or appropriate by way of agreement with, and/or instruction to, its employees or consultants so as to maintain the confidentiality of Client Confidential Information. This provision shall not extend to information which Provider already knew, or learns independently of Client, or which is or becomes generally available through no fault of Provider, or which Provider is or becomes legally obligated to disclose. Client acknowledges that in the course of Provider providing Services, Client may come into possession of proprietary checklists and installation /configuration procedures developed by Provider, which Provider considers to be confidential and proprietary (“"
+    },
+    {
+      "t": "Provider Confidential Information",
+      "strong": true
+    },
+    {
+      "t": "”). Client hereby agrees that it will use commercially reasonable efforts to maintain confidentiality of Provider Confidential Information, and will not disclose Provider Confidential Information to third parties without the prior written consent of Provider. Client agrees to abide by Provider’s Privacy Policy, as may be amended from time to time, as found on "
+    },
+    {
+      "t": "https://www.4eos.com/privacy-policy",
+      "href": "https://www.4eos.com/privacy-policy"
+    },
+    {
+      "t": " and which is incorporated by reference and made a part of this Agreement."
+    }
+  ],
+  [
+    {
+      "t": "10.2 Advertising and Publicity",
+      "strong": true
+    },
+    {
+      "t": ". Except for materials already made public, neither Party will distribute any news releases, articles, brochures, speeches, or advertisements concerning this Agreement, nor use the other Party’s name or trademarks (or any variation thereof), without the other Party’s prior written consent, not to be unreasonably withheld or delayed."
+    }
+  ],
+  [
+    {
+      "t": "10.3 Non-Solicitation.",
+      "strong": true
+    },
+    {
+      "t": " Client shall not solicit or encourage, directly or indirectly (but excluding cases where an employee applies through a public advertisement without other solicitation or encouragement in violation of this section), through subsidiaries or any other financially related firms to work elsewhere; tender an offer of employment to; place on their payroll; or contract with any present employee or subcontracted employee of Provider (or any former employee or subcontracted employee who has provided services to the Provider during the preceding 12-month period) (collectively, “"
+    },
+    {
+      "t": "Provider Employee",
+      "strong": true
+    },
+    {
+      "t": "”) during the Term of or within twelve (12) months after the termination of this Agreement without the prior written approval of Provider. If written approval is not provided by the CEO of Provider and Client hires or contracts with a Provider Employee contrary to this Section, the Client shall pay the Provider liquidated damages in an amount equal to the total compensation, including salary, wages, bonuses, commissions, and employee benefits, cost of training, etc., that the Provider Employee received during the prior twelve (12) months of employment or $100,000.00, whichever is greater. Because of the unique services Provider offers and the difficulty of determining actual damages in losing trained Provider Employees, the Parties acknowledge that any measure of liquidated damages stated in this section is reasonable. This provision for damages under this Section shall not limit remedies against Client for any other breach of this Section or from asserting any cause of action independent of it. If Provider is required to seek judicial intervention to enforce this provision, in addition to the remedies set forth herein, Provider shall be entitled to injunctive relief and shall be entitled to recovery of its attorneys’ fees and costs."
+    }
+  ],
+  [
+    {
+      "t": "11. Miscellaneous.",
+      "strong": true
+    }
+  ],
+  [
+    {
+      "t": "11.1 Independent Contractor Status. ",
+      "strong": true
+    },
+    {
+      "t": "The Parties are independent contractors. This Agreement shall not create a partnership or joint venture between the Parties, or constitute either Party as an agent, legal representative, employee, or servant of the other for any purpose. All of the Services performed by Provider will be performed as an independent contractor. Provider will have sole discretion to determine the manner, method and means of performing the Services, subject to the provisions of this Agreement. Neither Party may bind the other or create any obligation on the other’s behalf, except as specifically provided in this Agreement."
+    }
+  ],
+  [
+    {
+      "t": "11.2 Assignment. ",
+      "strong": true
+    },
+    {
+      "t": "This Agreement will be binding on the successors and assigns of both Parties. Client may not assign, delegate or transfer Client’s rights, passwords, or duties in connection with the Services provided by Provider without the prior written consent of Provider. All transfers of rights or duties herein, without the advanced permission in writing of Provider, shall be void and unenforceable as a matter of law."
+    }
+  ],
+  [
+    {
+      "t": "11.3 Force Majeure.",
+      "strong": true
+    },
+    {
+      "t": " Each party shall be excused for delay in the performance of any of its obligations hereunder (other than the Client’s obligation to pay Fees pursuant to this Agreement) when such delay is the result of acts of God, governmental authority, delays in transportation, subcontractors not being able to honor their commitment(s), war, act of terrorism, weather, manufacturer’s or supplier’s delays, etc., or any other cause beyond the party’s reasonable control."
+    }
+  ],
+  [
+    {
+      "t": "11.4 Modification; Waiver. ",
+      "strong": true
+    },
+    {
+      "t": "This Agreement may only be amended, modified, waived, or supplemented by an agreement in writing signed by the Parties. No waiver by any Party of any of the provisions of this Agreement shall be effective unless in writing and signed by the Party granting the waiver. No failure to exercise, or delay in exercising, any right, remedy, power or privilege arising from this Agreement shall operate or be construed as a waiver thereof; nor shall any single or partial exercise of any right, remedy, power or privilege arising under this Agreement preclude any other or further exercise thereof or the exercise of any other right, remedy, power or privilege."
+    }
+  ],
+  [
+    {
+      "t": "11.5 Severability. ",
+      "strong": true
+    },
+    {
+      "t": "If any provision of this Agreement is held to be unenforceable as applied to a particular circumstance by a court or tribunal of competent jurisdiction, then that provision shall be construed by (i) modifying it to the minimum extent necessary to make it enforceable (if permitted by applicable law) or (ii) disregarding it (if modifying it is not permitted by applicable law); but, the rest of this Agreement shall remain in effect as written and the provision modified shall remain in effect as written in all other circumstances."
+    }
+  ],
+  [
+    {
+      "t": "11.6 Survival",
+      "strong": true
+    },
+    {
+      "t": ". Sections 3, 4, 8, 9, 10 and 11 and any other provision of this Agreement which by its nature must survive termination or expiration in order to achieve the fundamental purposes of this Agreement will survive the expiration or termination of this Agreement and each SOW."
+    }
+  ],
+  [
+    {
+      "t": "11.7 Dispute Resolution.",
+      "strong": true
+    }
+  ],
+  [
+    {
+      "t": "11.7.1 Governing Law. ",
+      "strong": true
+    },
+    {
+      "t": " This Agreement and all questions relating to its validity, interpretation, performance and enforcement, shall be governed by the laws of the State of Indiana without regard to its choice of law provisions."
+    }
+  ],
+  [
+    {
+      "t": "11.7.2 Informal Resolution",
+      "strong": true
+    },
+    {
+      "t": ". The Parties shall resolve their disputes informally to the maximum extent possible. The Parties shall negotiate all matters of joint concern in good faith. Only disputes within the scope of this Agreement and a SOW are subject to this Section. The cost of informal dispute resolution, whether formal or informal, shall be shared equally by the Parties. Each Party shall bear its own attorney’s fees during informal dispute processes. The Parties agree all statements made in connection with informal dispute resolution efforts, including mediation, shall not be considered admissions or statements against interest by either Party. The Parties further agree that they will not attempt to introduce such statements at any later trial or arbitration between the Parties. Without limiting the generality of the foregoing, if a dispute arises under this Agreement, then within five (5) business days after a written request by either Party, Provider and Client shall promptly confer to resolve the dispute. If the representatives of Provider and Client cannot resolve the dispute or either of them determines they are not making progress toward the resolution of the dispute within ten (10) business days after their initial conference, then the dispute may be submitted to the respective management persons designated by Provider and Client who shall promptly confer to resolve the dispute. If the dispute is not resolved, or either of the designated management persons determine that they are not making reasonable progress toward resolution of the dispute, within five (5) business days after the dispute is first submitted to such management persons or twenty (20) business days have passed since the initial request for negotiations at this level, then the Parties may mutually agree to attempt to resolve the issues by mediation."
+    }
+  ],
+  [
+    {
+      "t": "11.7.3 Mediation",
+      "strong": true
+    },
+    {
+      "t": " If the Parties are unable to resolve their dispute by the procedures set forth in this Section, the Parties agree to try in good faith to settle the dispute by mediation administered by the American Arbitration Association under its Commercial Mediation Rules, before a single mediator, before resorting to arbitration or litigation. The mediation shall be held in Indiana. The Parties shall share equally the cost of the mediation and selection of the mediator. All applicable statute of limitations shall be suspended until the conclusion of the mediation process. Discussions and negotiations held pursuant to this provision shall be treated as compromise and settlement negotiations for purposes of applicable rules of evidence."
+    }
+  ],
+  [
+    {
+      "t": "11.7.4 Arbitration ",
+      "strong": true
+    },
+    {
+      "t": "If within forty-five (45) days after service of a demand for mediation, the mediation either does not take place or does not result in a settlement of the dispute, then any unresolved controversy or claim shall be settled in binding arbitration by a single arbitrator pursuant to the Commercial Rules of the American Arbitration Association. The arbitration shall be held in Indiana, and both Parties shall agree on the selected arbitrator. Each Party will, upon written request of the other Party, promptly provide the other Party with copies of non-confidential documents relevant to the claim(s) in dispute. At the request of a Party, the arbitrator shall have the discretion to order examination, by deposition, of witnesses to the extent that the arbitrator deems such discovery relevant and appropriate. The arbitrator’s award shall be final and binding. The award of the arbitrator shall be accompanied by a reasoned opinion. The arbitrator shall award to the prevailing Party, if any, as determined by the arbitrator, all its Costs and Fees. “Costs and fees” means all reasonable expenses of arbitration, including the arbitrator’s fees, administrative fees, travel expenses, out-of-pocket expenses such as telephone, court costs, witness fees, and attorneys’ fees. Otherwise each party shall bear its own costs, expenses, attorneys’ fees, and an equal share of the arbitrator’s fee and the administrative fees of arbitration."
+    }
+  ],
+  [
+    {
+      "t": "11.8 Notices. ",
+      "strong": true
+    },
+    {
+      "t": "All notices required hereunder shall be in writing and shall be mailed by first-class mail, postage prepaid, sent by facsimile transmission or electronic mail, or delivered by messenger or reputable overnight courier, and shall be deemed given when received at the address of the receiving Party specified in the introductory paragraph of this Agreement, or at such other address as the other Party may furnish in writing."
+    }
+  ],
+  [
+    {
+      "t": "11.9 Entire Agreement. ",
+      "strong": true
+    },
+    {
+      "t": "This Agreement and each SOW constitutes the entire agreement of the Parties with respect to its subject matter, and supersedes all prior and contemporaneous understandings, agreements, representations, and warranties, whether written or oral, with respect to such subject matter. If there is any conflict between this Agreement and a SOW, this Agreement shall control."
+    }
+  ],
+  [
+    {
+      "t": "11.10 Counterparts; Electronic Acceptance",
+      "strong": true
+    },
+    {
+      "t": ". This Agreement may be executed in any number of counterparts, including through verifiable electronic means, each of which shall be considered an original and all of which shall be considered one in the same document.  Such execution of this Agreement through verifiable electronic means may include execution by marking the appropriate boxes in the applicable electronic platform or obtaining signatures through web-based electronic signature technology and digital transaction management services, such as DocuSign."
+    }
+  ]
+]

@@ -94,6 +94,9 @@ export function Footer() {
               <Link href="/accessibility" className="micro text-fg-faint transition-colors hover:text-gold">
                 Accessibility
               </Link>
+              <Link href="/master-services-agreement" className="micro text-fg-faint transition-colors hover:text-gold">
+                Master Services Agreement
+              </Link>
             </nav>
           </div>
           <SocialMarks />

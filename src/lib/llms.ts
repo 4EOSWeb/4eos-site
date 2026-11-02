@@ -1,4 +1,5 @@
 import { faqs, industries, services } from "@/lib/content";
+import msa from "@/lib/msa.json";
 import { getPosts } from "@/lib/posts";
 import { site } from "@/lib/site";
 
@@ -51,6 +52,7 @@ export function llmsTxt() {
     link("Privacy", "/privacy"),
     link("Terms", "/terms"),
     link("Accessibility", "/accessibility"),
+    link("Master Services Agreement", "/master-services-agreement", "MSA version 2026.04, effective April 30, 2026."),
     "",
     "## Optional",
     "",
@@ -101,6 +103,7 @@ export function llmsFullTxt() {
   );
 
   const questions = faqs.flatMap((item) => [`Q: ${item.q}`, `A: ${item.a}`, ""]);
+  const agreement = msa.map((runs) => runs.map((run) => run.t).join(""));
   const posts = getPosts().map((post) => link(post.title, `/blog/${post.slug}`, post.description));
 
   return [
@@ -114,6 +117,7 @@ export function llmsFullTxt() {
     block("SecureAI", "/secureai", [SECUREAI]),
     ...industryBlocks,
     block("Questions", "/faq", questions),
+    block("Master Services Agreement", "/master-services-agreement", agreement),
     ["## Journal", abs("/blog"), "", ...posts, ""].join("\n"),
   ].join("\n");
 }

@@ -57,6 +57,11 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: "/privacy-policy",
+        destination: "/privacy",
+        permanent: true,
+      },
+      {
         source: "/command",
         destination: "/analytics",
         permanent: false,

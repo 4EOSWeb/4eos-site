@@ -19,6 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/privacy",
     "/terms",
     "/accessibility",
+    "/master-services-agreement",
   ];
 
   const updated = new Date(`${site.updated}T12:00:00Z`);

@@ -208,6 +208,50 @@ function Get-DefaultLanIPv4 {
   return $null
 }
 
+function Test-Node22 {
+  $node = Get-Command node -ErrorAction SilentlyContinue
+  $npm = Get-Command npm -ErrorAction SilentlyContinue
+  if (-not $node -or -not $npm) {
+    Write-Host 'Node.js 22 is required. Install it from https://nodejs.org, close this window, and run start-site.bat again.'
+    exit 1
+  }
+  $raw = (& node -p "process.versions.node").Trim()
+  $parts = $raw.Split('.')
+  $major = 0
+  $minor = 0
+  [void][int]::TryParse($parts[0], [ref]$major)
+  if ($parts.Length -gt 1) { [void][int]::TryParse($parts[1], [ref]$minor) }
+  if ($major -lt 22 -or ($major -eq 22 -and $minor -lt 5)) {
+    Write-Host "This site needs Node.js 22.5 or newer. This PC is running $raw."
+    Write-Host 'Install the current Node.js 22 from https://nodejs.org, close this window, and run start-site.bat again.'
+    exit 1
+  }
+}
+
+function Stop-PreviousSite([string]$Runner, [string]$ConfigPath) {
+  try {
+    $procs = @(Get-CimInstance Win32_Process -ErrorAction Stop)
+  } catch {
+    Write-Host 'Could not list running programs. Close the old Caddy and server windows, then run start-site.bat again.'
+    return
+  }
+  foreach ($proc in $procs) {
+    $cmd = [string]$proc.CommandLine
+    if (-not $cmd) { continue }
+    $inRoot = $cmd.IndexOf($root + '\', [System.StringComparison]::OrdinalIgnoreCase) -ge 0
+    if (-not $inRoot) { continue }
+    $name = [string]$proc.Name
+    $stop = $false
+    if ($name -eq 'node.exe' -and ($cmd -like '*\next\dist\bin\next*' -or $cmd -like '*/next/dist/bin/next*')) { $stop = $true }
+    if ($name -eq 'caddy.exe' -and $cmd.IndexOf($ConfigPath, [System.StringComparison]::OrdinalIgnoreCase) -ge 0) { $stop = $true }
+    if ($name -eq 'powershell.exe' -and $cmd.IndexOf($Runner, [System.StringComparison]::OrdinalIgnoreCase) -ge 0) { $stop = $true }
+    if (-not $stop) { continue }
+    Write-Host "Stopping the previous $($proc.Name) so the site can start clean."
+    Stop-Process -Id $proc.ProcessId -Force -ErrorAction SilentlyContinue
+  }
+  Start-Sleep -Seconds 1
+}
+
 function Get-PublicIPv4 {
   $curl = Join-Path $env:SystemRoot 'System32\curl.exe'
   if (-not (Test-Path -LiteralPath $curl)) { return $null }
@@ -274,14 +318,31 @@ if ($LASTEXITCODE -ne 0) {
   Write-Host 'The certificate was not added. The site still opens, and the browser will warn until an Administrator window runs: caddy trust'
 }
 
-$nextBin = Join-Path $root 'node_modules\next\dist\bin\next'
-if (-not (Test-Path -LiteralPath $nextBin)) {
-  Write-Host 'Install dependencies first: npm install'
-  exit 1
+Test-Node22
+$runner = Join-Path $tools 'run-server.ps1'
+Stop-PreviousSite $runner $caddyConfig
+$quotedRoot = $root.Replace("'", "''")
+@"
+`$ErrorActionPreference = 'Continue'
+Set-Location -LiteralPath '$quotedRoot'
+Write-Host 'Installing dependencies...'
+npm install
+if (`$LASTEXITCODE -ne 0) {
+  Write-Host 'npm install failed. The site was not started.'
+  return
 }
-$serverCommand = "Set-Location -LiteralPath '$root'; npm run build; if (`$LASTEXITCODE -ne 0) { Write-Host 'Production build failed.'; exit `$LASTEXITCODE }; npm run start"
+Write-Host 'Building the site...'
+npm run build
+if (`$LASTEXITCODE -ne 0) {
+  Write-Host 'Production build failed. The site was not started.'
+  return
+}
+Write-Host 'Starting the site on http://127.0.0.1:3000'
+npm run start
+"@ | Set-Content -LiteralPath $runner -Encoding ascii
+$powershell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
 Start-Process -FilePath $caddy -WorkingDirectory $root -ArgumentList @('run', '--config', $caddyConfig)
-Start-Process -FilePath "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe" -WorkingDirectory $root -ArgumentList @('-NoExit', '-NoProfile', '-Command', $serverCommand)
+Start-Process -FilePath $powershell -WorkingDirectory $root -ArgumentList "-NoExit -NoProfile -ExecutionPolicy Bypass -File `"$runner`""
 $httpOpen = Enable-InboundPort 80 '4EOS HTTP'
 $httpsOpen = Enable-InboundPort 443 '4EOS HTTPS'
 if (-not $httpOpen -or -not $httpsOpen) {
@@ -300,6 +361,7 @@ if ($lanIp) {
 }
 
 Write-Host 'Opened Caddy and the 4EOS server.'
+Write-Host 'The server window installs dependencies, builds, then starts the site. Leave that window open.'
 Write-Host "Public site: https://$publicHost"
 Write-Host 'On this network:'
 if ($lanIp) { Write-Host "  https://$lanIp" }

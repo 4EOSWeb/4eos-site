@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Page } from "@/components/layout/Page";
-import { BackLink } from "@/components/ui/BackLink";
 import { Sheet } from "@/components/layout/Sheet";
+import { PageIntro, subpageColumn } from "@/components/layout/Subpage";
 import { PhaseLink } from "@/components/ui/PhaseLink";
 import { ServiceTitle } from "@/components/ui/ServiceTitle";
 import { services } from "@/lib/content";
@@ -17,18 +17,25 @@ export default function ServicesPage() {
   return (
     <Page phase="unmanaged">
       <section className="px-[var(--sheet-inset)] pb-8 pt-[6vh]">
-        <BackLink href="/" label="Home" />
-        <p className="micro mt-6 text-fg-muted">
-          <span className="field-copy">Practice</span>
-        </p>
-        <h1 className="display page-display mt-5 [text-wrap:wrap]">
-          IT, phones,
-          <br />
-          and the data center.
-        </h1>
+        <div className={subpageColumn("wide")}>
+          <PageIntro
+            field
+            backHref="/"
+            backLabel="Home"
+            eyebrow="Practice"
+            title={
+              <>
+                IT, phones,
+                <br />
+                and the data center.
+              </>
+            }
+            titleClassName="[text-wrap:wrap]"
+          />
+        </div>
       </section>
       <Sheet tone="ink">
-        <ol className="sheet-pad divide-y divide-hairline py-4">
+        <ol className={`${subpageColumn("wide")} divide-y divide-hairline py-[clamp(2rem,5vh,3.5rem)]`}>
           {services.map((s, i) => (
             <li key={s.slug}>
               <PhaseLink

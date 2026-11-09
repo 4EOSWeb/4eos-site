@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
-import { Page } from "@/components/layout/Page";
-import { BackLink } from "@/components/ui/BackLink";
-import { Sheet } from "@/components/layout/Sheet";
+import { PageIntro, SubpageShell } from "@/components/layout/Subpage";
 import { IntakeForm } from "@/components/forms/IntakeForm";
 import { addressLine, site } from "@/lib/site";
 import { hours, salesEmail } from "@/lib/content";
@@ -22,19 +20,16 @@ const routes = [
 
 export default function ContactPage() {
   return (
-    <Page phase="discovery">
-      <Sheet tone="ink" className="min-h-[calc(100svh-var(--nav-h)-var(--sheet-inset))]">
-        <div className="sheet-pad sheet-y grid gap-12 md:grid-cols-12">
+    <SubpageShell phase="discovery" width="wide">
+        <div className="grid gap-12 md:grid-cols-12">
           <div className="md:col-span-5">
-            <BackLink href="/" label="Home" />
-            <p className="micro mt-6 text-fg-faint">New client</p>
-            <h1 className="display page-display mt-5">
-              Tell us about the environment.
-            </h1>
-            <p className="lede mt-8">
-              A senior engineer follows up, not a salesperson. An existing client
-              with an issue should use Support.
-            </p>
+            <PageIntro
+              backHref="/"
+              backLabel="Home"
+              eyebrow="New client"
+              title="Tell us about the environment."
+              description="A senior engineer follows up, not a salesperson. An existing client with an issue should use Support."
+            />
             <ul className="mt-12">
               {routes.map((r) => (
                 <li key={r.label} className="border-t border-hairline py-5 last:border-b">
@@ -58,7 +53,6 @@ export default function ContactPage() {
             />
           </div>
         </div>
-      </Sheet>
-    </Page>
+    </SubpageShell>
   );
 }

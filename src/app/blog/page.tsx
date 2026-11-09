@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Page } from "@/components/layout/Page";
-import { BackLink } from "@/components/ui/BackLink";
 import { Sheet } from "@/components/layout/Sheet";
+import { PageIntro, subpageColumn } from "@/components/layout/Subpage";
 import { getPosts } from "@/lib/posts";
 import { withCanonical } from "@/lib/metadata";
 
@@ -17,16 +17,19 @@ export default function BlogIndex() {
   return (
     <Page phase="discovery">
       <section className="px-[var(--sheet-inset)] pb-8 pt-[6vh]">
-        <BackLink href="/" label="Home" />
-        <p className="micro mt-6 text-fg-muted">
-          <span className="field-copy">Journal</span>
-        </p>
-        <h1 className="display page-display mt-5 max-w-[14ch]">
-          Notes from the work.
-        </h1>
+        <div className={subpageColumn("wide")}>
+          <PageIntro
+            field
+            backHref="/"
+            backLabel="Home"
+            eyebrow="Journal"
+            title="Notes from the work."
+            titleClassName="max-w-[14ch]"
+          />
+        </div>
       </section>
       <Sheet tone="ink">
-        <ol className="sheet-pad divide-y divide-hairline py-4">
+        <ol className={`${subpageColumn("wide")} divide-y divide-hairline py-[clamp(2rem,5vh,3.5rem)]`}>
           {posts.map((post) => (
             <li key={post.slug}>
               <Link href={`/blog/${post.slug}`} className="group block py-10">

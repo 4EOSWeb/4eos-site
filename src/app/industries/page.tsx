@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { Page } from "@/components/layout/Page";
-import { BackLink } from "@/components/ui/BackLink";
 import { Sheet } from "@/components/layout/Sheet";
+import { PageIntro, subpageColumn } from "@/components/layout/Subpage";
 import { industries } from "@/lib/content";
 import { withCanonical } from "@/lib/metadata";
 
@@ -21,20 +21,27 @@ export default function IndustriesPage() {
   return (
     <Page phase="discovery">
       <section className="px-[var(--sheet-inset)] pb-8 pt-[6vh]">
-        <BackLink href="/" label="Home" />
-        <p className="micro mt-6 text-fg-muted">
-          <span className="field-copy">Industries</span>
-        </p>
-        <h1 className="display page-display mt-5 [text-wrap:wrap]">
-          We have seen
-          <br />
-          your problems
-          <br />
-          before.
-        </h1>
+        <div className={subpageColumn("wide")}>
+          <PageIntro
+            field
+            backHref="/"
+            backLabel="Home"
+            eyebrow="Industries"
+            title={
+              <>
+                We have seen
+                <br />
+                your problems
+                <br />
+                before.
+              </>
+            }
+            titleClassName="[text-wrap:wrap]"
+          />
+        </div>
       </section>
       <Sheet tone="ink">
-        <ol className="reveal-rows sheet-pad flex flex-col items-start gap-8 py-8">
+        <ol className={`${subpageColumn("wide")} reveal-rows flex flex-col items-start gap-8 py-[clamp(2rem,5vh,3.5rem)]`}>
           {industries.map((ind, i) => (
             <li key={ind.slug} className="max-w-[62ch]" style={{ "--row": i } as CSSProperties}>
               <Link

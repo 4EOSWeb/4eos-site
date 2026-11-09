@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Page } from "@/components/layout/Page";
-import { BackLink } from "@/components/ui/BackLink";
-import { Sheet } from "@/components/layout/Sheet";
+import { PageIntro, SubpageShell } from "@/components/layout/Subpage";
 import { IntakeForm } from "@/components/forms/IntakeForm";
 import { site } from "@/lib/site";
 import { hours } from "@/lib/content";
@@ -35,21 +33,19 @@ const channels = [
 
 export default function SupportPage() {
   return (
-    <Page phase="unmanaged">
-      <Sheet tone="ink">
-        <div className="sheet-pad sheet-y grid gap-12 md:grid-cols-12">
+    <SubpageShell phase="unmanaged" width="wide">
+        <div className="grid gap-12 md:grid-cols-12">
           <div className="md:col-span-5">
-            <BackLink href="/" label="Home" />
-            <p className="micro mt-6 text-fg-faint">Help desk</p>
-            <h1 className="display page-display mt-5">
-              Existing client. We already know the environment.
-            </h1>
-            <p className="lede mt-8">
-              Down completely? Call, do not email. Outages get priority.
-            </p>
+            <PageIntro
+              backHref="/"
+              backLabel="Home"
+              eyebrow="Help desk"
+              title="Existing client. We already know the environment."
+              description="Down completely? Call, do not email. Outages get priority."
+            />
             <Link
               href="/support/remote"
-              className="bar-btn bar-btn-line bar-btn-glow mt-8 inline-flex h-auto min-h-10 px-4 py-3 text-center"
+              className="bar-btn bar-btn-line bar-btn-glow mt-8 inline-flex h-auto min-h-11 px-4 py-3 text-center"
               style={{ whiteSpace: "normal" }}
             >
               Start a Remote Support Session
@@ -78,7 +74,6 @@ export default function SupportPage() {
             />
           </div>
         </div>
-      </Sheet>
-    </Page>
+    </SubpageShell>
   );
 }

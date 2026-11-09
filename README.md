@@ -26,12 +26,10 @@ npx vercel login
 npx vercel --prod
 ```
 
-Set `RESEND_API_KEY` and `INTAKE_TO` in the Vercel project so the contact and support forms actually send. Without them the route still returns 200 and logs the message.
+Contact and support forms email a ticket through SMTP. Set `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, and `SMTP_FROM` (see `.env.example`). On the Azure web app, set those same names under Configuration. Restart `next start` after changing the local file. Support goes to `INTAKE_TO`, or `helpdesk@4eos.com` when that is empty. An assessment goes to `sales@4eos.com`. The visitor's address is the reply-to. The form sends name, email, message, company, and phone. Company and phone are omitted when left blank. Without `SMTP_HOST` the form falls back to Resend when `RESEND_API_KEY` is set, and otherwise logs the message and returns 200.
 
 The private analytics page is `/analytics`. Set `ANALYTICS_USER` and `ANALYTICS_PASSWORD` in `.env`, then restart `next start`. The SQLite file is created at `data/analytics/` on that restart. Leave `COMPANY_ENRICHMENT_KEY` empty until a lookup provider is chosen. `IPINFO_TOKEN` sends the visit address to IPinfo for city, state, and network, then drops the address.
 
-Tickets are opened by a Rewst workflow, which talks to ConnectWise. Put `REWST_WEBHOOK_URL` in `.env` next to `package.json` (see `.env.example`). The value is the Core webhook trigger URL, `https://engine.rewst.io/webhooks/custom/trigger/{TriggerID}/{OrganizationID}`. Restart `next start` after changing that file. The form posts name, email, message, `request_type` (`assessment` or `support`), company, and phone. Company and phone are empty strings when left blank. The workflow sends an assessment to the sales board and a support request to the help desk board. Until the URL is set, the form only sends the email.
-
 ## Stack
 
-Next.js App Router · React Three Fiber · GSAP + Lenis · Resend · MDX
+Next.js App Router · React Three Fiber · GSAP + Lenis · SMTP · MDX

@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
 import { recordFormLead } from "@/lib/analytics/ingest";
-import { postRewstTicket, rewstWebhookUrl } from "@/lib/rewst";
 import { salesEmail } from "@/lib/content";
 import { site } from "@/lib/site";
+import { sendTicketMail, smtpReady, ticketText, type TicketInput } from "@/lib/ticket-mail";
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
@@ -42,66 +42,43 @@ export async function POST(request: Request) {
 
   const support = body.intent === "support";
   const intent = support ? "Support" : "Assessment";
-  const to = support ? (process.env.INTAKE_TO ?? site.helpdesk) : salesEmail;
-  const from = process.env.INTAKE_FROM ?? "4EOS Website <onboarding@resend.dev>";
-
-  const text = [
-    `${intent} from ${name}`,
-    `Email: ${email}`,
-    body.company ? `Company: ${body.company}` : null,
-    body.phone ? `Phone: ${body.phone}` : null,
-    body.topic ? `Topic: ${String(body.topic).slice(0, 80)}` : null,
-    "",
+  const to = support ? (process.env.INTAKE_TO?.trim() || site.helpdesk) : salesEmail;
+  const topic = body.topic ? String(body.topic).slice(0, 80) : undefined;
+  const ticket: TicketInput = {
+    intent,
+    name,
+    email,
+    company: body.company?.trim() || undefined,
+    phone: body.phone?.trim() || undefined,
+    topic,
     message,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  };
+  const text = ticketText(ticket);
 
-  const company = body.company?.trim() || undefined;
-  const phone = body.phone?.trim() || undefined;
-  const rewst = rewstWebhookUrl() !== null;
-  let ticketOk = !rewst;
-  let ticketId: string | null = null;
-  if (rewst) {
+  if (smtpReady()) {
     try {
-      const ticket = await postRewstTicket({
-        intent,
-        name,
-        email,
-        company,
-        phone,
-        message: body.topic ? `[${String(body.topic).slice(0, 80)}] ${message}` : message,
-      });
-      ticketOk = ticket.ok;
-      ticketId = ticket.ticketId;
+      const sent = await sendTicketMail(ticket, to);
+      if (!sent.ok) return NextResponse.json({ ok: false }, { status: 502 });
     } catch (error) {
-      console.error("[rewst]", error);
-      ticketOk = false;
+      console.error("[smtp]", error);
+      return NextResponse.json({ ok: false }, { status: 502 });
     }
-  }
-
-  let emailOk = !resend;
-  if (resend) {
+  } else if (resend) {
+    const from = process.env.INTAKE_FROM ?? "4EOS Website <onboarding@resend.dev>";
     const { error } = await resend.emails.send({
       from,
       to,
       replyTo: email,
-      subject: `${intent}: ${name}`,
+      subject: `${intent}: ${name}`.slice(0, 200),
       text,
     });
-    emailOk = !error;
-    if (error) console.error(error);
-  }
-
-  if (!rewst && !resend) {
+    if (error) {
+      console.error(error);
+      return NextResponse.json({ ok: false }, { status: 502 });
+    }
+  } else {
     console.log("[intake]", text);
     return NextResponse.json({ ok: true });
-  }
-  if (rewst && !ticketOk) {
-    return NextResponse.json({ ok: false }, { status: 502 });
-  }
-  if (!rewst && !emailOk) {
-    return NextResponse.json({ ok: false }, { status: 502 });
   }
 
   try {
@@ -111,5 +88,5 @@ export async function POST(request: Request) {
     console.error("[signal]", error);
   }
 
-  return NextResponse.json({ ok: true, ...(ticketId ? { ticketId } : {}) });
+  return NextResponse.json({ ok: true });
 }

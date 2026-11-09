@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Page } from "@/components/layout/Page";
 import { BackLink } from "@/components/ui/BackLink";
 import { Sheet } from "@/components/layout/Sheet";
@@ -46,14 +47,13 @@ export default function SupportPage() {
             <p className="lede mt-8">
               Down completely? Call, do not email. Outages get priority.
             </p>
-            <a
-              href="https://4eos.screenconnect.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bar-btn bar-btn-line bar-btn-glow mt-8 inline-flex"
+            <Link
+              href="/support/remote"
+              className="bar-btn bar-btn-line bar-btn-glow mt-8 inline-flex h-auto min-h-10 px-4 py-3 text-center"
+              style={{ whiteSpace: "normal" }}
             >
-              Remote support
-            </a>
+              Start a Remote Support Session
+            </Link>
             <ul className="mt-12">
               {channels.map((c) => (
                 <li key={c.label} className="border-t border-hairline py-5 last:border-b">

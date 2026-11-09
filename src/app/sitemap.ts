@@ -13,6 +13,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/about",
     "/faq",
     "/support",
+    "/support/remote",
+    "/support/remote/ninja",
     "/contact",
     "/assessment",
     "/blog",
